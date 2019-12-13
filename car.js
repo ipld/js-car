@@ -3,7 +3,6 @@ fs.createWriteStream = require('fs').createWriteStream
 const { promisify } = require('util')
 const { PassThrough, pipeline } = require('stream')
 const pipelineAsync = promisify(pipeline)
-const dagCbor = require('ipld-dag-cbor')
 const CID = require('cids')
 const multicodec = require('multicodec')
 const Block = require('@ipld/block')
@@ -154,8 +153,8 @@ async function readHeader (reader) {
   const length = await readVarint(reader)
   const header = await reader.exactly(length)
   reader.seek(length)
-  const node = dagCbor.util.deserialize(header)
-  return node
+  const block = Block.decoder(header, 'dag-cbor')
+  return block.decode()
 }
 
 async function readMultihash (reader) {
