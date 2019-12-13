@@ -1,0 +1,41 @@
+{
+  "name": "datastore-car",
+  "version": "0.0.0",
+  "description": "Content ARchive format reader and writer",
+  "main": "car.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "npx standard",
+    "test:node": "mocha test/test-*.js",
+    "test": "npm run lint && npm run test:node",
+    "docs": "npx jsdoc4readme --readme *.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rvagg/js-ds-car.git"
+  },
+  "keywords": [
+    "car",
+    "ipld",
+    "ipfs"
+  ],
+  "author": "Rod <rod@vagg.org> (http://r.va.gg/)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/rvagg/js-ds-car/issues"
+  },
+  "homepage": "https://github.com/rvagg/js-ds-car#readme",
+  "devDependencies": {
+    "bl": "^4.0.0",
+    "mocha": "^6.2.2"
+  },
+  "dependencies": {
+    "@ipld/block": "^2.1.3",
+    "cids": "^0.7.1",
+    "ipld-dag-cbor": "^0.15.0",
+    "multicodec": "^0.5.6",
+    "varint": "^5.0.0"
+  }
+}
