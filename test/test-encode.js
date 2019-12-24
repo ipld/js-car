@@ -7,7 +7,7 @@ const bl = require('bl')
 fs.readFile = promisify(fs.readFile)
 fs.unlink = promisify(fs.unlink)
 const { verifyDecoded, makeData } = require('./fixture-data')
-const Car = require('../')
+const coding = require('../lib/coding')
 
 describe('Encode', () => {
   let roots, allBlocks
@@ -29,20 +29,20 @@ describe('Encode', () => {
   after(clean)
 
   it('encodeFile', async () => {
-    await Car.encodeFile(path.join(__dirname, 'test.car'), roots, allBlocks)
-    const decoded = await Car.decodeFile(path.join(__dirname, 'test.car'))
+    await coding.encodeFile(path.join(__dirname, 'test.car'), roots, allBlocks)
+    const decoded = await coding.decodeFile(path.join(__dirname, 'test.car'))
     return verifyDecoded(decoded)
   })
 
   it('encodeBuffer', async () => {
-    const buf = await Car.encodeBuffer(roots, allBlocks)
-    const decoded = await Car.decodeBuffer(buf)
+    const buf = await coding.encodeBuffer(roots, allBlocks)
+    const decoded = await coding.decodeBuffer(buf)
     return verifyDecoded(decoded)
   })
 
   it('encodeStream', async () => {
     const stream = bl()
-    const carStream = Car.encodeStream(roots, allBlocks)
+    const carStream = coding.encodeStream(roots, allBlocks)
     carStream.pipe(stream)
     await new Promise((resolve, reject) => {
       carStream.on('finish', resolve)
@@ -50,7 +50,7 @@ describe('Encode', () => {
       stream.on('error', reject)
     })
 
-    const decoded = await Car.decodeStream(stream)
+    const decoded = await coding.decodeStream(stream)
     return verifyDecoded(decoded)
   })
 })
