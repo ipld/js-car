@@ -11,7 +11,7 @@ const cborBlocks = []
 const allBlocks = [['raw', rawBlocks.slice(0, 3)], ['pb', pbBlocks], ['cbor', cborBlocks]]
 let allBlocksFlattened
 
-const acid = new CID('bafyreih34u3kglyunorqexbllnkkejmxtvrbwivtz63iaujzf5w47nbvka')
+const acid = new CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
 
 function toCBORStruct (name, link) {
   return { name, link }
@@ -60,13 +60,15 @@ async function makeData () {
 }
 
 // TODO: delete this when not needed
-async function verifyDecoded (decoded) {
+async function verifyDecoded (decoded, singleRoot) {
   await makeData()
 
   assert.strictEqual(decoded.version, 1)
-  assert.strictEqual(decoded.roots.length, 2)
+  assert.strictEqual(decoded.roots.length, singleRoot ? 1 : 2)
   assert.strictEqual(decoded.roots[0].toString(), (await cborBlocks[0].cid()).toString())
-  assert.strictEqual(decoded.roots[1].toString(), (await cborBlocks[1].cid()).toString())
+  if (!singleRoot) {
+    assert.strictEqual(decoded.roots[1].toString(), (await cborBlocks[1].cid()).toString())
+  }
   assert.strictEqual(decoded.blocks.length, allBlocksFlattened.length)
 
   const expectedBlocks = allBlocksFlattened.slice()

@@ -73,9 +73,12 @@ describe('Read Stream', () => {
     await carDs.close()
   })
 
-  // when we instantiate from a Stream, CarDatastore should be immutable
-  it('immutable', async () => {
+  it('errors & immutability', async () => {
     const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
+    await assert.rejects(carDs.has(await allBlocks[0].cid()))
+    await assert.rejects(carDs.get(await allBlocks[0].cid()))
+
+    // when we instantiate from a Stream, CarDatastore should be immutable
     await assert.rejects(carDs.put(acid, Buffer.from('blip')))
     await assert.rejects(carDs.delete(acid, Buffer.from('blip')))
     await assert.rejects(carDs.setRoots(acid))

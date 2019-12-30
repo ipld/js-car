@@ -25,7 +25,7 @@ describe('Read File & Write Stream', () => {
     await carDs.setRoots([await cborBlocks[0].cid(), await cborBlocks[1].cid()])
     for (const block of rawBlocks.slice(0, 3).concat(pbBlocks).concat(cborBlocks)) {
       // add all but raw zzzz
-      await carDs.put(await block.cid(), await block.encode())
+      await carDs.put(await block.cid(), block.encode())
     }
     await carDs.close()
   })

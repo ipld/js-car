@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "npx standard",
-    "test:node": "mocha test/test-*.js",
+    "test:node": "hundreds mocha test/test-*.js",
     "test": "npm run lint && npm run test:node",
     "docs": "npx jsdoc4readme --readme *.js"
   },
@@ -29,6 +29,8 @@
   "homepage": "https://github.com/rvagg/js-ds-car#readme",
   "devDependencies": {
     "bl": "^4.0.0",
+    "garbage": "0.0.0",
+    "hundreds": "0.0.2",
     "mocha": "^6.2.2"
   },
   "dependencies": {

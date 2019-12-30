@@ -1,5 +1,6 @@
 /* eslint-env mocha */
 
+const assert = require('assert')
 const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
@@ -40,6 +41,12 @@ describe('Encode', () => {
     return verifyDecoded(decoded)
   })
 
+  it('encodeBuffer single root', async () => {
+    const buf = await coding.encodeBuffer(roots[0], allBlocks)
+    const decoded = await coding.decodeBuffer(buf)
+    return verifyDecoded(decoded, true)
+  })
+
   it('encodeStream', async () => {
     const stream = bl()
     const carStream = coding.encodeStream(roots, allBlocks)
@@ -52,5 +59,17 @@ describe('Encode', () => {
 
     const decoded = await coding.decodeStream(stream)
     return verifyDecoded(decoded)
+  })
+
+  it('encode errors', async () => {
+    await assert.rejects(coding.encodeBuffer(['blip'], allBlocks), {
+      name: 'TypeError',
+      message: 'Roots must be CIDs'
+    })
+
+    await assert.rejects(coding.encodeBuffer(roots, ['blip']), {
+      name: 'TypeError',
+      message: 'Block list must contain @ipld/block objects'
+    })
   })
 })
