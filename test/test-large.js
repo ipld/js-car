@@ -51,6 +51,6 @@ describe('Large CAR', () => {
   })
 
   after(async () => {
-    unlink('./test.car').catch(() => {})
+    return unlink('./test.car').catch(() => {})
   })
 })

@@ -2,7 +2,6 @@
 
 const assert = require('assert')
 const { promisify } = require('util')
-const path = require('path')
 const fs = require('fs')
 const bl = require('bl')
 fs.readFile = promisify(fs.readFile)
@@ -13,7 +12,7 @@ const coding = require('../lib/coding')
 describe('Encode', () => {
   let roots, allBlocks
 
-  const clean = () => {
+  const clean = async () => {
     return fs.unlink('test.car').catch(() => {})
   }
 
@@ -30,8 +29,8 @@ describe('Encode', () => {
   after(clean)
 
   it('encodeFile', async () => {
-    await coding.encodeFile(path.join(__dirname, 'test.car'), roots, allBlocks)
-    const decoded = await coding.decodeFile(path.join(__dirname, 'test.car'))
+    await coding.encodeFile('test.car', roots, allBlocks)
+    const decoded = await coding.decodeFile('test.car')
     return verifyDecoded(decoded)
   })
 

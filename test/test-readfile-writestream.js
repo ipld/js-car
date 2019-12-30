@@ -47,6 +47,6 @@ describe('Read File & Write Stream', () => {
   })
 
   after(async () => {
-    unlink('./test.car').catch(() => {})
+    return unlink('./test.car').catch(() => {})
   })
 })
