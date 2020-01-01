@@ -3,7 +3,7 @@
 const assert = require('assert')
 const fs = require('fs')
 const unlink = require('util').promisify(require('fs').unlink)
-const { writeStream, readFile } = require('../')
+const { writeStream, readFileComplete } = require('../')
 const { makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 
 let rawBlocks
@@ -30,8 +30,8 @@ describe('Read File & Write Stream', () => {
     await carDs.close()
   })
 
-  it('readFile', async () => {
-    const carDs = await readFile('./test.car')
+  it('readFileComplete', async () => {
+    const carDs = await readFileComplete('./test.car')
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)

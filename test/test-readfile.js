@@ -2,7 +2,7 @@
 
 const path = require('path')
 const assert = require('assert')
-const { readFile } = require('../car')
+const { readFileComplete } = require('../car')
 const { acid, makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 
 let rawBlocks
@@ -14,7 +14,7 @@ describe('Read File', () => {
   })
 
   it('read existing', async () => {
-    const carDs = await readFile(path.join(__dirname, 'go.car'))
+    const carDs = await readFileComplete(path.join(__dirname, 'go.car'))
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)
@@ -24,14 +24,14 @@ describe('Read File', () => {
 
   it('verify only roots', async () => {
     // tests deferred open for getRoots()
-    const carDs = await readFile(path.join(__dirname, 'go.car'))
+    const carDs = await readFileComplete(path.join(__dirname, 'go.car'))
     await verifyRoots(carDs)
     await carDs.close()
   })
 
   // when we instantiate from a File, CarDatastore should be immutable
   it('immutable', async () => {
-    const carDs = await readFile(path.join(__dirname, 'go.car'))
+    const carDs = await readFileComplete(path.join(__dirname, 'go.car'))
     await assert.rejects(carDs.put(acid, Buffer.from('blip')))
     await assert.rejects(carDs.delete(acid, Buffer.from('blip')))
     await assert.rejects(carDs.setRoots(acid))

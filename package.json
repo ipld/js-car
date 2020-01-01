@@ -11,7 +11,7 @@
     "lint": "npx standard",
     "test:browser": "npx polendina --cleanup test/test-readbuffer.js test/test-query.js",
     "test:node": "hundreds mocha test/test-*.js",
-    "test": "npm run lint && npm run test:node",
+    "test": "npm run lint && npm run test:node && npm run test:browser",
     "docs": "npx jsdoc4readme --readme *.js"
   },
   "repository": {

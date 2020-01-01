@@ -63,10 +63,9 @@ class CarDatastore {
    * whether you provide a native Datastore `Key` object, a `String` or a `CID`.
    * `key`s that cannot be converted will throw an error.
    *
-   * Depending on the create-mode of this CarDatastore, the entry may not be
-   * written to the CAR archive until `close()` is called and in the meantime be
-   * stored in memory. If you need to write a lot of data, ensure you are using
-   * a stream-writing create-mode.
+   * Only supported by the `CarDatastore.writeStream()` create-mode.
+   * CarDatastores constructed by other create-modes will not support `put()`
+   * and an Error will be thrown when it is called.
    * @function
    * @async
    * @memberof CarDatastore
@@ -86,15 +85,8 @@ class CarDatastore {
   /**
    * @name CarDatastore#delete
    * @description
-   * Delete a block from this archive. `key`s are converted to `CID`
-   * automatically, whether you provide a native Datastore `Key` object, a
-   * `String` or a `CID`. `key`s that cannot be converted will throw an error.
-   *
-   * If the `key` does not exist, `delete()` will silently return.
-   *
-   * This operation may not be supported in some create-modes; a write-only mode
-   * may throw an error if unsupported. Where supported, this mode is likely to
-   * result in state stored in memory until the final `close()` is called.
+   * **Currently not supported by any create-mode**. CarDatastore is currently
+   * an append-only and read-only construct.
    * @function
    * @async
    * @memberof CarDatastore
@@ -114,9 +106,9 @@ class CarDatastore {
    * The roots will be written to the comment section of the CAR archive when
    * `close()` is called, in the meantime it is stored in memory.
    *
-   * In some create-modes this operation may not be supported. In read-only
-   * modes you cannot change the roots of a CarDatastore and an error may be
-   * thrown.
+   * Only supported by the `CarDatastore.writeStream()` create-mode.
+   * CarDatastores constructed by other create-modes will not support `put()`
+   * and an Error will be thrown when it is called.
    * @function
    * @async
    * @param {string} comment an arbitrary comment to store in the CAR archive.
@@ -144,9 +136,8 @@ class CarDatastore {
    * Close this archive, free resources and write its new contents if required
    * and supported by the create-mode used.
    *
-   * If the create-mode of the current CarDatastore supports writes and a
-   * mutation operation has been called on the open archive (`put()`,
-   * `delete()`), a new CAR archive will be written with the mutated contents.
+   * This may or may not have any effect on the use of the underlying resource
+   * depending on the create-mode of the CarDatastore.
    * @function
    * @async
    */
@@ -176,6 +167,9 @@ class CarDatastore {
    * contain the keys, without needing to load the values from storage.
    *
    * The `filters` parameter is also supported as per the Datastore interface.
+   *
+   * This operation may not be supported in some create-modes; a write-only mode
+   * may throw an error if unsupported.
    * @function
    * @async
    * @generator

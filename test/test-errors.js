@@ -3,7 +3,7 @@
 const fs = require('fs').promises
 const path = require('path')
 const assert = require('assert')
-const { readBuffer, readFile, writeStream } = require('../')
+const { readBuffer, readFileComplete, writeStream } = require('../')
 const { acid, car } = require('./fixture-data')
 
 describe('Errors', () => {
@@ -54,7 +54,7 @@ describe('Errors', () => {
   it('truncated file', async () => {
     const data = await fs.readFile(path.join(__dirname, 'go.car'))
     await fs.writeFile('test.car', data.slice(0, data.length - 5))
-    await assert.rejects(readFile('test.car'), {
+    await assert.rejects(readFileComplete('test.car'), {
       name: 'Error',
       message: 'Unexpected end of file'
     })

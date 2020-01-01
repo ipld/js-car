@@ -5,13 +5,17 @@ const CarDatastore = require('./datastore')
 /**
  * @name CarDatastore.readBuffer
  * @description
- * Create a CarDatastore from a Buffer containing the contents of an existing
- * CAR archive which contains IPLD data. The CarDatastore returned will not
- * support mutation operations (`put()`, `delete()`, `setRoots()`).
+ * Read a CarDatastore from a Buffer containing the contents of an existing
+ * CAR archive. Mutation operations (`put()`, `delete()` and `setRoots()`) are
+ * not available.
  *
- * This create-mode is memory intensive as the Buffer is kept in memory while
- * this CarDatastore remains active. However, this create-mode is the only
- * mode supported in a browser environment.
+ * Because the entire CAR archive is represented in memory after being parsed,
+ * this read-mode is not suitable for large data sets. `readStreaming()` should
+ * be used instead for a streaming read supporting only `query()` for an
+ * iterative decode.
+ *
+ * However, this create-mode is currently the only mode supported in a browser
+ * environment.
  * @function
  * @memberof CarDatastore
  * @static

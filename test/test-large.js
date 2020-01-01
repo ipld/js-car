@@ -5,7 +5,7 @@ const fs = require('fs')
 const unlink = require('util').promisify(require('fs').unlink)
 const garbage = require('garbage')
 const Block = require('@ipld/block')
-const { writeStream, readFile, readStreaming } = require('../')
+const { writeStream, readFileComplete, readStreaming } = require('../')
 
 describe('Large CAR', () => {
   const objects = []
@@ -26,8 +26,8 @@ describe('Large CAR', () => {
     return carDs.close()
   })
 
-  it('readFile', async () => {
-    const carDs = await readFile('./test.car')
+  it('readFileComplete', async () => {
+    const carDs = await readFileComplete('./test.car')
     let i = 0
     for await (const { key, value } of carDs.query()) {
       assert.strictEqual(key, cids[i], `cid #${i} ${key} <> ${cids[i]}`)

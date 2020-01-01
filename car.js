@@ -5,17 +5,36 @@ const CarDatastore = require('./datastore')
 const { readBuffer } = require('./car-browser')
 
 /**
- * @name CarDatastore.readFile
+ * @name CarDatastore.readFileComplete
  * @description
- * TODO
+ * Read a CAR archive from a file and return a CarDatastore. The CarDatastore
+ * returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
+ * and `query()`. Caching makes `get()` and `has()` possible as the entire
+ * file is read and decoded before the CarDatastore is returned. mutation
+ * operations (`put()`, `delete()` and `setRoots()`) are not available as there
+ * is no ability to modify the archive.
+ *
+ * This create-mode is functionally similar to calling:
+ * `CarDatastore.readStreamComplete(fs.createReadStream(path))`
+ * However, this create-mode uses raw `fs.read()` operations to seek through
+ * the file as required rather than wrapping the consumption in a ReadableStream
+ * with its fixed chunk size. This distinction is unlikely to make a difference
+ * until a non-buffering `readFile()` create-mode is exposed.
+ *
+ * Because the entire CAR archive is represented in memory after being parsed,
+ * this create-mode is not suitable for large data sets. `readStreaming()`
+ * should be used insead for a streaming read supporting only `query()` for an
+ * iterative decode.
+ *
+ * This create-mode is not available in the browser environment.
  * @function
  * @memberof CarDatastore
  * @static
  * @async
- * @param {string} file TODO
+ * @param {string} file a path to a file containing CAR archive data.
  * @returns {CarDatastore} a read-only CarDatastore.
  */
-async function readFile (file) {
+async function readFileComplete (file) {
   const reader = await createFileReader(file)
   const writer = new NoWriter()
   return new CarDatastore(reader, writer)
@@ -24,12 +43,25 @@ async function readFile (file) {
 /**
  * @name CarDatastore.readStreamComplete
  * @description
- * TODO
+ * Read a CAR archive as a CarDataStore from a ReadableStream. The CarDatastore
+ * returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
+ * and `query()`. Caching makes `get()` and `has()` possible as the entire
+ * stream is read and decoded before the CarDatastore is returned. Mutation
+ * operations (`put()`, `delete()` and `setRoots()`) are not available as there
+ * is no ability to modify the archive.
+ *
+ * Because the entire CAR archive is represented in memory after being parsed,
+ * this create-mode is not suitable for large data sets. `readStreaming()` should
+ * be used instead for a streaming read supporting only `query()` for an
+ * iterative decode.
+ *
+ * This create-mode is not available in the browser environment.
  * @function
  * @memberof CarDatastore
  * @static
  * @async
- * @param {ReadableStream} stream TODO
+ * @param {ReadableStream} stream a ReadableStream that provides an entire CAR
+ * archive as a binary stream.
  * @returns {CarDatastore} a read-only CarDatastore.
  */
 async function readStreamComplete (stream) {
@@ -41,12 +73,28 @@ async function readStreamComplete (stream) {
 /**
  * @name CarDatastore.readStreaming
  * @description
- * TODO
+ * Read a CAR archive as a CarDataStore from a ReadableStream. The CarDatastore
+ * returned will _only_ support `getRoots()` and an iterative `query()` call.
+ * As there is no caching, individual `get()` or `has()` operations are not
+ * possible and mutation operations (`put()`, `delete()` and `setRoots()`) are
+ * not available as there is no ability to modify the archive.
+ *
+ * `readStreaming()` is an efficient create-mode, useful for reading large CAR
+ * archives without using much memory. Its support for a simple iterative
+ * `query()` method make its utility as a general Datastore very limited.
+ *
+ * `readStreamComplete()` is an alternative stream decoding create-mode that uses
+ * buffering to decode an entire stream into an in-memory representation of the
+ * CAR archive. This may be used if `get()` and `has()` operations are required
+ * and the amount of data is manageable in memory.
+ *
+ * This create-mode is not available in the browser environment.
  * @function
  * @memberof CarDatastore
  * @static
  * @async
- * @param {ReadableStream} stream TODO
+ * @param {ReadableStream} stream a ReadableStream that provides an entire CAR
+ * archive as a binary stream.
  * @returns {CarDatastore} a read-only CarDatastore.
  */
 async function readStreaming (stream) {
@@ -58,13 +106,19 @@ async function readStreaming (stream) {
 /**
  * @name CarDatastore.writeStream
  * @description
- * Create a CarDatastore that writes to a writable stream. The CarDatastore
- * returned will _only_ support append operations (`put()` and `setRoots()`, but
- * not `delete()`) and no caching will be performed, with entries written
- * directly to the provided stream.
+ * Create a CarDatastore that writes a CAR archive to a WritableStream. The
+ * CarDatastore returned will _only_ support append operations (`put()` and
+ * `setRoots()`, but not `delete()`) and no caching will be performed, with
+ * entries written directly to the provided stream.
  *
- * This is an efficient create-mode, useful for writing large amounts of data to
- * CAR archive.
+ * Because the roots are encoded in the header of a CAR file, a call to
+ * `setRoots()` must be made prior to any `put()` operation. Absent of a
+ * `setRoots()` call, the header will be encoded with an empty list of root
+ * CIDs. A call to `setRoots()` after one or more calls to `put()` will result
+ * in an Error being thrown.
+ *
+ * `writeStream()` is an efficient create-mode, useful for writing large amounts
+ * of data to CAR archive as long as the roots are known before writing.
  *
  * This create-mode is not available in a browser environment.
  * @function
@@ -81,7 +135,7 @@ async function writeStream (stream) {
 }
 
 module.exports.readBuffer = readBuffer
-module.exports.readFile = readFile
+module.exports.readFileComplete = readFileComplete
 module.exports.readStreamComplete = readStreamComplete
 module.exports.readStreaming = readStreaming
 module.exports.writeStream = writeStream
