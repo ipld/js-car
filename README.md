@@ -1,4 +1,4 @@
-# datastore-car (js-ds-car) [![Build Status](https://github.com/rvagg/js-ds-car/workflows/CI/badge.svg)](https://github.com/rvagg/js-ds-car/actions?workflow=CI)
+# datastore-car (js-datastore-car) [![Build Status](https://github.com/rvagg/js-datastore-car/workflows/CI/badge.svg)](https://github.com/rvagg/js-datastore-car/actions?workflow=CI)
 
 [![NPM](https://nodei.co/npm/datastore-car.svg)](https://nodei.co/npm/datastore-car/)
 
