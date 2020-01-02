@@ -12,7 +12,7 @@
     "test:browser": "npx polendina --cleanup test/test-readbuffer.js test/test-query.js",
     "test:node": "hundreds mocha test/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:browser",
-    "docs": "npx jsdoc4readme --readme *.js"
+    "docs": "npx jsdoc4readme --readme *.js lib/raw.js"
   },
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
     "@ipld/block": "^2.1.3",
     "cids": "^0.7.1",
     "interface-datastore": "^0.8.0",
-    "multicodec": "0.5.6",
+    "multicodec": "^1.0.0",
     "varint": "^5.0.0"
   }
 }

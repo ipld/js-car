@@ -85,6 +85,8 @@ Other create-modes may be supported in the future, such as writing to a Buffer (
  * [`async CarDatastore#getRoots()`](#CarDatastore_getRoots)
  * [`async CarDatastore#close()`](#CarDatastore_close)
  * [`async CarDatastore#query([q])`](#CarDatastore_query)
+ * [`async CarDatastore.indexer(input)`](#CarDatastore__indexer)
+ * [`async CarDatastore.readRaw(fd)`](#CarDatastore__readRaw)
 
 <a name="CarDatastore__readBuffer"></a>
 ### `async CarDatastore.readBuffer(buffer)`
@@ -339,6 +341,87 @@ may throw an error if unsupported.
 * **`q`** _(`Object`, optional)_: query parameters
 
 **Return value**  _(`AsyncIterator.<key, value>`)_
+
+<a name="CarDatastore__indexer"></a>
+### `async CarDatastore.indexer(input)`
+
+Index a CAR without decoding entire blocks. This operation is similar to
+`CarDatastore.readStreaming()` except that it _doesn't_ reutrn a CarDatastore
+and it skips over block data. It returns the array of root CIDs as well as
+an AsyncIterator that will yield index data for each block in the CAR.
+
+The index data provided by the AsyncIterator can be stored externally and
+used to read individual blocks directly from the car (using
+`CarDatastore.readRaw()`).
+
+```js
+const { indexer } = require('datastore-car')
+
+async function run () {
+  const index = await indexer('big.car')
+  index.roots = index.roots.map((cid) => cid.toString())
+  console.log('roots:', index.roots)
+  for await (const blockIndex of index.iterator) {
+    blockIndex.cid = blockIndex.cid.toString()
+    console.log('block:', blockIndex)
+  }
+}
+
+run().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
+```
+
+Might output something like:
+
+```
+roots: [
+  'bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm',
+  'bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'
+]
+block: {
+  cid: 'bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm',
+  length: 55,
+  offset: 137
+}
+block: {
+  cid: 'QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d',
+  length: 97,
+  offset: 228
+}
+block: {
+  cid: 'bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke',
+  length: 4,
+  offset: 362
+}
+...
+```
+
+**Parameters:**
+
+* **`input`** _(`string|ReadableStream`)_: either a string path name to a CAR file
+  or a ReadableStream that provides CAR archive data.
+
+**Return value**  _(`Object.<Array.<roots:CID>, iterator:AsyncIterator>`)_: an object containing a
+  `roots` array of CIDs and an `iterator` AsyncIterator that will yield
+  Objects of the form `{ cid:CID, offset:number, length:number }` indicating
+  the CID of the block located at start=`offset` with a length of `number` in
+  the CAR archive provided.
+
+<a name="CarDatastore__readRaw"></a>
+### `async CarDatastore.readRaw(fd)`
+
+Read a block directly from a CAR file given an block index provided by
+`CarDatastore.indexer()` (i.e. an object of the form:
+`{ cid:CID, offset:number, length:number }`).
+
+**Parameters:**
+
+* **`fd`** _(`number|FileHandle`)_: an open file descriptor, either an integer from
+  `fs.open()` or a `FileHandle` on `fs.promises.open()`.
+
+**Return value**  _(`Block`)_: an IPLD [Block](https://ghub.io/@ipld/block) object.
 
 ## License and Copyright
 

@@ -59,7 +59,6 @@ async function makeData () {
   }
 }
 
-// TODO: delete this when not needed
 async function verifyDecoded (decoded, singleRoot) {
   await makeData()
 

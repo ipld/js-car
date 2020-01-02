@@ -3,6 +3,7 @@ const { createStreamCompleteReader, createStreamingReader, createFileReader } = 
 const createStreamWriter = require('./lib/writer-stream')
 const CarDatastore = require('./datastore')
 const { readBuffer } = require('./car-browser')
+const { indexer, readRaw } = require('./lib/raw')
 
 /**
  * @name CarDatastore.readFileComplete
@@ -139,3 +140,5 @@ module.exports.readFileComplete = readFileComplete
 module.exports.readStreamComplete = readStreamComplete
 module.exports.readStreaming = readStreaming
 module.exports.writeStream = writeStream
+module.exports.indexer = indexer
+module.exports.readRaw = readRaw
