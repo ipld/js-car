@@ -398,6 +398,14 @@ block: {
 ...
 ```
 
+When indexing files, performance may vary when providing a file path compared
+to a ReadableStream of the same file. In the latter case all of the bytes of
+the file will be read from disk. Whereas a direct file read may be able to
+skip over much of the block data and increase indexing speed; although the
+reads use a buffer so there will be extraneous data read in the process and
+if a CAR contains only small blocks then the entire file may end up being
+read into memory.
+
 **Parameters:**
 
 * **`input`** _(`string|ReadableStream`)_: either a string path name to a CAR file
