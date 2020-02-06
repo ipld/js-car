@@ -38,6 +38,29 @@ describe('Read File & Write Stream', () => {
     await carDs.close()
   })
 
+  it('writeStream no await', async () => {
+    const roots = [await cborBlocks[0].cid(), await cborBlocks[1].cid()]
+    const blocks = []
+    for (const block of rawBlocks.slice(0, 3).concat(pbBlocks).concat(cborBlocks)) {
+      blocks.push([await block.cid(), block.encode()])
+    }
+
+    const carDs = await writeStream(fs.createWriteStream('./test.car'))
+    carDs.setRoots(roots)
+    for (const [cid, encoded] of blocks) {
+      carDs.put(cid, encoded)
+    }
+    await carDs.close()
+  })
+
+  it('readFileComplete post no-await write', async () => {
+    const carDs = await readFileComplete('./test.car')
+    await verifyHas(carDs)
+    await verifyBlocks(carDs)
+    await verifyRoots(carDs)
+    await carDs.close()
+  })
+
   it('writeStream errors', async () => {
     const carDs = await writeStream(fs.createWriteStream('./test.car'))
     await carDs.put(await cborBlocks[0].cid(), await cborBlocks[0].encode())
