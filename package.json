@@ -1,6 +1,6 @@
 {
   "name": "datastore-car",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Content ARchive format reader and writer",
   "main": "car.js",
   "browser": "car-browser.js",
