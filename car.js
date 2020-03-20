@@ -135,6 +135,23 @@ async function writeStream (stream) {
   return new CarDatastore(reader, writer)
 }
 
+async function traverseBlock (block, get, car, seen = new Set()) {
+  const cid = await block.cid()
+  await car.put(cid, block.encodeUnsafe())
+  seen.add(cid.toString('base64'))
+  const reader = block.reader()
+  for (const [, link] of reader.links()) {
+    if (seen.has(link.toString('base64'))) continue
+    await traverseBlock(await get(link), get, car, seen)
+  }
+}
+
+async function completeGraph (root, get, car) {
+  await car.setRoots([root])
+  await traverseBlock(await get(root), get, car)
+  await car.close()
+}
+
 module.exports.readBuffer = readBuffer
 module.exports.readFileComplete = readFileComplete
 module.exports.readStreamComplete = readStreamComplete
@@ -142,3 +159,4 @@ module.exports.readStreaming = readStreaming
 module.exports.writeStream = writeStream
 module.exports.indexer = indexer
 module.exports.readRaw = readRaw
+module.exports.completeGraph = completeGraph
