@@ -139,6 +139,7 @@ async function traverseBlock (block, get, car, seen = new Set()) {
   const cid = await block.cid()
   await car.put(cid, block.encodeUnsafe())
   seen.add(cid.toString('base64'))
+  if (cid.codec === 'raw') return
   const reader = block.reader()
   for (const [, link] of reader.links()) {
     if (seen.has(link.toString('base64'))) continue

@@ -14,6 +14,8 @@ const all = car => {
     const encoded = await car.get(link)
     const block = Block.create(encoded, link)
     yield block
+    const cid = await block.cid()
+    if (cid.codec === 'raw') return
     for (const [, link] of block.reader().links()) {
       if (seen.has(link.toString('base64'))) continue
       yield * _traverse(link, seen)
@@ -43,14 +45,16 @@ describe('Create car for full graph', () => {
   it('small graph', async () => {
     const leaf1 = Block.encoder({ hello: 'world' }, 'dag-cbor')
     const leaf2 = Block.encoder({ test: 1 }, 'dag-cbor')
+    const raw = Block.encoder(Buffer.from('test'), 'raw')
     const root = Block.encoder(
       {
         one: await leaf1.cid(),
         two: await leaf2.cid(),
-        three: await leaf1.cid()
+        three: await leaf1.cid(),
+        zraw: await raw.cid()
       },
       'dag-cbor')
-    const expected = [root, leaf1, leaf2]
+    const expected = [root, leaf1, leaf2, raw]
     const get = await createGet(expected)
     const stream = new PassThrough()
     const car = await writeStream(stream)
