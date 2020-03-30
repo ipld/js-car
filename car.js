@@ -135,15 +135,24 @@ async function writeStream (stream) {
   return new CarDatastore(reader, writer)
 }
 
-async function traverseBlock (block, get, car, seen = new Set()) {
+async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()) {
   const cid = await block.cid()
   await car.put(cid, block.encodeUnsafe())
   seen.add(cid.toString('base58btc'))
   if (cid.codec === 'raw') return
   const reader = block.reader()
-  for (const [, link] of reader.links()) {
-    if (seen.has(link.toString('base58btc'))) continue
-    await traverseBlock(await get(link), get, car, seen)
+  const missing = link => !seen.has(link.toString('base58btc'))
+  const links = Array.from(reader.links()).filter(missing).map((([, link]) => link))
+  while (links.length) {
+    const chunk = links.splice(0, concurrency)
+    const blocks = chunk.map(get)
+    while (chunk.length) {
+      const link = chunk.shift()
+      const block = blocks.shift()
+      if (missing(link)) {
+        await traverseBlock(await block, get, car, concurrency, seen)
+      }
+    }
   }
 }
 
