@@ -142,7 +142,7 @@ async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()
   if (cid.codec === 'raw') return
   const reader = block.reader()
   const missing = link => !seen.has(link.toString('base58btc'))
-  const links = Array.from(reader.links()).filter(missing).map((([, link]) => link))
+  const links = Array.from(reader.links()).filter(missing).map(([, link]) => link)
   while (links.length) {
     const chunk = links.splice(0, concurrency)
     const blocks = chunk.map(get)
@@ -156,9 +156,9 @@ async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()
   }
 }
 
-async function completeGraph (root, get, car) {
+async function completeGraph (root, get, car, concurrency) {
   await car.setRoots([root])
-  await traverseBlock(await get(root), get, car)
+  await traverseBlock(await get(root), get, car, concurrency)
   await car.close()
 }
 
