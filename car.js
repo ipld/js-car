@@ -138,11 +138,11 @@ async function writeStream (stream) {
 async function traverseBlock (block, get, car, seen = new Set()) {
   const cid = await block.cid()
   await car.put(cid, block.encodeUnsafe())
-  seen.add(cid.toString('base64'))
+  seen.add(cid.toString('base58btc'))
   if (cid.codec === 'raw') return
   const reader = block.reader()
   for (const [, link] of reader.links()) {
-    if (seen.has(link.toString('base64'))) continue
+    if (seen.has(link.toString('base58btc'))) continue
     await traverseBlock(await get(link), get, car, seen)
   }
 }
