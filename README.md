@@ -86,7 +86,7 @@ Other create-modes may be supported in the future, such as writing to a Buffer (
  * [`async CarDatastore#close()`](#CarDatastore_close)
  * [`async CarDatastore#query([q])`](#CarDatastore_query)
  * [`async CarDatastore.indexer(input)`](#CarDatastore__indexer)
- * [`async CarDatastore.readRaw(fd)`](#CarDatastore__readRaw)
+ * [`async CarDatastore.readRaw(fd, blockIndex)`](#CarDatastore__readRaw)
 
 <a name="CarDatastore__readBuffer"></a>
 ### `async CarDatastore.readBuffer(buffer)`
@@ -418,7 +418,7 @@ read into memory.
   the CAR archive provided.
 
 <a name="CarDatastore__readRaw"></a>
-### `async CarDatastore.readRaw(fd)`
+### `async CarDatastore.readRaw(fd, blockIndex)`
 
 Read a block directly from a CAR file given an block index provided by
 `CarDatastore.indexer()` (i.e. an object of the form:
@@ -428,6 +428,8 @@ Read a block directly from a CAR file given an block index provided by
 
 * **`fd`** _(`number|FileHandle`)_: an open file descriptor, either an integer from
   `fs.open()` or a `FileHandle` on `fs.promises.open()`.
+* **`blockIndex`** _(`Object`)_: an index object of the style provided by
+  `CarDatastore.indexer()` (`{ cid, offset, length }`).
 
 **Return value**  _(`Block`)_: an IPLD [Block](https://ghub.io/@ipld/block) object.
 
