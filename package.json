@@ -40,9 +40,9 @@
     "standard": "^14.3.4"
   },
   "dependencies": {
-    "@ipld/block": "^4.0.0",
+    "@ipld/block": "^4.0.2",
     "cids": "^0.8.0",
-    "interface-datastore": "^1.0.4",
+    "interface-datastore": "^1.0.2",
     "multicodec": "^1.0.1",
     "varint": "^5.0.0"
   }
