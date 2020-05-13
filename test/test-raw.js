@@ -6,24 +6,26 @@ const path = require('path')
 const fs = require('fs')
 fs.open = promisify(fs.open)
 fs.close = promisify(fs.close)
-const CID = require('cids')
 const { indexer, readRaw } = require('../')
 const { makeData } = require('./fixture-data')
+const multiformats = require('multiformats/basics')
+multiformats.add(require('@ipld/dag-cbor'))
+multiformats.multibase.add(require('multiformats/bases/base58'))
 
 describe('Raw', () => {
   const expectedRoots = [
-    new CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'),
-    new CID('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm')
+    new multiformats.CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'),
+    new multiformats.CID('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm')
   ]
   const expectedIndex = [
-    { cid: new CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'), length: 55, offset: 137 },
-    { cid: new CID('QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d'), length: 97, offset: 228 },
-    { cid: new CID('bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke'), length: 4, offset: 362 },
-    { cid: new CID('QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys'), length: 94, offset: 402 },
-    { cid: new CID('bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4'), length: 4, offset: 533 },
-    { cid: new CID('QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT'), length: 47, offset: 572 },
-    { cid: new CID('bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq'), length: 4, offset: 656 },
-    { cid: new CID('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'), length: 18, offset: 697 }
+    { cid: new multiformats.CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'), length: 55, offset: 137 },
+    { cid: new multiformats.CID('QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d'), length: 97, offset: 228 },
+    { cid: new multiformats.CID('bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke'), length: 4, offset: 362 },
+    { cid: new multiformats.CID('QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys'), length: 94, offset: 402 },
+    { cid: new multiformats.CID('bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4'), length: 4, offset: 533 },
+    { cid: new multiformats.CID('QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT'), length: 47, offset: 572 },
+    { cid: new multiformats.CID('bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq'), length: 4, offset: 656 },
+    { cid: new multiformats.CID('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'), length: 18, offset: 697 }
   ]
   let allBlocksFlattened
 
@@ -42,12 +44,12 @@ describe('Raw', () => {
   }
 
   it('index a CAR (stream)', async () => {
-    const index = await indexer(fs.createReadStream(path.join(__dirname, 'go.car')))
+    const index = await indexer(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
     await verifyIndex(index)
   })
 
   it('index a CAR (file)', async () => {
-    const index = await indexer(path.join(__dirname, 'go.car'))
+    const index = await indexer(multiformats, path.join(__dirname, 'go.car'))
     await verifyIndex(index)
   })
 
@@ -55,15 +57,15 @@ describe('Raw', () => {
     const expectedBlocks = allBlocksFlattened.slice()
     const expectedCids = []
     for (const block of expectedBlocks) {
-      expectedCids.push((await block.cid()).toString())
+      expectedCids.push(block.cid.toString())
     }
 
     for (const blockIndex of expectedIndex) {
       const block = await readRaw(fd, blockIndex)
-      const cid = await block.cid()
+      const cid = block.cid
       const index = expectedCids.indexOf(cid.toString())
       assert.ok(index >= 0, 'got expected block')
-      assert.strictEqual(expectedBlocks[index].encode().toString('hex'), block.encode().toString('hex'), 'got expected block content')
+      assert.strictEqual(expectedBlocks[index].binary.toString('hex'), block.binary.toString('hex'), 'got expected block content')
       expectedBlocks.splice(index, 1)
       expectedCids.splice(index, 1)
     }
@@ -83,7 +85,7 @@ describe('Raw', () => {
   })
 
   it('errors', async () => {
-    await assert.rejects(indexer(), {
+    await assert.rejects(indexer(multiformats), {
       name: 'TypeError',
       message: 'indexer() requires a file path or a ReadableStream'
     })

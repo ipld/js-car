@@ -3,6 +3,9 @@
 const assert = require('assert')
 const { readBuffer } = require('../')
 const { acid, car, makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
+const multiformats = require('multiformats/basics')
+multiformats.add(require('@ipld/dag-cbor'))
+multiformats.multibase.add(require('multiformats/bases/base58'))
 
 if (!assert.rejects) {
   // browser polyfill is incomplete
@@ -25,24 +28,24 @@ describe('Read Buffer', () => {
   })
 
   it('read existing', async () => {
-    const carDs = await readBuffer(car)
+    const carDs = await readBuffer(multiformats, car)
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)
-    await assert.rejects(carDs.get(await rawBlocks[3].cid())) // doesn't exist
+    await assert.rejects(carDs.get(rawBlocks[3].cid)) // doesn't exist
     await carDs.close()
   })
 
   it('verify only roots', async () => {
     // tests deferred open for getRoots()
-    const carDs = await readBuffer(car)
+    const carDs = await readBuffer(multiformats, car)
     await verifyRoots(carDs)
     await carDs.close()
   })
 
   // when we instantiate from a Buffer, CarDatastore should be immutable
   it('immutable', async () => {
-    const carDs = await readBuffer(car)
+    const carDs = await readBuffer(multiformats, car)
     await assert.rejects(carDs.put(acid, Buffer.from('blip')))
     await assert.rejects(carDs.delete(acid, Buffer.from('blip')))
     await assert.rejects(carDs.setRoots(acid))

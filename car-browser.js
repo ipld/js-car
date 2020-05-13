@@ -23,10 +23,10 @@ const CarDatastore = require('./datastore')
  * @param {Buffer|Uint8Array} buffer the byte contents of a CAR archive
  * @returns {CarDatastore} a read-only CarDatastore.
  */
-async function readBuffer (buffer) {
-  const reader = await createBufferReader(buffer)
+async function readBuffer (multiformats, buffer) {
+  const reader = await createBufferReader(multiformats, buffer)
   const writer = new NoWriter()
-  return new CarDatastore(reader, writer)
+  return new CarDatastore(multiformats, reader, writer)
 }
 
 module.exports.readBuffer = readBuffer

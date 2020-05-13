@@ -1,54 +1,71 @@
 const assert = require('assert')
-
+const { DAGNode, DAGLink, util: pbUtil } = require('ipld-dag-pb')
+// TODO: remove this
+const { serialize: dagCborSerialize, cid: dagCborCid } = require('ipld-dag-cbor').util
+// TODO: remove this
 const CID = require('cids')
-const Block = require('@ipld/block')
-const { DAGNode, DAGLink } = require('ipld-dag-pb')
-const pbUtil = require('ipld-dag-pb').util
+const multiformats = require('multiformats/basics')
+multiformats.add(require('@ipld/dag-cbor'))
 
-const rawBlocks = 'aaaa bbbb cccc zzzz'.split(' ').map((s) => Block.encoder(Buffer.from(s), 'raw'))
+let rawBlocks
 const pbBlocks = []
 const cborBlocks = []
-const allBlocks = [['raw', rawBlocks.slice(0, 3)], ['pb', pbBlocks], ['cbor', cborBlocks]]
+let allBlocks
 let allBlocksFlattened
 
-const acid = new CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
+const acid = new multiformats.CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
 
 function toCBORStruct (name, link) {
   return { name, link }
 }
 
-async function toBlock (pnd) {
-  const buf = pbUtil.serialize(pnd)
-  const cid = await pbUtil.cid(buf, { cidVersion: 0 })
-  return Block.create(buf, cid)
+async function toPbBlock (pnd) {
+  const binary = pbUtil.serialize(pnd)
+  const cid = new multiformats.CID((await pbUtil.cid(binary, { cidVersion: 0 })).toString())
+  return { cid, binary }
+}
+
+async function toCborBlock (cb) {
+  const binary = dagCborSerialize(cb)
+  const cid = new multiformats.CID((await dagCborCid(binary)).toString())
+  return { cid, binary }
+}
+
+async function toRawBlock (binary) {
+  const mh = await multiformats.multihash.hash(binary, 'sha2-256')
+  const cid = new multiformats.CID(1, multiformats.get('raw').code, mh)
+  return { cid, binary }
 }
 
 async function makeData () {
-  if (!pbBlocks.length) {
+  if (!rawBlocks) {
+    rawBlocks = await Promise.all('aaaa bbbb cccc zzzz'.split(' ').map((s) => toRawBlock(Buffer.from(s))))
+
     const pnd1 = new DAGNode(null, [
-      new DAGLink('cat', await (rawBlocks[0].encode()).byteLength, await rawBlocks[0].cid())
+      new DAGLink('cat', rawBlocks[0].binary.byteLength, new CID(rawBlocks[0].cid.toString()))
     ])
-    pbBlocks.push(await toBlock(pnd1))
+    pbBlocks.push(await toPbBlock(pnd1))
 
     const pnd2 = new DAGNode(null, [
-      new DAGLink('dog', await (rawBlocks[1].encode()).byteLength, await rawBlocks[1].cid()),
-      new DAGLink('first', pnd1.size, await pbBlocks[0].cid())
+      new DAGLink('dog', rawBlocks[1].binary.byteLength, new CID(rawBlocks[1].cid.toString())),
+      new DAGLink('first', pnd1.size, new CID(pbBlocks[0].cid.toString()).toString())
     ])
-    pbBlocks.push(await toBlock(pnd2))
+    pbBlocks.push(await toPbBlock(pnd2))
 
     const pnd3 = new DAGNode(null, [
-      new DAGLink('bear', await (rawBlocks[2].encode()).byteLength, await rawBlocks[2].cid()),
-      new DAGLink('second', pnd2.size, await pbBlocks[1].cid())
+      new DAGLink('bear', rawBlocks[2].binary.byteLength, new CID(rawBlocks[2].cid.toString())),
+      new DAGLink('second', pnd2.size, new CID(pbBlocks[1].cid.toString()))
     ])
-    pbBlocks.push(await toBlock(pnd3))
+    pbBlocks.push(await toPbBlock(pnd3))
 
-    const cbstructs = [toCBORStruct('blip', await pbBlocks[2].cid()), toCBORStruct('limbo', null)]
+    const cbstructs = [toCBORStruct('blip', pbBlocks[2].cid), toCBORStruct('limbo', null)]
     for (const b of cbstructs) {
-      cborBlocks.push(Block.encoder(b, 'dag-cbor'))
+      cborBlocks.push(await toCborBlock(b))
     }
-  }
 
-  allBlocksFlattened = allBlocks.reduce((p, c) => p.concat(c[1]), [])
+    allBlocks = [['raw', rawBlocks.slice(0, 3)], ['pb', pbBlocks], ['cbor', cborBlocks]]
+    allBlocksFlattened = allBlocks.reduce((p, c) => p.concat(c[1]), [])
+  }
 
   return {
     rawBlocks,
@@ -64,23 +81,23 @@ async function verifyDecoded (decoded, singleRoot) {
 
   assert.strictEqual(decoded.version, 1)
   assert.strictEqual(decoded.roots.length, singleRoot ? 1 : 2)
-  assert.strictEqual(decoded.roots[0].toString(), (await cborBlocks[0].cid()).toString())
+  assert.strictEqual(decoded.roots[0].toString(), cborBlocks[0].cid.toString())
   if (!singleRoot) {
-    assert.strictEqual(decoded.roots[1].toString(), (await cborBlocks[1].cid()).toString())
+    assert.strictEqual(decoded.roots[1].toString(), cborBlocks[1].cid.toString())
   }
   assert.strictEqual(decoded.blocks.length, allBlocksFlattened.length)
 
   const expectedBlocks = allBlocksFlattened.slice()
   const expectedCids = []
   for (const block of expectedBlocks) {
-    expectedCids.push((await block.cid()).toString())
+    expectedCids.push(block.cid.toString())
   }
 
   for (const block of decoded.blocks) {
-    const cid = await block.cid()
+    const cid = block.cid
     const index = expectedCids.indexOf(cid.toString())
     assert.ok(index >= 0, 'got expected block')
-    assert.strictEqual(expectedBlocks[index].encode().toString('hex'), block.encode().toString('hex'), 'got expected block content')
+    assert.strictEqual(expectedBlocks[index].binary.toString('hex'), block.binary.toString('hex'), 'got expected block content')
     expectedBlocks.splice(index, 1)
     expectedCids.splice(index, 1)
   }
@@ -101,19 +118,19 @@ async function verifyHas (carDs, modified) {
     for (let i = 0; i < blocks.length; i++) {
       if (modified && i === 1) {
         // second of each type is removed from modified
-        await verifyHasnt(await blocks[i].cid(), `block #${i} (${type} / ${await blocks[i].cid()})`)
+        await verifyHasnt(blocks[i].cid, `block #${i} (${type} / ${blocks[i].cid})`)
       } else {
-        await verifyHas(await blocks[i].cid(), `block #${i} (${type} / ${await blocks[i].cid()})`)
+        await verifyHas(blocks[i].cid, `block #${i} (${type} / ${blocks[i].cid})`)
       }
     }
 
     if (modified && type === 'raw') {
-      await verifyHas(await rawBlocks[3].cid(), `block #3 (${type})`) // zzzz
+      await verifyHas(rawBlocks[3].cid, `block #3 (${type})`) // zzzz
     }
   }
 
   // not a block we have
-  await verifyHasnt(await Block.encoder(Buffer.from('dddd'), 'raw').cid(), 'dddd')
+  await verifyHasnt((await toRawBlock(Buffer.from('dddd'))).cid, 'dddd')
 }
 
 function compareBlockData (actual, expected, id) {
@@ -122,10 +139,10 @@ function compareBlockData (actual, expected, id) {
 
 async function verifyBlocks (carDs, modified) {
   async function verifyBlock (block, index, type) {
-    const expected = await block.encode()
+    const expected = block.binary
     let actual
     try {
-      actual = await carDs.get(await block.cid())
+      actual = await carDs.get(block.cid)
     } catch (err) {
       assert.ifError(err, `get block length #${index} (${type})`)
     }
@@ -137,7 +154,7 @@ async function verifyBlocks (carDs, modified) {
       const block = blocks[i]
 
       if (modified && i === 1) {
-        await assert.rejects(carDs.get(await block.cid()), {
+        await assert.rejects(carDs.get(block.cid), {
           name: 'Error',
           message: 'Not Found'
         })
@@ -154,8 +171,8 @@ async function verifyBlocks (carDs, modified) {
 }
 
 async function verifyRoots (carDs, modified) {
-  // const expected = await cborBlocks[modified ? 1 : 2].cid()
-  const expected = [await cborBlocks[0].cid(), await cborBlocks[1].cid()]
+  // const expected = cborBlocks[modified ? 1 : 2].cid
+  const expected = [cborBlocks[0].cid, cborBlocks[1].cid]
   assert.deepStrictEqual(await carDs.getRoots(), expected)
 }
 

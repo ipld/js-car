@@ -9,7 +9,8 @@ const { toKey } = require('./lib/util')
  * @class
  */
 class CarDatastore {
-  constructor (reader, writer) {
+  constructor (multiformats, reader, writer) {
+    this._multiformats = multiformats
     this._reader = reader
     this._writer = writer
   }
@@ -31,7 +32,7 @@ class CarDatastore {
    * @return {Buffer} the IPLD block data referenced by the CID.
    */
   async get (key) {
-    key = toKey(key, 'get')
+    key = toKey(this._multiformats, key, 'get')
     return this._reader.get(key)
   }
 
@@ -52,7 +53,7 @@ class CarDatastore {
    * @return {boolean} indicating whether the key exists in this Datastore.
    */
   async has (key) {
-    key = toKey(key, 'has')
+    key = toKey(this._multiformats, key, 'has')
     return this._reader.has(key)
   }
 
@@ -75,7 +76,7 @@ class CarDatastore {
    * `CID`.
    */
   async put (key, value) {
-    key = toKey(key, 'put')
+    key = toKey(this._multiformats, key, 'put')
     if (!(value instanceof Uint8Array)) {
       throw new TypeError('put() can only receive Uint8Arrays or Buffers')
     }
@@ -94,7 +95,7 @@ class CarDatastore {
    * the block.
    */
   async delete (key) {
-    key = toKey(key, 'delete')
+    key = toKey(this._multiformats, key, 'delete')
     return this._writer.delete(key)
   }
 

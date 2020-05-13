@@ -35,10 +35,10 @@ const { indexer, readRaw } = require('./lib/raw')
  * @param {string} file a path to a file containing CAR archive data.
  * @returns {CarDatastore} a read-only CarDatastore.
  */
-async function readFileComplete (file) {
-  const reader = await createFileReader(file)
+async function readFileComplete (multiformats, file) {
+  const reader = await createFileReader(multiformats, file)
   const writer = new NoWriter()
-  return new CarDatastore(reader, writer)
+  return new CarDatastore(multiformats, reader, writer)
 }
 
 /**
@@ -65,10 +65,10 @@ async function readFileComplete (file) {
  * archive as a binary stream.
  * @returns {CarDatastore} a read-only CarDatastore.
  */
-async function readStreamComplete (stream) {
-  const reader = await createStreamCompleteReader(stream)
+async function readStreamComplete (multiformats, stream) {
+  const reader = await createStreamCompleteReader(multiformats, stream)
   const writer = new NoWriter()
-  return new CarDatastore(reader, writer)
+  return new CarDatastore(multiformats, reader, writer)
 }
 
 /**
@@ -98,10 +98,10 @@ async function readStreamComplete (stream) {
  * archive as a binary stream.
  * @returns {CarDatastore} a read-only CarDatastore.
  */
-async function readStreaming (stream) {
-  const reader = await createStreamingReader(stream)
+async function readStreaming (multiformats, stream) {
+  const reader = await createStreamingReader(multiformats, stream)
   const writer = new NoWriter()
-  return new CarDatastore(reader, writer)
+  return new CarDatastore(multiformats, reader, writer)
 }
 
 /**
@@ -129,10 +129,10 @@ async function readStreaming (stream) {
  * @param {WritableStream} stream a writable stream
  * @returns {CarDatastore} an append-only, streaming CarDatastore.
  */
-async function writeStream (stream) {
+async function writeStream (multiformats, stream) {
   const reader = new Reader()
-  const writer = await createStreamWriter(stream)
-  return new CarDatastore(reader, writer)
+  const writer = await createStreamWriter(multiformats, stream)
+  return new CarDatastore(multiformats, reader, writer)
 }
 
 async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()) {

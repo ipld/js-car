@@ -5,6 +5,9 @@ const path = require('path')
 const assert = require('assert')
 const { readStreaming } = require('../car')
 const { acid, makeData, compareBlockData, verifyRoots } = require('./fixture-data')
+const multiformats = require('multiformats/basics')
+multiformats.add(require('@ipld/dag-cbor'))
+multiformats.multibase.add(require('multiformats/bases/base58'))
 
 describe('Read Stream', () => {
   let allBlocks
@@ -17,10 +20,10 @@ describe('Read Stream', () => {
     const blocks_ = allBlocks.slice()
     const cids = []
     for (const block of blocks_) {
-      cids.push((await block.cid()).toString())
+      cids.push(block.cid.toString())
     }
 
-    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
+    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
 
     let i = 0
     for await (const entry of carDs.query()) {
@@ -29,7 +32,7 @@ describe('Read Stream', () => {
       if (foundIndex < 0) {
         assert.fail(`Unexpected CID/key found: ${entry.key}`)
       }
-      compareBlockData(entry.value, blocks_[foundIndex].encode(), `#${i++}`)
+      compareBlockData(entry.value, blocks_[foundIndex].binary, `#${i++}`)
       cids.splice(foundIndex, 1)
       blocks_.splice(foundIndex, 1)
     }
@@ -45,10 +48,10 @@ describe('Read Stream', () => {
     const blocks_ = allBlocks.slice()
     const cids = []
     for (const block of blocks_) {
-      cids.push((await block.cid()).toString())
+      cids.push(await block.cid.toString())
     }
 
-    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
+    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
 
     // test before
     await verifyRoots(carDs)
@@ -68,15 +71,15 @@ describe('Read Stream', () => {
   })
 
   it('verify only roots', async () => {
-    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
+    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
     await verifyRoots(carDs)
     await carDs.close()
   })
 
   it('errors & immutability', async () => {
-    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
-    await assert.rejects(carDs.has(await allBlocks[0].cid()))
-    await assert.rejects(carDs.get(await allBlocks[0].cid()))
+    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
+    await assert.rejects(carDs.has(allBlocks[0].cid))
+    await assert.rejects(carDs.get(allBlocks[0].cid))
 
     // when we instantiate from a Stream, CarDatastore should be immutable
     await assert.rejects(carDs.put(acid, Buffer.from('blip')))
