@@ -4,24 +4,23 @@ const assert = require('assert')
 const fs = require('fs')
 const unlink = require('util').promisify(require('fs').unlink)
 const garbage = require('garbage')
-// TODO: removeme
-const { serialize: dagCborSerialize, deserialize: dagCborDeserialize, cid: dagCborCid } = require('ipld-dag-cbor').util
-const { writeStream, readFileComplete, readStreaming } = require('../')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
+const { writeStream, readFileComplete, readStreaming } = require('../')(multiformats)
 
 describe('Large CAR', () => {
   const objects = []
   const cids = []
 
   it('create, no roots', async () => {
-    const carDs = await writeStream(multiformats, fs.createWriteStream('./test.car'))
+    const carDs = await writeStream(fs.createWriteStream('./test.car'))
 
     for (let i = 0; i < 500; i++) {
       const obj = garbage.object(1000)
       objects.push(obj)
-      const binary = dagCborSerialize(obj)
-      const cid = new multiformats.CID((await dagCborCid(binary)).toString())
+      const binary = await multiformats.encode(obj, 'dag-cbor')
+      const mh = await multiformats.multihash.hash(binary, 'sha2-256')
+      const cid = new multiformats.CID(1, multiformats.get('dag-cbor').code, mh)
       cids.push(cid.toString())
       await carDs.put(cid, binary)
     }
@@ -30,11 +29,11 @@ describe('Large CAR', () => {
   })
 
   it('readFileComplete', async () => {
-    const carDs = await readFileComplete(multiformats, './test.car')
+    const carDs = await readFileComplete('./test.car')
     let i = 0
     for await (const { key, value } of carDs.query()) {
       assert.strictEqual(key, cids[i], `cid #${i} ${key} <> ${cids[i]}`)
-      const obj = dagCborDeserialize(value)
+      const obj = await multiformats.decode(value, 'dag-cbor')
       assert.deepStrictEqual(obj, objects[i], `object #${i}`)
       i++
     }
@@ -43,11 +42,11 @@ describe('Large CAR', () => {
   })
 
   it('readStream', async () => {
-    const carDs = await readStreaming(multiformats, fs.createReadStream('./test.car'))
+    const carDs = await readStreaming(fs.createReadStream('./test.car'))
     let i = 0
     for await (const { key, value } of carDs.query()) {
       assert.strictEqual(key, cids[i], `cid #${i} ${key} <> ${cids[i]}`)
-      const obj = dagCborDeserialize(value)
+      const obj = await multiformats.decode(value, 'dag-cbor')
       assert.deepStrictEqual(obj, objects[i], `object #${i}`)
       i++
     }

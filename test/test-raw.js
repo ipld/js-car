@@ -6,11 +6,11 @@ const path = require('path')
 const fs = require('fs')
 fs.open = promisify(fs.open)
 fs.close = promisify(fs.close)
-const { indexer, readRaw } = require('../')
-const { makeData } = require('./fixture-data')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
 multiformats.multibase.add(require('multiformats/bases/base58'))
+const { indexer, readRaw } = require('../')(multiformats)
+const { makeData } = require('./fixture-data')
 
 describe('Raw', () => {
   const expectedRoots = [
@@ -44,12 +44,12 @@ describe('Raw', () => {
   }
 
   it('index a CAR (stream)', async () => {
-    const index = await indexer(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
+    const index = await indexer(fs.createReadStream(path.join(__dirname, 'go.car')))
     await verifyIndex(index)
   })
 
   it('index a CAR (file)', async () => {
-    const index = await indexer(multiformats, path.join(__dirname, 'go.car'))
+    const index = await indexer(path.join(__dirname, 'go.car'))
     await verifyIndex(index)
   })
 
@@ -65,7 +65,10 @@ describe('Raw', () => {
       const cid = block.cid
       const index = expectedCids.indexOf(cid.toString())
       assert.ok(index >= 0, 'got expected block')
-      assert.strictEqual(expectedBlocks[index].binary.toString('hex'), block.binary.toString('hex'), 'got expected block content')
+      assert.strictEqual(
+        Buffer.from(expectedBlocks[index].binary).toString('hex'),
+        Buffer.from(block.binary).toString('hex'),
+        'got expected block content')
       expectedBlocks.splice(index, 1)
       expectedCids.splice(index, 1)
     }
@@ -85,7 +88,7 @@ describe('Raw', () => {
   })
 
   it('errors', async () => {
-    await assert.rejects(indexer(multiformats), {
+    await assert.rejects(indexer(), {
       name: 'TypeError',
       message: 'indexer() requires a file path or a ReadableStream'
     })

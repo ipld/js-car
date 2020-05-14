@@ -6,10 +6,10 @@ const fs = require('fs')
 const bl = require('bl')
 fs.readFile = promisify(fs.readFile)
 fs.unlink = promisify(fs.unlink)
-const { verifyDecoded, makeData } = require('./fixture-data')
-const coding = require('../lib/coding')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
+const { verifyDecoded, makeData } = require('./fixture-data')
+const coding = require('../lib/coding')
 
 describe('Encode', () => {
   let roots, allBlocks

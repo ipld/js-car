@@ -5,10 +5,10 @@ const { promisify } = require('util')
 const path = require('path')
 const fs = require('fs')
 fs.readFile = promisify(fs.readFile)
-const { makeData, verifyDecoded } = require('./fixture-data')
-const coding = require('../lib/coding')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
+const { makeData, verifyDecoded } = require('./fixture-data')
+const coding = require('../lib/coding')
 
 describe('Decode', () => {
   before(makeData)

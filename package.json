@@ -45,8 +45,7 @@
   },
   "dependencies": {
     "interface-datastore": "^1.0.2",
-    "ipld-dag-cbor": "^0.15.2",
-    "multiformats": "0.0.2",
+    "multiformats": "github:rvagg/js-multiformats#rvagg/non-enumerable-basecache",
     "varint": "^5.0.0"
   }
 }

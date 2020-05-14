@@ -135,6 +135,7 @@ async function writeStream (multiformats, stream) {
   return new CarDatastore(multiformats, reader, writer)
 }
 
+<<<<<<< HEAD
 async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()) {
   const cid = await block.cid()
   await car.put(cid, block.encodeUnsafe())
@@ -184,11 +185,21 @@ async function completeGraph (root, get, car, concurrency) {
   await car.close()
 }
 
-module.exports.readBuffer = readBuffer
-module.exports.readFileComplete = readFileComplete
-module.exports.readStreamComplete = readStreamComplete
-module.exports.readStreaming = readStreaming
-module.exports.writeStream = writeStream
-module.exports.indexer = indexer
-module.exports.readRaw = readRaw
-module.exports.completeGraph = completeGraph
+module.exports = (multiformats) => {
+  function wrap (fn) {
+    return function (...args) {
+      return fn(multiformats, ...args)
+    }
+  }
+
+  return {
+    readBuffer: wrap(readBuffer),
+    readFileComplete: wrap(readFileComplete),
+    readStreamComplete: wrap(readStreamComplete),
+    readStreaming: wrap(readStreaming),
+    writeStream: wrap(writeStream),
+    indexer: wrap(indexer),
+    readRaw,
+    completeGraph
+  }
+}

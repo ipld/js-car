@@ -3,11 +3,11 @@
 const fs = require('fs')
 const path = require('path')
 const assert = require('assert')
-const { readStreaming } = require('../car')
-const { acid, makeData, compareBlockData, verifyRoots } = require('./fixture-data')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
 multiformats.multibase.add(require('multiformats/bases/base58'))
+const { readStreaming } = require('../')(multiformats)
+const { acid, makeData, compareBlockData, verifyRoots } = require('./fixture-data')
 
 describe('Read Stream', () => {
   let allBlocks
@@ -23,7 +23,7 @@ describe('Read Stream', () => {
       cids.push(block.cid.toString())
     }
 
-    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
+    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
 
     let i = 0
     for await (const entry of carDs.query()) {
@@ -51,7 +51,7 @@ describe('Read Stream', () => {
       cids.push(await block.cid.toString())
     }
 
-    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
+    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
 
     // test before
     await verifyRoots(carDs)
@@ -71,13 +71,13 @@ describe('Read Stream', () => {
   })
 
   it('verify only roots', async () => {
-    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
+    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
     await verifyRoots(carDs)
     await carDs.close()
   })
 
   it('errors & immutability', async () => {
-    const carDs = await readStreaming(multiformats, fs.createReadStream(path.join(__dirname, 'go.car')))
+    const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
     await assert.rejects(carDs.has(allBlocks[0].cid))
     await assert.rejects(carDs.get(allBlocks[0].cid))
 

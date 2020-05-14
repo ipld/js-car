@@ -3,11 +3,11 @@
 const assert = require('assert')
 const fs = require('fs')
 const unlink = require('util').promisify(require('fs').unlink)
-const { writeStream, readFileComplete } = require('../')
-const { makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
 multiformats.multibase.add(require('multiformats/bases/base58'))
+const { writeStream, readFileComplete } = require('../')(multiformats)
+const { makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 
 let rawBlocks
 let pbBlocks
@@ -24,7 +24,7 @@ describe('Read File & Write Stream', () => {
   })
 
   it('writeStream', async () => {
-    const carDs = await writeStream(multiformats, fs.createWriteStream('./test.car'))
+    const carDs = await writeStream(fs.createWriteStream('./test.car'))
     await carDs.setRoots([cborBlocks[0].cid, cborBlocks[1].cid])
     for (const block of rawBlocks.slice(0, 3).concat(pbBlocks).concat(cborBlocks)) {
       // add all but raw zzzz
@@ -34,7 +34,7 @@ describe('Read File & Write Stream', () => {
   })
 
   it('readFileComplete', async () => {
-    const carDs = await readFileComplete(multiformats, './test.car')
+    const carDs = await readFileComplete('./test.car')
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)
@@ -48,7 +48,7 @@ describe('Read File & Write Stream', () => {
       blocks.push([block.cid, block.binary])
     }
 
-    const carDs = await writeStream(multiformats, fs.createWriteStream('./test.car'))
+    const carDs = await writeStream(fs.createWriteStream('./test.car'))
     carDs.setRoots(roots)
     for (const [cid, encoded] of blocks) {
       carDs.put(cid, encoded)
@@ -57,7 +57,7 @@ describe('Read File & Write Stream', () => {
   })
 
   it('readFileComplete post no-await write', async () => {
-    const carDs = await readFileComplete(multiformats, './test.car')
+    const carDs = await readFileComplete('./test.car')
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)
@@ -65,7 +65,7 @@ describe('Read File & Write Stream', () => {
   })
 
   it('writeStream errors', async () => {
-    const carDs = await writeStream(multiformats, fs.createWriteStream('./test.car'))
+    const carDs = await writeStream(fs.createWriteStream('./test.car'))
     await carDs.put(cborBlocks[0].cid, cborBlocks[0].binary)
     await assert.rejects(carDs.delete(cborBlocks[0].cid))
     await carDs.close()

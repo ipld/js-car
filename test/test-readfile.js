@@ -2,11 +2,11 @@
 
 const path = require('path')
 const assert = require('assert')
-const { readFileComplete } = require('../car')
-const { acid, makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
 multiformats.multibase.add(require('multiformats/bases/base58'))
+const { readFileComplete } = require('../car')(multiformats)
+const { acid, makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 
 let rawBlocks
 
@@ -17,7 +17,7 @@ describe('Read File', () => {
   })
 
   it('read existing', async () => {
-    const carDs = await readFileComplete(multiformats, path.join(__dirname, 'go.car'))
+    const carDs = await readFileComplete(path.join(__dirname, 'go.car'))
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)
@@ -27,14 +27,14 @@ describe('Read File', () => {
 
   it('verify only roots', async () => {
     // tests deferred open for getRoots()
-    const carDs = await readFileComplete(multiformats, path.join(__dirname, 'go.car'))
+    const carDs = await readFileComplete(path.join(__dirname, 'go.car'))
     await verifyRoots(carDs)
     await carDs.close()
   })
 
   // when we instantiate from a File, CarDatastore should be immutable
   it('immutable', async () => {
-    const carDs = await readFileComplete(multiformats, path.join(__dirname, 'go.car'))
+    const carDs = await readFileComplete(path.join(__dirname, 'go.car'))
     await assert.rejects(carDs.put(acid, Buffer.from('blip')))
     await assert.rejects(carDs.delete(acid, Buffer.from('blip')))
     await assert.rejects(carDs.setRoots(acid))

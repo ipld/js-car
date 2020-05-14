@@ -1,11 +1,10 @@
 const assert = require('assert')
 const { DAGNode, DAGLink, util: pbUtil } = require('ipld-dag-pb')
 // TODO: remove this
-const { serialize: dagCborSerialize, cid: dagCborCid } = require('ipld-dag-cbor').util
-// TODO: remove this
 const CID = require('cids')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
+multiformats.multibase.add(require('multiformats/bases/base58'))
 
 let rawBlocks
 const pbBlocks = []
@@ -26,8 +25,9 @@ async function toPbBlock (pnd) {
 }
 
 async function toCborBlock (cb) {
-  const binary = dagCborSerialize(cb)
-  const cid = new multiformats.CID((await dagCborCid(binary)).toString())
+  const binary = await multiformats.encode(cb, 'dag-cbor')
+  const mh = await multiformats.multihash.hash(binary, 'sha2-256')
+  const cid = new multiformats.CID(1, multiformats.get('dag-cbor').code, mh)
   return { cid, binary }
 }
 
@@ -97,7 +97,10 @@ async function verifyDecoded (decoded, singleRoot) {
     const cid = block.cid
     const index = expectedCids.indexOf(cid.toString())
     assert.ok(index >= 0, 'got expected block')
-    assert.strictEqual(expectedBlocks[index].binary.toString('hex'), block.binary.toString('hex'), 'got expected block content')
+    assert.strictEqual(
+      Buffer.from(expectedBlocks[index].binary).toString('hex'),
+      Buffer.from(block.binary).toString('hex'),
+      'got expected block content')
     expectedBlocks.splice(index, 1)
     expectedCids.splice(index, 1)
   }

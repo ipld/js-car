@@ -2,11 +2,11 @@
 
 const assert = require('assert')
 const path = require('path')
-const { readBuffer, readFile } = require('../')
-const { car, makeData, compareBlockData } = require('./fixture-data')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
 multiformats.multibase.add(require('multiformats/bases/base58'))
+const { readBuffer, readFile } = require('../')(multiformats)
+const { car, makeData, compareBlockData } = require('./fixture-data')
 
 if (!assert.rejects) {
   // browser polyfill is incomplete
@@ -20,9 +20,9 @@ if (!assert.rejects) {
   }
 }
 
-const factories = [['readBuffer', () => readBuffer(multiformats, car)]]
+const factories = [['readBuffer', () => readBuffer(car)]]
 if (readFile) { // not in browser
-  factories.push(['readFile', () => readFile(multiformats, path.join(__dirname, 'go.car'))])
+  factories.push(['readFile', () => readFile(path.join(__dirname, 'go.car'))])
 }
 
 for (const [factoryName, factoryFn] of factories) {
