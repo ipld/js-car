@@ -174,9 +174,10 @@ async function verifyBlocks (carDs, modified) {
 }
 
 async function verifyRoots (carDs, modified) {
-  // const expected = cborBlocks[modified ? 1 : 2].cid
-  const expected = [cborBlocks[0].cid, cborBlocks[1].cid]
-  assert.deepStrictEqual(await carDs.getRoots(), expected)
+  // using toString() for now, backing buffers in Uint8Arrays are getting in the way
+  // in the browser
+  const expected = [cborBlocks[0].cid.toString(), cborBlocks[1].cid.toString()]
+  assert.deepStrictEqual((await carDs.getRoots()).map((c) => c.toString()), expected)
 }
 
 module.exports.makeData = makeData

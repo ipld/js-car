@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 
+const assert = require('assert')
 const fs = require('fs')
 const path = require('path')
-const assert = require('assert')
 const multiformats = require('multiformats/basics')
 multiformats.add(require('@ipld/dag-cbor'))
 multiformats.multibase.add(require('multiformats/bases/base58'))

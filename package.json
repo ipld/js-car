@@ -32,6 +32,7 @@
   "homepage": "https://github.com/rvagg/js-datastore-car#readme",
   "devDependencies": {
     "@ipld/dag-cbor": "github:ipld/js-dag-cbor#multiformats",
+    "assert": "^2.0.0",
     "bl": "^4.0.2",
     "cids": "^0.8.0",
     "garbage": "0.0.0",

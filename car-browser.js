@@ -29,4 +29,15 @@ async function readBuffer (multiformats, buffer) {
   return new CarDatastore(multiformats, reader, writer)
 }
 
+module.exports = (multiformats) => {
+  function wrap (fn) {
+    return function (...args) {
+      return fn(multiformats, ...args)
+    }
+  }
+
+  return {
+    readBuffer: wrap(readBuffer)
+  }
+}
 module.exports.readBuffer = readBuffer

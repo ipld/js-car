@@ -2,7 +2,7 @@ const { Reader, NoWriter } = require('./lib/reader-writer-iface')
 const { createStreamCompleteReader, createStreamingReader, createFileReader } = require('./lib/reader')
 const createStreamWriter = require('./lib/writer-stream')
 const CarDatastore = require('./datastore')
-const { readBuffer } = require('./car-browser')
+const browser = require('./car-browser')
 const { indexer, readRaw } = require('./lib/raw')
 
 /**
@@ -192,8 +192,7 @@ module.exports = (multiformats) => {
     }
   }
 
-  return {
-    readBuffer: wrap(readBuffer),
+  return Object.assign(browser(multiformats), {
     readFileComplete: wrap(readFileComplete),
     readStreamComplete: wrap(readStreamComplete),
     readStreaming: wrap(readStreaming),
@@ -201,5 +200,5 @@ module.exports = (multiformats) => {
     indexer: wrap(indexer),
     readRaw,
     completeGraph
-  }
+  })
 }
