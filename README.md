@@ -1,4 +1,4 @@
-# datastore-car (js-datastore-car) [![Build Status](https://github.com/rvagg/js-datastore-car/workflows/CI/badge.svg)](https://github.com/rvagg/js-datastore-car/actions?workflow=CI)
+# datastore-car (js-datastore-car) [![Build Status](https://github.com/ipld/js-datastore-car/workflows/CI/badge.svg)](https://github.com/ipld/js-datastore-car/actions?workflow=CI)
 
 [![NPM](https://nodei.co/npm/datastore-car.svg)](https://nodei.co/npm/datastore-car/)
 
@@ -10,12 +10,15 @@ The interface wraps a [Datastore](https://github.com/ipfs/interface-datastore), 
 
 ```js
 const fs = require('fs')
-const CarDatastore = require('datastore-car')
-const Block = require('@ipld/block')
+const multiformats = require('multiformats/basics')
+// dag-cbor is required for the CAR root block
+multiformats.add(require('@ipld/dag-cbor'))
+const CarDatastore = require('datastore-car')(multiformats)
 
 async function example () {
-  const block = Block.encoder(Buffer.from('random meaningless bytes'), 'raw')
-  const cid = await block.cid()
+  const binary = Buffer.from('random meaningless bytes')
+  const mh = await multiformats.multihash.hash(binary, 'sha2-256')
+  const cid = new multiformats.CID(1, multiformats.get('raw').code, mh)
 
   const outStream = fs.createWriteStream('example.car')
   const writeDs = await CarDatastore.writeStream(outStream)
@@ -23,7 +26,7 @@ async function example () {
   // set the header with a single root
   await writeDs.setRoots(cid)
   // store a new block, creates a new file entry in the CAR archive
-  await writeDs.put(cid, await block.encode())
+  await writeDs.put(cid, binary)
   await writeDs.close()
 
   const inStream = fs.createReadStream('example.car')
@@ -34,7 +37,7 @@ async function example () {
 
   // read the list of roots from the header
   const roots = await readDs.getRoots()
-  // retrieve a block, as a UInt8Array, reading from the CAR archive
+  // retrieve a block, as a UInt8Array, reading from the ZIP archive
   const got = await readDs.get(roots[0])
   // also possible: for await (const {key, data} = readDs.query()) { ... }
 
@@ -238,8 +241,8 @@ a CAR file.
 ### `class CarDatastore`
 
 CarDatastore is a class to manage reading from, and writing to a CAR archives
-using [CID](https://github.com/multiformats/js-cid)s as keys and file names
-in the CAR and binary block data as the file contents.
+using [CID](https://github.com/multiformats/js-multiformats)s as keys and
+file names in the CAR and binary block data as the file contents.
 
 <a name="CarDatastore_get"></a>
 ### `async CarDatastore#get(key)`
@@ -450,7 +453,7 @@ Read a block directly from a CAR file given an block index provided by
 * **`blockIndex`** _(`Object`)_: an index object of the style provided by
   `CarDatastore.indexer()` (`{ cid, offset, length }`).
 
-**Return value**  _(`Block`)_: an IPLD [Block](https://ghub.io/@ipld/block) object.
+**Return value**  _(`object`)_: an IPLD block of the form `{ cid, binary }`.
 
 ## License and Copyright
 

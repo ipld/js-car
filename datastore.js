@@ -3,8 +3,8 @@ const { toKey } = require('./lib/util')
 
 /**
  * CarDatastore is a class to manage reading from, and writing to a CAR archives
- * using [CID](https://github.com/multiformats/js-cid)s as keys and file names
- * in the CAR and binary block data as the file contents.
+ * using [CID](https://github.com/multiformats/js-multiformats)s as keys and
+ * file names in the CAR and binary block data as the file contents.
  *
  * @class
  */

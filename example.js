@@ -1,10 +1,13 @@
 const fs = require('fs')
-const CarDatastore = require('./')
-const Block = require('@ipld/block')
+const multiformats = require('multiformats/basics')
+// dag-cbor is required for the CAR root block
+multiformats.add(require('@ipld/dag-cbor'))
+const CarDatastore = require('./')(multiformats)
 
 async function example () {
-  const block = Block.encoder(Buffer.from('random meaningless bytes'), 'raw')
-  const cid = await block.cid()
+  const binary = Buffer.from('random meaningless bytes')
+  const mh = await multiformats.multihash.hash(binary, 'sha2-256')
+  const cid = new multiformats.CID(1, multiformats.get('raw').code, mh)
 
   const outStream = fs.createWriteStream('example.car')
   const writeDs = await CarDatastore.writeStream(outStream)
@@ -12,7 +15,7 @@ async function example () {
   // set the header with a single root
   await writeDs.setRoots(cid)
   // store a new block, creates a new file entry in the CAR archive
-  await writeDs.put(cid, await block.encode())
+  await writeDs.put(cid, binary)
   await writeDs.close()
 
   const inStream = fs.createReadStream('example.car')
