@@ -377,15 +377,19 @@ used to read individual blocks directly from the car (using
 `CarDatastore.readRaw()`).
 
 ```js
-const { indexer } = require('datastore-car')
+// full multiformats omitted, you'll need codecs, bases and hashes that
+// appear in your CAR files if you want full information
+const multiformats = ...
+const { indexer } = require('datastore-car')(multiformats)
 
 async function run () {
+  const cidStr = (cid) => `${multiformats.get(cid.code).name}:${cid.toString()}`
   const index = await indexer('big.car')
-  index.roots = index.roots.map((cid) => cid.toString())
+  index.roots = index.roots.map(cidStr)
   console.log('roots:', index.roots)
   for await (const blockIndex of index.iterator) {
-    blockIndex.cid = blockIndex.cid.toString()
-    console.log('block:', blockIndex)
+    blockIndex.cid = cidStr(cid)
+    console.log(JSON.toString(blockIndex))
   }
 }
 
@@ -399,24 +403,17 @@ Might output something like:
 
 ```
 roots: [
-  'bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm',
-  'bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'
+  'dag-cbor:bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm',
+  'dag-cbor:bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'
 ]
-block: {
-  cid: 'bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm',
-  length: 55,
-  offset: 137
-}
-block: {
-  cid: 'QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d',
-  length: 97,
-  offset: 228
-}
-block: {
-  cid: 'bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke',
-  length: 4,
-  offset: 362
-}
+{"cid":"dag-cbor:bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm","length":92,"blockLength":55,"offset":100,"blockOffset":137}
+{"cid":"dag-pb:QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d","length":133,"blockLength":97,"offset":192,"blockOffset":228}
+{"cid":"raw:bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke","length":41,"blockLength":4,"offset":325,"blockOffset":362}
+{"cid":"dag-pb:QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys","length":130,"blockLength":94,"offset":366,"blockOffset":402}
+{"cid":"raw:bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4","length":41,"blockLength":4,"offset":496,"blockOffset":533}
+{"cid":"dag-pb:QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT","length":82,"blockLength":47,"offset":537,"blockOffset":572}
+{"cid":"raw:bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq","length":41,"blockLength":4,"offset":619,"blockOffset":656}
+{"cid":"dag-cbor:bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm","length":55,"blockLength":18,"offset":660,"blockOffset":697}
 ...
 ```
 
@@ -435,16 +432,16 @@ read into memory.
 
 **Return value**  _(`Object.<Array.<roots:CID>, iterator:AsyncIterator>`)_: an object containing a
   `roots` array of CIDs and an `iterator` AsyncIterator that will yield
-  Objects of the form `{ cid:CID, offset:number, length:number }` indicating
-  the CID of the block located at start=`offset` with a length of `number` in
-  the CAR archive provided.
+  Objects of the form `{ cid:CID, offset:number, length:number, byteOffset:number, byteLength:number }`
+  indicating the CID of the block located at `blockOffset` with a length of
+  `blockLength` in the CAR archive provided.
 
 <a name="CarDatastore__readRaw"></a>
 ### `async CarDatastore.readRaw(fd, blockIndex)`
 
 Read a block directly from a CAR file given an block index provided by
-`CarDatastore.indexer()` (i.e. an object of the form:
-`{ cid:CID, offset:number, length:number }`).
+`CarDatastore.indexer()` (i.e. an object with the minimal form:
+`{ cid:CID, blockOffset:number, blockLength:number }`).
 
 **Parameters:**
 

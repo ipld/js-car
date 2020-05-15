@@ -18,14 +18,14 @@ describe('Raw', () => {
     new multiformats.CID('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm')
   ]
   const expectedIndex = [
-    { cid: new multiformats.CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'), length: 55, offset: 137 },
-    { cid: new multiformats.CID('QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d'), length: 97, offset: 228 },
-    { cid: new multiformats.CID('bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke'), length: 4, offset: 362 },
-    { cid: new multiformats.CID('QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys'), length: 94, offset: 402 },
-    { cid: new multiformats.CID('bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4'), length: 4, offset: 533 },
-    { cid: new multiformats.CID('QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT'), length: 47, offset: 572 },
-    { cid: new multiformats.CID('bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq'), length: 4, offset: 656 },
-    { cid: new multiformats.CID('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'), length: 18, offset: 697 }
+    { cid: new multiformats.CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'), offset: 100, length: 92, blockOffset: 137, blockLength: 55 },
+    { cid: new multiformats.CID('QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d'), offset: 192, length: 133, blockOffset: 228, blockLength: 97 },
+    { cid: new multiformats.CID('bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke'), offset: 325, length: 41, blockOffset: 362, blockLength: 4 },
+    { cid: new multiformats.CID('QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys'), offset: 366, length: 130, blockOffset: 402, blockLength: 94 },
+    { cid: new multiformats.CID('bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4'), offset: 496, length: 41, blockOffset: 533, blockLength: 4 },
+    { cid: new multiformats.CID('QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT'), offset: 537, length: 82, blockOffset: 572, blockLength: 47 },
+    { cid: new multiformats.CID('bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq'), offset: 619, length: 41, blockOffset: 656, blockLength: 4 },
+    { cid: new multiformats.CID('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'), offset: 660, length: 55, blockOffset: 697, blockLength: 18 }
   ]
   let allBlocksFlattened
 
@@ -99,11 +99,11 @@ describe('Raw', () => {
     })
 
     const badBlock = Object.assign({}, expectedIndex[expectedIndex.length - 1])
-    badBlock.length += 10
+    badBlock.blockLength += 10
     const fd = await fs.open(path.join(__dirname, 'go.car'))
     await assert.rejects(readRaw(fd, badBlock), {
       name: 'Error',
-      message: `Failed to read entire block (${badBlock.length - 10} instead of ${badBlock.length})`
+      message: `Failed to read entire block (${badBlock.blockLength - 10} instead of ${badBlock.blockLength})`
     })
     await fs.close(fd)
   })
