@@ -66,6 +66,7 @@ In this example, the `writeStream()` create-mode is used to generate the CAR fil
 * **[`CarDatastore.readFileComplete(file)`](#CarDatastore__readFileComplete)**: read a CAR archive directly from a file. Does not support mutation operations, only reads. This mode is not efficient for large data sets but does support `get()` and `has()` operations since it caches the entire archive in memory. This mode is _not available_ in a browser environment.
 * **[`CarDatastore.readStreamComplete(stream)`](#CarDatastore__readStreamComplete)**: read a CAR archive directly from a stream. Does not support mutation operations, only reads. This mode is not efficient for large data sets but does support `get()` and `has()` operations since it caches the entire archive in memory. This mode is _not available_ in a browser environment.
 * **[`CarDatastore.readStreaming(stream)`](#CarDatastore__readStreaming)**: read a CAR archive directly from a stream. Does not support mutation operations, and only supports iterative reads via `query()` (i.e. no `get()` and `has()`). This mode is very efficient for large data sets. This mode is _not available_ in a browser environment.
+* **[`async CarDatastore.readFileIndexed(stream)`](#CarDatastore__readFileIndexed)**: read a CAR archive from a local file, index its contents and use that index to support random access reads (`has()`, `get()` and `query()`) without fitting the entire contents in memory as `readFileComplete()` does. Uses more memory than `readStreaming()` and less than `readFileComplete()`. Will be slower to initialize than `readStreaming()` but suitable where random access reads are required from a large file.
 * **[`CarDatastore.writeStream(stream)`](#CarDatastore__writeStream)**: write a CAR archive to a stream (e.g. `fs.createWriteStream(file)`). Does not support read operations, only writes, and the writes are append-only (i.e. no `delete()`). However, this mode is very efficient for dumping large data sets, with no caching and streaming writes. This mode is _not available_ in a browser environment.
 
 Other create-modes may be supported in the future, such as writing to a Buffer (although this is already possible if you couple `writeStream()` with a [`BufferListStream`](https://ghub.io/bl)) or a read/write mode such as datastore-zipcar makes available.
@@ -78,6 +79,7 @@ Other create-modes may be supported in the future, such as writing to a Buffer (
  * [`async CarDatastore.readFileComplete(file)`](#CarDatastore__readFileComplete)
  * [`async CarDatastore.readStreamComplete(stream)`](#CarDatastore__readStreamComplete)
  * [`async CarDatastore.readStreaming(stream)`](#CarDatastore__readStreaming)
+ * [`async CarDatastore.readFileIndexed(stream)`](#CarDatastore__readFileIndexed)
  * [`async CarDatastore.writeStream(stream)`](#CarDatastore__writeStream)
  * [`async CarDatastore.completeGraph(root, get, car[, concurrency])`](#CarDatastore__completeGraph)
  * [`class CarDatastore`](#CarDatastore)
@@ -118,7 +120,7 @@ environment.
 
 Read a CAR archive from a file and return a CarDatastore. The CarDatastore
 returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
-and `query()`. Caching makes `get()` and `has()` possible as the entire
+and `query()`. Caching makes `get()` and `has()`. This is possible as the entire
 file is read and decoded before the CarDatastore is returned. mutation
 operations (`put()`, `delete()` and `setRoots()`) are not available as there
 is no ability to modify the archive.
@@ -148,7 +150,7 @@ This create-mode is not available in the browser environment.
 
 Read a CAR archive as a CarDataStore from a ReadableStream. The CarDatastore
 returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
-and `query()`. Caching makes `get()` and `has()` possible as the entire
+and `query()`. Caching makes `get()` and `has()`. This is possible as the entire
 stream is read and decoded before the CarDatastore is returned. Mutation
 operations (`put()`, `delete()` and `setRoots()`) are not available as there
 is no ability to modify the archive.
@@ -184,6 +186,36 @@ archives without using much memory. Its support for a simple iterative
 buffering to decode an entire stream into an in-memory representation of the
 CAR archive. This may be used if `get()` and `has()` operations are required
 and the amount of data is manageable in memory.
+
+This create-mode is not available in the browser environment.
+
+**Parameters:**
+
+* **`stream`** _(`ReadableStream`)_: a ReadableStream that provides an entire CAR
+  archive as a binary stream.
+
+**Return value**  _(`CarDatastore`)_: a read-only CarDatastore.
+
+<a name="CarDatastore__readFileIndexed"></a>
+### `async CarDatastore.readFileIndexed(stream)`
+
+Read a CAR archive as a CarDataStore from a local file. The CarDatastore
+returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
+and `query()`. Caching makes `get()` and `has()`. This is possible as the entire
+stream is read and _indexed_ before the CarDatastore is returned. Mutation
+operations (`put()`, `delete()` and `setRoots()`) are not available as there
+is no ability to modify the archive.
+
+The indexing operation uses [`indexer`](#indexer) to catalogue the contents of the
+CAR and store a mapping of CID to byte locations for each entry. This method
+of parsing is not as memory intensive as [`readStreamComplete`](#readStreamComplete) as only
+the index is stored in memory. When blocks are read, the index tells the
+reader where to fetch the block from within the CAR file.
+
+This mode is suitable for large files where random-access operations are
+required. Where a full sequential read is only required, use
+[`createReadStreaming`](#createReadStreaming) which consumes the file in a single pass with no
+memory used for indexing.
 
 This create-mode is not available in the browser environment.
 
@@ -388,7 +420,7 @@ async function run () {
   index.roots = index.roots.map(cidStr)
   console.log('roots:', index.roots)
   for await (const blockIndex of index.iterator) {
-    blockIndex.cid = cidStr(cid)
+    blockIndex.cid = cidStr(blockIndex.cid)
     console.log(JSON.toString(blockIndex))
   }
 }

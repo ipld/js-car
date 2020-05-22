@@ -1,5 +1,5 @@
 const { Reader, NoWriter } = require('./lib/reader-writer-iface')
-const { createStreamCompleteReader, createStreamingReader, createFileReader } = require('./lib/reader')
+const { createStreamCompleteReader, createStreamingReader, createFileReader, createFileIndexedReader } = require('./lib/reader')
 const createStreamWriter = require('./lib/writer-stream')
 const CarDatastore = require('./datastore')
 const browser = require('./car-browser')
@@ -10,7 +10,7 @@ const { indexer, readRaw } = require('./lib/raw')
  * @description
  * Read a CAR archive from a file and return a CarDatastore. The CarDatastore
  * returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
- * and `query()`. Caching makes `get()` and `has()` possible as the entire
+ * and `query()`. Caching makes `get()` and `has()`. This is possible as the entire
  * file is read and decoded before the CarDatastore is returned. mutation
  * operations (`put()`, `delete()` and `setRoots()`) are not available as there
  * is no ability to modify the archive.
@@ -46,7 +46,7 @@ async function readFileComplete (multiformats, file) {
  * @description
  * Read a CAR archive as a CarDataStore from a ReadableStream. The CarDatastore
  * returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
- * and `query()`. Caching makes `get()` and `has()` possible as the entire
+ * and `query()`. Caching makes `get()` and `has()`. This is possible as the entire
  * stream is read and decoded before the CarDatastore is returned. Mutation
  * operations (`put()`, `delete()` and `setRoots()`) are not available as there
  * is no ability to modify the archive.
@@ -100,6 +100,42 @@ async function readStreamComplete (multiformats, stream) {
  */
 async function readStreaming (multiformats, stream) {
   const reader = await createStreamingReader(multiformats, stream)
+  const writer = new NoWriter()
+  return new CarDatastore(multiformats, reader, writer)
+}
+
+/**
+ * @name CarDatastore.readFileIndexed
+ * @description
+ * Read a CAR archive as a CarDataStore from a local file. The CarDatastore
+ * returned will _only_ support read operations: `getRoots()`, `get()`, `has()`
+ * and `query()`. Caching makes `get()` and `has()`. This is possible as the entire
+ * stream is read and _indexed_ before the CarDatastore is returned. Mutation
+ * operations (`put()`, `delete()` and `setRoots()`) are not available as there
+ * is no ability to modify the archive.
+ *
+ * The indexing operation uses {@link indexer} to catalogue the contents of the
+ * CAR and store a mapping of CID to byte locations for each entry. This method
+ * of parsing is not as memory intensive as {@link readStreamComplete} as only
+ * the index is stored in memory. When blocks are read, the index tells the
+ * reader where to fetch the block from within the CAR file.
+ *
+ * This mode is suitable for large files where random-access operations are
+ * required. Where a full sequential read is only required, use
+ * {@link createReadStreaming} which consumes the file in a single pass with no
+ * memory used for indexing.
+ *
+ * This create-mode is not available in the browser environment.
+ * @function
+ * @memberof CarDatastore
+ * @static
+ * @async
+ * @param {ReadableStream} stream a ReadableStream that provides an entire CAR
+ * archive as a binary stream.
+ * @returns {CarDatastore} a read-only CarDatastore.
+ */
+async function readFileIndexed (multiformats, filePath) {
+  const reader = await createFileIndexedReader(multiformats, filePath)
   const writer = new NoWriter()
   return new CarDatastore(multiformats, reader, writer)
 }
@@ -196,6 +232,7 @@ module.exports = (multiformats) => {
     readFileComplete: wrap(readFileComplete),
     readStreamComplete: wrap(readStreamComplete),
     readStreaming: wrap(readStreaming),
+    readFileIndexed: wrap(readFileIndexed),
     writeStream: wrap(writeStream),
     indexer: wrap(indexer),
     readRaw,
