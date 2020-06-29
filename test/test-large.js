@@ -5,7 +5,7 @@ const fs = require('fs')
 const unlink = require('util').promisify(require('fs').unlink)
 const garbage = require('garbage')
 const varint = require('varint')
-const multiformats = require('multiformats/basics')
+const multiformats = require('multiformats/basics.js')
 multiformats.add(require('@ipld/dag-cbor'))
 const { writeStream, readFileComplete, readStreaming, indexer } = require('../')(multiformats)
 

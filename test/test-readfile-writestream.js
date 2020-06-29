@@ -3,9 +3,9 @@
 const assert = require('assert')
 const fs = require('fs')
 const unlink = require('util').promisify(require('fs').unlink)
-const multiformats = require('multiformats/basics')
+const multiformats = require('multiformats/basics.js')
 multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58'))
+multiformats.multibase.add(require('multiformats/bases/base58.js'))
 const { writeStream, readFileComplete } = require('../')(multiformats)
 const { makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 

@@ -3,9 +3,9 @@
 const assert = require('assert')
 const fs = require('fs')
 const path = require('path')
-const multiformats = require('multiformats/basics')
+const multiformats = require('multiformats/basics.js')
 multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58'))
+multiformats.multibase.add(require('multiformats/bases/base58.js'))
 const { readStreaming } = require('../')(multiformats)
 const { acid, makeData, compareBlockData, verifyRoots } = require('./fixture-data')
 

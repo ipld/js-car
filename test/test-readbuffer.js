@@ -1,9 +1,9 @@
 /* eslint-env mocha */
 
 const assert = require('assert')
-const multiformats = require('multiformats/basics')
+const multiformats = require('multiformats/basics.js')
 multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58'))
+multiformats.multibase.add(require('multiformats/bases/base58.js'))
 const { readBuffer } = require('../')(multiformats)
 const { acid, car, makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 

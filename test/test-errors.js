@@ -3,7 +3,7 @@
 const assert = require('assert')
 const fs = require('fs').promises
 const path = require('path')
-const multiformats = require('multiformats/basics')
+const multiformats = require('multiformats/basics.js')
 multiformats.add(require('@ipld/dag-cbor'))
 const { readBuffer, readFileComplete, writeStream } = require('../')(multiformats)
 const { acid, car } = require('./fixture-data')

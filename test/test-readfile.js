@@ -2,9 +2,9 @@
 
 const assert = require('assert')
 const path = require('path')
-const multiformats = require('multiformats/basics')
+const multiformats = require('multiformats/basics.js')
 multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58'))
+multiformats.multibase.add(require('multiformats/bases/base58.js'))
 const { readFileComplete } = require('../car')(multiformats)
 const { acid, makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
 

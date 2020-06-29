@@ -2,9 +2,9 @@ const assert = require('assert')
 const { DAGNode, DAGLink, util: pbUtil } = require('ipld-dag-pb')
 // TODO: remove this
 const CID = require('cids')
-const multiformats = require('multiformats/basics')
+const multiformats = require('multiformats/basics.js')
 multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58'))
+multiformats.multibase.add(require('multiformats/bases/base58.js'))
 
 let rawBlocks
 const pbBlocks = []
