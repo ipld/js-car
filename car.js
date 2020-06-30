@@ -171,7 +171,6 @@ async function writeStream (multiformats, stream) {
   return new CarDatastore(multiformats, reader, writer)
 }
 
-<<<<<<< HEAD
 async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()) {
   const cid = await block.cid()
   await car.put(cid, block.encodeUnsafe())
