@@ -150,6 +150,7 @@ class CarDatastore {
   }
 
   async batch () {
+    /* c8 ignore next */
     throw new Error('Unimplemented operation')
   }
 

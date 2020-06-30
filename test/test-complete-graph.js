@@ -7,7 +7,7 @@ const { PassThrough } = require('stream')
 
 const same = assert.deepStrictEqual
 
-const all = car => {
+function all (car) {
   const _traverse = async function * (link, seen = new Set()) {
     link = await link
     seen.add(link.toString('base64'))
@@ -15,9 +15,14 @@ const all = car => {
     const block = Block.create(encoded, link)
     yield block
     const cid = await block.cid()
-    if (cid.codec === 'raw') return
+    if (cid.codec === 'raw') {
+      return
+    }
+
     for (const [, link] of block.reader().links()) {
-      if (seen.has(link.toString('base64'))) continue
+      if (seen.has(link.toString('base64'))) {
+        continue
+      }
       yield * _traverse(link, seen)
     }
   }
@@ -25,15 +30,15 @@ const all = car => {
   return _traverse(car.getRoots().then(([root]) => root))
 }
 
-const createGet = async blocks => {
+async function createGet (blocks) {
   const db = new Map()
   for (const block of blocks) {
     db.set((await block.cid()).toString('base64'), block)
   }
-  return cid => new Promise(resolve => resolve(db.get(cid.toString('base64'))))
+  return (cid) => new Promise((resolve) => resolve(db.get(cid.toString('base64'))))
 }
 
-const concat = async stream => {
+async function concat (stream) {
   const buffers = []
   for await (const buffer of stream) {
     buffers.push(buffer)

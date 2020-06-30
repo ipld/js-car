@@ -78,7 +78,7 @@ describe('Raw', () => {
 
   it('read raw using index (FileHandle)', async () => {
     const fd = await fs.promises.open(path.join(__dirname, 'go.car'))
-    verifyRead(fd)
+    await verifyRead(fd)
     await fd.close(fd)
   })
 

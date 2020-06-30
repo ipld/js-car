@@ -139,10 +139,13 @@ async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()
   const cid = await block.cid()
   await car.put(cid, block.encodeUnsafe())
   seen.add(cid.toString('base58btc'))
-  if (cid.codec === 'raw') return
+  if (cid.codec === 'raw') {
+    return
+  }
   const reader = block.reader()
-  const missing = link => !seen.has(link.toString('base58btc'))
+  const missing = (link) => !seen.has(link.toString('base58btc'))
   const links = Array.from(reader.links()).filter(missing).map(([, link]) => link)
+
   while (links.length) {
     const chunk = links.splice(0, concurrency)
     const blocks = chunk.map(get)
@@ -156,6 +159,25 @@ async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()
   }
 }
 
+/**
+ * @name CarDatastore.completeGraph
+ * @description
+ * Read a complete IPLD graph from a provided datastore and store the blocks in
+ * a CAR file.
+ * @function
+ * @memberof CarDatastore
+ * @static
+ * @async
+ * @param {Block} root the root of the graph to start at, this block will be
+ * included in the CAR and its CID will be set as the single root.
+ * @param {AsyncFunction} get an `async` function that takes a CID and returns
+ * a `Block`. Can be used to attach to an arbitrary data store.
+ * @param {CarDatastore} car a writable `CarDatastore` that has not yet been
+ * written to (`setRoots()` will be called on it which requires that no data
+ * has been written).
+ * @param {number} [concurrency=1] how many asynchronous `get` operations to
+ * perform at once.
+ */
 async function completeGraph (root, get, car, concurrency) {
   await car.setRoots([root])
   await traverseBlock(await get(root), get, car, concurrency)

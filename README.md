@@ -76,6 +76,7 @@ Other create-modes may be supported in the future, such as writing to a Buffer (
  * [`async CarDatastore.readStreamComplete(stream)`](#CarDatastore__readStreamComplete)
  * [`async CarDatastore.readStreaming(stream)`](#CarDatastore__readStreaming)
  * [`async CarDatastore.writeStream(stream)`](#CarDatastore__writeStream)
+ * [`async CarDatastore.completeGraph(root, get, car[, concurrency])`](#CarDatastore__completeGraph)
  * [`class CarDatastore`](#CarDatastore)
  * [`async CarDatastore#get(key)`](#CarDatastore_get)
  * [`async CarDatastore#has(key)`](#CarDatastore_has)
@@ -214,6 +215,24 @@ This create-mode is not available in a browser environment.
 * **`stream`** _(`WritableStream`)_: a writable stream
 
 **Return value**  _(`CarDatastore`)_: an append-only, streaming CarDatastore.
+
+<a name="CarDatastore__completeGraph"></a>
+### `async CarDatastore.completeGraph(root, get, car[, concurrency])`
+
+Read a complete IPLD graph from a provided datastore and store the blocks in
+a CAR file.
+
+**Parameters:**
+
+* **`root`** _(`Block`)_: the root of the graph to start at, this block will be
+  included in the CAR and its CID will be set as the single root.
+* **`get`** _(`AsyncFunction`)_: an `async` function that takes a CID and returns
+  a `Block`. Can be used to attach to an arbitrary data store.
+* **`car`** _(`CarDatastore`)_: a writable `CarDatastore` that has not yet been
+  written to (`setRoots()` will be called on it which requires that no data
+  has been written).
+* **`concurrency`** _(`number`, optional, default=`1`)_: how many asynchronous `get` operations to
+  perform at once.
 
 <a name="CarDatastore"></a>
 ### `class CarDatastore`
