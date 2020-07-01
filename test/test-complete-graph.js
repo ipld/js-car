@@ -1,8 +1,11 @@
 /* eslint-env mocha */
 
 const assert = require('assert')
-const { writeStream, readBuffer, completeGraph } = require('../')
-const Block = require('@ipld/block')
+const multiformats = require('multiformats/basics.js')
+multiformats.add(require('@ipld/dag-cbor'))
+multiformats.multibase.add(require('multiformats/bases/base58.js'))
+const { writeStream, readBuffer, completeGraph } = require('../car')(multiformats)
+const Block = require('@ipld/block')(multiformats)
 const { PassThrough } = require('stream')
 
 const same = assert.deepStrictEqual
@@ -15,7 +18,7 @@ function all (car) {
     const block = Block.create(encoded, link)
     yield block
     const cid = await block.cid()
-    if (cid.codec === 'raw') {
+    if (cid.code === 0x55) {
       return
     }
 

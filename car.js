@@ -175,7 +175,7 @@ async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()
   const cid = await block.cid()
   await car.put(cid, block.encodeUnsafe())
   seen.add(cid.toString('base58btc'))
-  if (cid.codec === 'raw') {
+  if (cid.code === 0x55) { // raw
     return
   }
   const reader = block.reader()
@@ -204,8 +204,8 @@ async function traverseBlock (block, get, car, concurrency = 1, seen = new Set()
  * @memberof CarDatastore
  * @static
  * @async
- * @param {Block} root the root of the graph to start at, this block will be
- * included in the CAR and its CID will be set as the single root.
+ * @param {CID} root the CID of the root of the graph to start at, this block
+ * will be included in the CAR and the CID will be set as the single root.
  * @param {AsyncFunction} get an `async` function that takes a CID and returns
  * a `Block`. Can be used to attach to an arbitrary data store.
  * @param {CarDatastore} car a writable `CarDatastore` that has not yet been
