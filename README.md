@@ -259,8 +259,8 @@ a CAR file.
 
 **Parameters:**
 
-* **`root`** _(`Block`)_: the root of the graph to start at, this block will be
-  included in the CAR and its CID will be set as the single root.
+* **`root`** _(`CID`)_: the CID of the root of the graph to start at, this block
+  will be included in the CAR and the CID will be set as the single root.
 * **`get`** _(`AsyncFunction`)_: an `async` function that takes a CID and returns
   a `Block`. Can be used to attach to an arbitrary data store.
 * **`car`** _(`CarDatastore`)_: a writable `CarDatastore` that has not yet been
