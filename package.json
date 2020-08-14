@@ -4,7 +4,7 @@
   "description": "Content ARchive format reader and writer",
   "main": "car.js",
   "type": "module",
-  "browser": "car-browser.js",
+  "browser": "./dist/cjs-browser/car-browser.js",
   "directories": {
     "test": "test"
   },
@@ -52,5 +52,19 @@
     "interface-datastore": "^2.0.0",
     "multiformats": "^2.3.0",
     "varint": "^5.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./car.js",
+      "require": "./dist/cjs-node/car.cjs"
+    },
+    "./car.js": {
+      "import": "./car.js",
+      "require": "./dist/cjs-node/car.cjs"
+    },
+    "./car-browser.js": {
+      "import": "./car-browser.js",
+      "require": "./dist/cjs-node/car-browser.cjs"
+    }
   }
 }
