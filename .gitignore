@@ -3,3 +3,5 @@ node_modules/
 .nyc_output/
 coverage/
 example.car
+build/
+dist/

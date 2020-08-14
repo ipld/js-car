@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "npx @mikeal/limbo test/test-*.js",
+    "build": "limbo test/test-*.js && cp test/go.car dist/cjs-browser/test/ && cp test/go.car dist/cjs-node/test/",
     "prepublishOnly": "npm run build",
     "lint": "standard",
     "test:cjs": "rm -rf dist && npm run build && mocha dist/cjs-node/test/test-*.cjs && npm run test:cjs:browser",
@@ -37,6 +37,7 @@
   "devDependencies": {
     "@ipld/block": "^6.0.1",
     "@ipld/dag-cbor": "^1.1.4",
+    "@mikeal/limbo": "0.0.1",
     "assert": "^2.0.0",
     "bl": "^4.0.2",
     "cids": "^1.0.0",
