@@ -1,13 +1,21 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const fs = require('fs')
-const path = require('path')
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58.js'))
-const { readStreaming } = require('../')(multiformats)
-const { acid, makeData, compareBlockData, verifyRoots } = require('./fixture-data')
+import assert from 'assert'
+import fs from 'fs'
+import path from 'path'
+import multiformats from 'multiformats/basics.js'
+import { acid, makeData, compareBlockData, verifyRoots } from './fixture-data.js'
+import dagCbor from '@ipld/dag-cbor'
+import base58 from 'multiformats/bases/base58.js'
+import Car from '../car.js'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+multiformats.add(dagCbor)
+multiformats.multibase.add(base58)
+const { readStreaming } = Car(multiformats)
 
 describe('Read Stream', () => {
   let allBlocks

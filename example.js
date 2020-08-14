@@ -1,8 +1,10 @@
-const fs = require('fs')
-const multiformats = require('multiformats/basics')
+import fs from 'fs'
+import multiformats from 'multiformats/basics'
+import car from './'
+
 // dag-cbor is required for the CAR root block
 multiformats.add(require('@ipld/dag-cbor'))
-const CarDatastore = require('./')(multiformats)
+const CarDatastore = car(multiformats)
 
 async function example () {
   const binary = Buffer.from('random meaningless bytes')

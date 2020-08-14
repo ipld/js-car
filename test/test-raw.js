@@ -1,16 +1,25 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const { promisify } = require('util')
-const path = require('path')
-const fs = require('fs')
+import assert from 'assert'
+import { promisify } from 'util'
+import path from 'path'
+import fs from 'fs'
+import multiformats from 'multiformats/basics.js'
+import { makeData } from './fixture-data.js'
+import Car from '../car.js'
+import dagCbor from '@ipld/dag-cbor'
+import base58 from 'multiformats/bases/base58.js'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 fs.open = promisify(fs.open)
 fs.close = promisify(fs.close)
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58.js'))
-const { indexer, readRaw } = require('../')(multiformats)
-const { makeData } = require('./fixture-data')
+
+multiformats.add(dagCbor)
+multiformats.multibase.add(base58)
+const { indexer, readRaw } = Car(multiformats)
 
 describe('Raw', () => {
   const expectedRoots = [

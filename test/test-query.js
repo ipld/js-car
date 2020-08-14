@@ -1,12 +1,16 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const path = require('path')
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58.js'))
-const { readBuffer, readFile } = require('../')(multiformats)
-const { car, makeData, compareBlockData } = require('./fixture-data')
+import assert from 'assert'
+import path from 'path'
+import multiformats from 'multiformats/basics.js'
+import { car, makeData, compareBlockData } from './fixture-data.js'
+import Car from '../car.js'
+import dagCbor from '@ipld/dag-cbor'
+import base58 from 'multiformats/bases/base58.js'
+
+multiformats.add(dagCbor)
+multiformats.multibase.add(base58)
+const { readBuffer, readFile } = Car(multiformats)
 
 if (!assert.rejects) {
   // browser polyfill is incomplete

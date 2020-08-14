@@ -1,9 +1,9 @@
-const { Reader, NoWriter } = require('./lib/reader-writer-iface')
-const { createStreamCompleteReader, createStreamingReader, createFileReader, createFileIndexedReader } = require('./lib/reader')
-const createStreamWriter = require('./lib/writer-stream')
-const CarDatastore = require('./datastore')
-const browser = require('./car-browser')
-const { indexer, readRaw } = require('./lib/raw')
+import { Reader, NoWriter } from './lib/reader-writer-iface.js'
+import { createStreamCompleteReader, createStreamingReader, createFileReader, createFileIndexedReader } from './lib/reader.js'
+import createStreamWriter from './lib/writer-stream.js'
+import CarDatastore from './datastore.js'
+import browser from './car-browser.js'
+import { indexer, readRaw } from './lib/raw.js'
 
 /**
  * @name CarDatastore.readFileComplete
@@ -220,7 +220,7 @@ async function completeGraph (root, get, car, concurrency) {
   await car.close()
 }
 
-module.exports = (multiformats) => {
+function create (multiformats) {
   function wrap (fn) {
     return function (...args) {
       return fn(multiformats, ...args)
@@ -238,3 +238,5 @@ module.exports = (multiformats) => {
     completeGraph
   })
 }
+
+export default create

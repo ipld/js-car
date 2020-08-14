@@ -1,13 +1,18 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const fs = require('fs')
-const unlink = require('util').promisify(require('fs').unlink)
-const garbage = require('garbage')
-const varint = require('varint')
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-const { writeStream, readFileComplete, readStreaming, indexer } = require('../')(multiformats)
+import assert from 'assert'
+import fs from 'fs'
+import garbage from 'garbage'
+import varint from 'varint'
+import multiformats from 'multiformats/basics.js'
+import dagCbor from '@ipld/dag-cbor'
+import Car from '../car.js'
+import { promisify } from 'util'
+
+const unlink = promisify(fs.unlink)
+
+multiformats.add(dagCbor)
+const { writeStream, readFileComplete, readStreaming, indexer } = Car(multiformats)
 
 describe('Large CAR', () => {
   const objects = []

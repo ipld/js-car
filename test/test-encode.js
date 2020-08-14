@@ -1,15 +1,17 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const { promisify } = require('util')
-const fs = require('fs')
-const bl = require('bl')
+import assert from 'assert'
+import { promisify } from 'util'
+import fs from 'fs'
+import bl from 'bl'
+import multiformats from 'multiformats/basics.js'
+import { verifyDecoded, makeData } from './fixture-data.js'
+import * as coding from '../lib/coding.js'
+import dagCbor from '@ipld/dag-cbor'
+
 fs.readFile = promisify(fs.readFile)
 fs.unlink = promisify(fs.unlink)
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-const { verifyDecoded, makeData } = require('./fixture-data')
-const coding = require('../lib/coding')
+multiformats.add(dagCbor)
 
 describe('Encode', () => {
   let roots, allBlocks

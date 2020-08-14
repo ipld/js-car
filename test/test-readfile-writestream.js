@@ -1,13 +1,19 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const fs = require('fs')
-const unlink = require('util').promisify(require('fs').unlink)
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58.js'))
-const { writeStream, readFileComplete } = require('../')(multiformats)
-const { makeData, verifyBlocks, verifyHas, verifyRoots } = require('./fixture-data')
+import assert from 'assert'
+import fs from 'fs'
+import multiformats from 'multiformats/basics.js'
+import { makeData, verifyBlocks, verifyHas, verifyRoots } from './fixture-data.js'
+import { promisify } from 'util'
+import dagCbor from '@ipld/dag-cbor'
+import base58 from 'multiformats/bases/base58.js'
+import Car from '../car.js'
+
+const unlink = promisify(fs.unlink)
+
+multiformats.add(dagCbor)
+multiformats.multibase.add(base58)
+const { writeStream, readFileComplete } = Car(multiformats)
 
 let rawBlocks
 let pbBlocks

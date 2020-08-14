@@ -3,15 +3,21 @@
   "version": "1.2.0",
   "description": "Content ARchive format reader and writer",
   "main": "car.js",
+	"type": "module",
   "browser": "car-browser.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
+    "build": "npx @mikeal/limbo test/test-*.js",
+    "prepublishOnly": "npm run build",
     "lint": "standard",
-    "test": "npm run lint && hundreds mocha test/test-*.js",
-    "docs": "jsdoc4readme --readme *.js lib/raw.js",
-    "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888"
+    "test:cjs": "rm -rf dist && npm run build && mocha dist/cjs-node/test/test-*.cjs && npm run test:cjs:browser",
+    "test:node": "hundreds mocha test/test-*.js",
+    "test:cjs:browser": "polendina --cleanup dist/cjs-browser/test/test-*.js",
+    "test": "npm run lint && npm run test:node && npm run test:cjs",
+    "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
+    "docs": "jsdoc4readme --readme *.js lib/raw.js"
   },
   "repository": {
     "type": "git",

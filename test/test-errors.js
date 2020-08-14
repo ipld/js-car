@@ -1,12 +1,19 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const fs = require('fs').promises
-const path = require('path')
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-const { readBuffer, readFileComplete, writeStream } = require('../')(multiformats)
-const { acid, car } = require('./fixture-data')
+import assert from 'assert'
+import { promises as fs } from 'fs'
+import path from 'path'
+import multiformats from 'multiformats/basics.js'
+import { acid, car } from './fixture-data.js'
+import dagCbor from '@ipld/dag-cbor'
+import Car from '../car.js'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+multiformats.add(dagCbor)
+const { readBuffer, readFileComplete, writeStream } = Car(multiformats)
 
 describe('Errors', () => {
   it('unimplemented methods', async () => {

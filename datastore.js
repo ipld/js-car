@@ -1,5 +1,7 @@
-const { filter, map } = require('interface-datastore').utils
-const { toKey } = require('./lib/util')
+import interfaceDatastore from 'interface-datastore'
+import { toKey } from './lib/util.js'
+
+const { filter, map } = interfaceDatastore.utils
 
 /**
  * CarDatastore is a class to manage reading from, and writing to a CAR archives
@@ -225,4 +227,4 @@ class CarDatastore {
   }
 }
 
-module.exports = CarDatastore
+export default CarDatastore

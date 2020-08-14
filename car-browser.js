@@ -1,6 +1,6 @@
-const { NoWriter } = require('./lib/reader-writer-iface')
-const { createBufferReader } = require('./lib/reader-browser')
-const CarDatastore = require('./datastore')
+import { NoWriter } from './lib/reader-writer-iface.js'
+import { createBufferReader } from './lib/reader-browser.js'
+import CarDatastore from './datastore.js'
 
 /**
  * @name CarDatastore.readBuffer
@@ -29,7 +29,7 @@ async function readBuffer (multiformats, buffer) {
   return new CarDatastore(multiformats, reader, writer)
 }
 
-module.exports = (multiformats) => {
+export default (multiformats) => {
   function wrap (fn) {
     return function (...args) {
       return fn(multiformats, ...args)
@@ -40,4 +40,5 @@ module.exports = (multiformats) => {
     readBuffer: wrap(readBuffer)
   }
 }
-module.exports.readBuffer = readBuffer
+
+export { readBuffer }

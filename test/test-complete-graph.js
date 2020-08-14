@@ -1,12 +1,18 @@
 /* eslint-env mocha */
 
-const assert = require('assert')
-const multiformats = require('multiformats/basics.js')
-multiformats.add(require('@ipld/dag-cbor'))
-multiformats.multibase.add(require('multiformats/bases/base58.js'))
-const { writeStream, readBuffer, completeGraph } = require('../car')(multiformats)
-const Block = require('@ipld/block')(multiformats)
-const { PassThrough } = require('stream')
+import assert from 'assert'
+import multiformats from 'multiformats/basics.js'
+import { PassThrough } from 'stream'
+
+import IpldBlock from '@ipld/block'
+import Car from '../car.js'
+import dagCbor from '@ipld/dag-cbor'
+import base58 from 'multiformats/bases/base58.js'
+
+multiformats.add(dagCbor)
+multiformats.multibase.add(base58)
+const { writeStream, readBuffer, completeGraph } = Car(multiformats)
+const Block = IpldBlock(multiformats)
 
 const same = assert.deepStrictEqual
 
