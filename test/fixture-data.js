@@ -1,10 +1,10 @@
 import assert from 'assert'
 import IpldDagPb from 'ipld-dag-pb'
 import CID from 'cids'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 
 import dagCbor from '@ipld/dag-cbor'
-import base58 from 'multiformats/bases/base58.js'
+import base58 from 'multiformats/bases/base58'
 
 const { DAGNode, DAGLink, util: pbUtil } = IpldDagPb
 
@@ -17,7 +17,7 @@ const cborBlocks = []
 let allBlocks
 let allBlocksFlattened
 
-const acid = new multiformats.CID('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
+const acid = multiformats.CID.from('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
 
 function toCBORStruct (name, link) {
   return { name, link }
@@ -25,26 +25,26 @@ function toCBORStruct (name, link) {
 
 async function toPbBlock (pnd) {
   const binary = pbUtil.serialize(pnd)
-  const cid = new multiformats.CID((await pbUtil.cid(binary, { cidVersion: 0 })).toString())
+  const cid = multiformats.CID.from((await pbUtil.cid(binary, { cidVersion: 0 })).toString())
   return { cid, binary }
 }
 
 async function toCborBlock (cb) {
   const binary = await multiformats.encode(cb, 'dag-cbor')
   const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-  const cid = new multiformats.CID(1, multiformats.get('dag-cbor').code, mh)
+  const cid = multiformats.CID.create(1, multiformats.get('dag-cbor').code, mh)
   return { cid, binary }
 }
 
 async function toRawBlock (binary) {
   const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-  const cid = new multiformats.CID(1, multiformats.get('raw').code, mh)
+  const cid = multiformats.CID.create(1, multiformats.get('raw').code, mh)
   return { cid, binary }
 }
 
 async function makeData () {
   if (!rawBlocks) {
-    rawBlocks = await Promise.all('aaaa bbbb cccc zzzz'.split(' ').map((s) => toRawBlock(Buffer.from(s))))
+    rawBlocks = await Promise.all('aaaa bbbb cccc zzzz'.split(' ').map((s) => toRawBlock(new TextEncoder().encode(s))))
 
     const pnd1 = new DAGNode(null, [
       new DAGLink('cat', rawBlocks[0].binary.byteLength, new CID(rawBlocks[0].cid.toString()))
@@ -103,8 +103,8 @@ async function verifyDecoded (decoded, singleRoot) {
     const index = expectedCids.indexOf(cid.toString())
     assert.ok(index >= 0, 'got expected block')
     assert.strictEqual(
-      Buffer.from(expectedBlocks[index].binary).toString('hex'),
-      Buffer.from(block.binary).toString('hex'),
+      toHex(expectedBlocks[index].binary),
+      toHex(block.binary),
       'got expected block content')
     expectedBlocks.splice(index, 1)
     expectedCids.splice(index, 1)
@@ -138,11 +138,11 @@ async function verifyHas (carDs, modified) {
   }
 
   // not a block we have
-  await verifyHasnt((await toRawBlock(Buffer.from('dddd'))).cid, 'dddd')
+  await verifyHasnt((await toRawBlock(new TextEncoder().encode('dddd'))).cid, 'dddd')
 }
 
 function compareBlockData (actual, expected, id) {
-  assert.strictEqual(Buffer.from(actual).toString('hex'), Buffer.from(expected).toString('hex'), `comparing block as hex ${id}`)
+  assert.strictEqual(toHex(actual), toHex(expected), `comparing block as hex ${id}`)
 }
 
 async function verifyBlocks (carDs, modified) {
@@ -185,6 +185,14 @@ async function verifyRoots (carDs, modified) {
   assert.deepStrictEqual((await carDs.getRoots()).map((c) => c.toString()), expected)
 }
 
-const car = Buffer.from('63a265726f6f747382d82a58250001711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8bd82a5825000171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365b6776657273696f6e01280155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b461616161280155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e646877626262622801551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a2745163636363511220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d0122d0a240155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b4120363617418048001122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a122d0a240155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e6468771203646f671804122d0a221220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d01205666972737418338301122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de122e0a2401551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a274511204626561721804122f0a22122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a12067365636f6e641895015b01711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8ba2646c696e6bd82a582300122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de646e616d6564626c6970360171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365ba2646c696e6bf6646e616d65656c696d626f', 'hex')
+function toHex (b) {
+  return b.reduce((hex, byte) => hex + byte.toString(16).padStart(2, '0'), '')
+}
 
-export { makeData, verifyBlocks, verifyHas, verifyRoots, acid, compareBlockData, verifyDecoded, car }
+function fromHex (str) {
+  return new Uint8Array(str.match(/../g).map(b => parseInt(b, 16)))
+}
+
+const car = fromHex('63a265726f6f747382d82a58250001711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8bd82a5825000171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365b6776657273696f6e01280155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b461616161280155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e646877626262622801551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a2745163636363511220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d0122d0a240155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b4120363617418048001122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a122d0a240155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e6468771203646f671804122d0a221220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d01205666972737418338301122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de122e0a2401551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a274511204626561721804122f0a22122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a12067365636f6e641895015b01711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8ba2646c696e6bd82a582300122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de646e616d6564626c6970360171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365ba2646c696e6bf6646e616d65656c696d626f')
+
+export { makeData, verifyBlocks, verifyHas, verifyRoots, acid, compareBlockData, verifyDecoded, toHex, fromHex, car }

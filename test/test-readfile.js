@@ -2,11 +2,11 @@
 
 import assert from 'assert'
 import path from 'path'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 import { acid, makeData, verifyBlocks, verifyHas, verifyRoots } from './fixture-data.js'
 import dagCbor from '@ipld/dag-cbor'
-import base58 from 'multiformats/bases/base58.js'
-import Car from '../car.js'
+import base58 from 'multiformats/bases/base58'
+import Car from 'datastore-car'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -43,8 +43,8 @@ describe('Read File', () => {
   // when we instantiate from a File, CarDatastore should be immutable
   it('immutable', async () => {
     const carDs = await readFileComplete(path.join(__dirname, 'go.car'))
-    await assert.rejects(carDs.put(acid, Buffer.from('blip')))
-    await assert.rejects(carDs.delete(acid, Buffer.from('blip')))
+    await assert.rejects(carDs.put(acid, new TextEncoder().encode('blip')))
+    await assert.rejects(carDs.delete(acid, new TextEncoder().encode('blip')))
     await assert.rejects(carDs.setRoots(acid))
     await assert.rejects(carDs.setRoots([acid]))
   })

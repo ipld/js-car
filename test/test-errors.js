@@ -3,10 +3,10 @@
 import assert from 'assert'
 import { promises as fs } from 'fs'
 import path from 'path'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 import { acid, car } from './fixture-data.js'
 import dagCbor from '@ipld/dag-cbor'
-import Car from '../car.js'
+import Car from 'datastore-car'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -56,8 +56,8 @@ describe('Errors', () => {
 
   it('bad puts', async () => {
     const carDs = await writeStream(fs.createWriteStream('test.car'))
-    await assert.rejects(carDs.put(acid, 'blip')) // not a Buffer value
-    await assert.rejects(carDs.put('blip', Buffer.from('blip')), /only accepts CIDs or CID strings/) // not a CID key
+    await assert.rejects(carDs.put(acid, 'blip')) // not a Uint8Array value
+    await assert.rejects(carDs.put('blip', new TextEncoder().encode('blip')), /only accepts CIDs or CID strings/) // not a CID key
     await carDs.close()
   })
 

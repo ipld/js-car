@@ -4,7 +4,7 @@ import assert from 'assert'
 import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 import { makeData, verifyDecoded } from './fixture-data.js'
 import * as coding from '../lib/coding.js'
 import dagCbor from '@ipld/dag-cbor'
@@ -44,11 +44,11 @@ describe('Decode', () => {
     // truncated
     await assert.rejects(coding.decodeBuffer(multiformats, buf.slice(0, buf.length - 10)), {
       name: 'Error',
-      message: 'Unexpected end of Buffer'
+      message: 'Unexpected end of data'
     })
 
     // cid v0
-    const buf2 = Buffer.alloc(buf.length)
+    const buf2 = new Uint8Array(buf.length)
     buf.copy(buf2)
     buf2[101] = 0 // first block's CID
     await assert.rejects(coding.decodeBuffer(multiformats, buf2), {

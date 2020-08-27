@@ -1,20 +1,20 @@
 /* eslint-env mocha */
 
 import assert from 'assert'
-import multiformats from 'multiformats/basics.js'
-import { PassThrough } from 'stream'
+import multiformats from 'multiformats/basics'
+import stream from 'readable-stream'
 
 import IpldBlock from '@ipld/block'
-import Car from '../car.js'
+import Car from 'datastore-car'
 import dagCbor from '@ipld/dag-cbor'
-import base58 from 'multiformats/bases/base58.js'
+import base58 from 'multiformats/bases/base58'
 
 multiformats.add(dagCbor)
 multiformats.multibase.add(base58)
 const { writeStream, readBuffer, completeGraph } = Car(multiformats)
 const Block = IpldBlock(multiformats)
-
 const same = assert.deepStrictEqual
+const { PassThrough } = stream
 
 function all (car) {
   const _traverse = async function * (link, seen = new Set()) {
@@ -52,14 +52,20 @@ async function concat (stream) {
   for await (const buffer of stream) {
     buffers.push(buffer)
   }
-  return Buffer.concat(buffers)
+  const ret = new Uint8Array(buffers.reduce((p, c) => p + c.length, 0))
+  let off = 0
+  for (const b of buffers) {
+    ret.set(b, off)
+    off += b.length
+  }
+  return ret
 }
 
 describe('Create car for full graph', () => {
   it('small graph', async () => {
     const leaf1 = Block.encoder({ hello: 'world' }, 'dag-cbor')
     const leaf2 = Block.encoder({ test: 1 }, 'dag-cbor')
-    const raw = Block.encoder(Buffer.from('test'), 'raw')
+    const raw = Block.encoder(new TextEncoder().encode('test'), 'raw')
     const root = Block.encoder(
       {
         one: await leaf1.cid(),

@@ -9,16 +9,19 @@ The interface wraps a [Datastore](https://github.com/ipfs/interface-datastore), 
 ## Example
 
 ```js
-const fs = require('fs')
-const multiformats = require('multiformats/basics')
+import fs from 'fs'
+import multiformats from 'multiformats/basics'
+import car from 'datastore-car'
+import dagCbor from '@ipld/dag-cbor'
+
 // dag-cbor is required for the CAR root block
-multiformats.add(require('@ipld/dag-cbor'))
-const CarDatastore = require('datastore-car')(multiformats)
+multiformats.add(dagCbor)
+const CarDatastore = car(multiformats)
 
 async function example () {
-  const binary = Buffer.from('random meaningless bytes')
+  const binary = new TextEncoder().encode('random meaningless bytes')
   const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-  const cid = new multiformats.CID(1, multiformats.get('raw').code, mh)
+  const cid = multiformats.CID.create(1, multiformats.get('raw').code, mh)
 
   const outStream = fs.createWriteStream('example.car')
   const writeDs = await CarDatastore.writeStream(outStream)
@@ -39,10 +42,10 @@ async function example () {
   const roots = await readDs.getRoots()
   // retrieve a block, as a UInt8Array, reading from the ZIP archive
   const got = await readDs.get(roots[0])
-  // also possible: for await (const {key, data} = readDs.query()) { ... }
+  // also possible: for await (const { key, value } of readDs.query()) { ... }
 
   console.log('Retrieved [%s] from example.car with CID [%s]',
-    Buffer.from(got).toString(),
+    new TextDecoder().decode(got),
     roots[0].toString())
 
   await readDs.close()
@@ -62,14 +65,14 @@ Retrieved [random meaningless bytes] from example.car with CID [bafkreihwkf6mtnj
 
 In this example, the `writeStream()` create-mode is used to generate the CAR file, this allows for an iterative write process where first the roots are set (`setRoots()`) and then all of the blocks are written (`put()`). After it is created, we use the `readStreamComplete()` create-mode to read the contents. Other create-modes are useful where the environment, data and needs demand:
 
-* **[`CarDatastore.readBuffer(buffer)`](#CarDatastore__readBuffer)**: read a CAR archive from a `Buffer` or `Uint8Array`. Does not support mutation operations, only reads. This mode is not efficient for large data sets but does support `get()` and `has()` operations since it caches the entire archive in memory. This mode is the only mode _available_ in a browser environment
+* **[`CarDatastore.readBuffer(buffer)`](#CarDatastore__readBuffer)**: read a CAR archive from a `Uint8Array`. Does not support mutation operations, only reads. This mode is not efficient for large data sets but does support `get()` and `has()` operations since it caches the entire archive in memory. This mode is the only mode _available_ in a browser environment
 * **[`CarDatastore.readFileComplete(file)`](#CarDatastore__readFileComplete)**: read a CAR archive directly from a file. Does not support mutation operations, only reads. This mode is not efficient for large data sets but does support `get()` and `has()` operations since it caches the entire archive in memory. This mode is _not available_ in a browser environment.
 * **[`CarDatastore.readStreamComplete(stream)`](#CarDatastore__readStreamComplete)**: read a CAR archive directly from a stream. Does not support mutation operations, only reads. This mode is not efficient for large data sets but does support `get()` and `has()` operations since it caches the entire archive in memory. This mode is _not available_ in a browser environment.
 * **[`CarDatastore.readStreaming(stream)`](#CarDatastore__readStreaming)**: read a CAR archive directly from a stream. Does not support mutation operations, and only supports iterative reads via `query()` (i.e. no `get()` and `has()`). This mode is very efficient for large data sets. This mode is _not available_ in a browser environment.
 * **[`async CarDatastore.readFileIndexed(stream)`](#CarDatastore__readFileIndexed)**: read a CAR archive from a local file, index its contents and use that index to support random access reads (`has()`, `get()` and `query()`) without fitting the entire contents in memory as `readFileComplete()` does. Uses more memory than `readStreaming()` and less than `readFileComplete()`. Will be slower to initialize than `readStreaming()` but suitable where random access reads are required from a large file.
 * **[`CarDatastore.writeStream(stream)`](#CarDatastore__writeStream)**: write a CAR archive to a stream (e.g. `fs.createWriteStream(file)`). Does not support read operations, only writes, and the writes are append-only (i.e. no `delete()`). However, this mode is very efficient for dumping large data sets, with no caching and streaming writes. This mode is _not available_ in a browser environment.
 
-Other create-modes may be supported in the future, such as writing to a Buffer (although this is already possible if you couple `writeStream()` with a [`BufferListStream`](https://ghub.io/bl)) or a read/write mode such as datastore-zipcar makes available.
+Other create-modes may be supported in the future, such as writing to a Uint8Array (although this is already possible if you couple `writeStream()` with a [`BufferListStream`](https://ghub.io/bl)) or a read/write mode such as datastore-zipcar makes available.
 
 ## API
 
@@ -97,7 +100,7 @@ Other create-modes may be supported in the future, such as writing to a Buffer (
 <a name="CarDatastore__readBuffer"></a>
 ### `async CarDatastore.readBuffer(buffer)`
 
-Read a CarDatastore from a Buffer containing the contents of an existing
+Read a CarDatastore from a Uint8Array containing the contents of an existing
 CAR archive. Mutation operations (`put()`, `delete()` and `setRoots()`) are
 not available.
 
@@ -111,7 +114,7 @@ environment.
 
 **Parameters:**
 
-* **`buffer`** _(`Buffer|Uint8Array`)_: the byte contents of a CAR archive
+* **`buffer`** _(`Uint8Array`)_: the byte contents of a CAR archive
 
 **Return value**  _(`CarDatastore`)_: a read-only CarDatastore.
 
@@ -291,7 +294,7 @@ may throw an error if unsupported.
 * **`key`** _(`string|Key|CID`)_: a `CID` or `CID`-convertable object to identify
   the block.
 
-**Return value**  _(`Buffer`)_: the IPLD block data referenced by the CID.
+**Return value**  _(`Uint8Array`)_: the IPLD block data referenced by the CID.
 
 <a name="CarDatastore_has"></a>
 ### `async CarDatastore#has(key)`
@@ -325,7 +328,7 @@ and an Error will be thrown when it is called.
 
 * **`key`** _(`string|Key|CID`)_: a `CID` or `CID`-convertable object to identify
   the `value`.
-* **`value`** _(`Buffer|Uint8Array`)_: an IPLD block matching the given `key`
+* **`value`** _(`Uint8Array`)_: an IPLD block matching the given `key`
   `CID`.
 
 <a name="CarDatastore_delete"></a>

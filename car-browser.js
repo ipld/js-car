@@ -5,7 +5,7 @@ import CarDatastore from './datastore.js'
 /**
  * @name CarDatastore.readBuffer
  * @description
- * Read a CarDatastore from a Buffer containing the contents of an existing
+ * Read a CarDatastore from a Uint8Array containing the contents of an existing
  * CAR archive. Mutation operations (`put()`, `delete()` and `setRoots()`) are
  * not available.
  *
@@ -20,7 +20,7 @@ import CarDatastore from './datastore.js'
  * @memberof CarDatastore
  * @static
  * @async
- * @param {Buffer|Uint8Array} buffer the byte contents of a CAR archive
+ * @param {Uint8Array} buffer the byte contents of a CAR archive
  * @returns {CarDatastore} a read-only CarDatastore.
  */
 async function readBuffer (multiformats, buffer) {

@@ -1,15 +1,16 @@
 import fs from 'fs'
 import multiformats from 'multiformats/basics'
-import car from './'
+import car from 'datastore-car'
+import dagCbor from '@ipld/dag-cbor'
 
 // dag-cbor is required for the CAR root block
-multiformats.add(require('@ipld/dag-cbor'))
+multiformats.add(dagCbor)
 const CarDatastore = car(multiformats)
 
 async function example () {
-  const binary = Buffer.from('random meaningless bytes')
+  const binary = new TextEncoder().encode('random meaningless bytes')
   const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-  const cid = new multiformats.CID(1, multiformats.get('raw').code, mh)
+  const cid = multiformats.CID.create(1, multiformats.get('raw').code, mh)
 
   const outStream = fs.createWriteStream('example.car')
   const writeDs = await CarDatastore.writeStream(outStream)
@@ -30,10 +31,10 @@ async function example () {
   const roots = await readDs.getRoots()
   // retrieve a block, as a UInt8Array, reading from the ZIP archive
   const got = await readDs.get(roots[0])
-  // also possible: for await (const {key, data} = readDs.query()) { ... }
+  // also possible: for await (const { key, value } of readDs.query()) { ... }
 
   console.log('Retrieved [%s] from example.car with CID [%s]',
-    Buffer.from(got).toString(),
+    new TextDecoder().decode(got),
     roots[0].toString())
 
   await readDs.close()

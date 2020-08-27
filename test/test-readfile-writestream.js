@@ -2,12 +2,12 @@
 
 import assert from 'assert'
 import fs from 'fs'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 import { makeData, verifyBlocks, verifyHas, verifyRoots } from './fixture-data.js'
 import { promisify } from 'util'
 import dagCbor from '@ipld/dag-cbor'
-import base58 from 'multiformats/bases/base58.js'
-import Car from '../car.js'
+import base58 from 'multiformats/bases/base58'
+import Car from 'datastore-car'
 
 const unlink = promisify(fs.unlink)
 

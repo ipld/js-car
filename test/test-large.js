@@ -4,9 +4,9 @@ import assert from 'assert'
 import fs from 'fs'
 import garbage from 'garbage'
 import varint from 'varint'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 import dagCbor from '@ipld/dag-cbor'
-import Car from '../car.js'
+import Car from 'datastore-car'
 import { promisify } from 'util'
 
 const unlink = promisify(fs.unlink)
@@ -31,13 +31,13 @@ describe('Large CAR', () => {
       objects.push(obj)
       const binary = await multiformats.encode(obj, 'dag-cbor')
       const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-      const cid = new multiformats.CID(1, multiformats.get('dag-cbor').code, mh)
+      const cid = multiformats.CID.create(1, multiformats.get('dag-cbor').code, mh)
       cids.push(cid.toString())
       const blockLength = binary.length
-      let length = cid.buffer.length + blockLength
+      let length = cid.bytes.length + blockLength
       const lengthLength = varint.encode(length).length
       length += lengthLength
-      const blockOffset = offset + lengthLength + cid.buffer.length
+      const blockOffset = offset + lengthLength + cid.bytes.length
       expectedIndex.push({ cid, offset, length, blockOffset, blockLength })
       offset += length
       await carDs.put(cid, binary)

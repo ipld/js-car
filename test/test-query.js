@@ -2,11 +2,11 @@
 
 import assert from 'assert'
 import path from 'path'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 import { car, makeData, compareBlockData } from './fixture-data.js'
-import Car from '../car.js'
+import Car from 'datastore-car'
 import dagCbor from '@ipld/dag-cbor'
-import base58 from 'multiformats/bases/base58.js'
+import base58 from 'multiformats/bases/base58'
 
 multiformats.add(dagCbor)
 multiformats.multibase.add(base58)
@@ -84,7 +84,7 @@ for (const [factoryName, factoryFn] of factories) {
       const blocks_ = []
       const cids = []
       for (const block of blocks) {
-        const cid = new multiformats.CID(block.cid.toString())
+        const cid = multiformats.CID.from(block.cid.toString())
         if (cid.code === multiformats.get('dag-cbor').code) {
           cids.push(cid.toString())
           blocks_.push(block)

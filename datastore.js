@@ -31,7 +31,7 @@ class CarDatastore {
    * @memberof CarDatastore
    * @param {string|Key|CID} key a `CID` or `CID`-convertable object to identify
    * the block.
-   * @return {Buffer} the IPLD block data referenced by the CID.
+   * @return {Uint8Array} the IPLD block data referenced by the CID.
    */
   async get (key) {
     key = toKey(this._multiformats, key, 'get')
@@ -74,7 +74,7 @@ class CarDatastore {
    * @memberof CarDatastore
    * @param {string|Key|CID} key a `CID` or `CID`-convertable object to identify
    * the `value`.
-   * @param {Buffer|Uint8Array} value an IPLD block matching the given `key`
+   * @param {Uint8Array} value an IPLD block matching the given `key`
    * `CID`.
    */
   async put (key, value) {

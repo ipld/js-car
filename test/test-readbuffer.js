@@ -1,11 +1,11 @@
 /* eslint-env mocha */
 
 import assert from 'assert'
-import multiformats from 'multiformats/basics.js'
+import multiformats from 'multiformats/basics'
 import { acid, car, makeData, verifyBlocks, verifyHas, verifyRoots } from './fixture-data.js'
 import dagCbor from '@ipld/dag-cbor'
-import base58 from 'multiformats/bases/base58.js'
-import Car from '../car.js'
+import base58 from 'multiformats/bases/base58'
+import Car from 'datastore-car'
 
 multiformats.add(dagCbor)
 multiformats.multibase.add(base58)
@@ -47,11 +47,11 @@ describe('Read Buffer', () => {
     await carDs.close()
   })
 
-  // when we instantiate from a Buffer, CarDatastore should be immutable
+  // when we instantiate from a Uint8Array, CarDatastore should be immutable
   it('immutable', async () => {
     const carDs = await readBuffer(car)
-    await assert.rejects(carDs.put(acid, Buffer.from('blip')))
-    await assert.rejects(carDs.delete(acid, Buffer.from('blip')))
+    await assert.rejects(carDs.put(acid, new TextEncoder().encode('blip')))
+    await assert.rejects(carDs.delete(acid, new TextEncoder().encode('blip')))
     await assert.rejects(carDs.setRoots(acid))
     await assert.rejects(carDs.setRoots([acid]))
   })
