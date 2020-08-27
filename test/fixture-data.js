@@ -1,10 +1,14 @@
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import IpldDagPb from 'ipld-dag-pb'
 import CID from 'cids'
 import multiformats from 'multiformats/basics'
 
 import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 const { DAGNode, DAGLink, util: pbUtil } = IpldDagPb
 
@@ -162,7 +166,7 @@ async function verifyBlocks (carDs, modified) {
       const block = blocks[i]
 
       if (modified && i === 1) {
-        await assert.rejects(carDs.get(block.cid), {
+        await assert.isRejected(carDs.get(block.cid), {
           name: 'Error',
           message: 'Not Found'
         })

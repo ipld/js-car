@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { promisify } from 'util'
 import fs from 'fs'
 import bl from 'bl'
@@ -8,6 +9,9 @@ import multiformats from 'multiformats/basics'
 import { verifyDecoded, makeData } from './fixture-data.js'
 import * as coding from '../lib/coding.js'
 import dagCbor from '@ipld/dag-cbor'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 fs.readFile = promisify(fs.readFile)
 fs.unlink = promisify(fs.unlink)
@@ -65,12 +69,12 @@ describe('Encode', () => {
   })
 
   it('encode errors', async () => {
-    await assert.rejects(coding.encodeBuffer(multiformats, ['blip'], allBlocks), {
+    await assert.isRejected(coding.encodeBuffer(multiformats, ['blip'], allBlocks), {
       name: 'TypeError',
       message: 'Roots must be CIDs'
     })
 
-    await assert.rejects(coding.encodeBuffer(multiformats, roots, ['blip']), {
+    await assert.isRejected(coding.encodeBuffer(multiformats, roots, ['blip']), {
       name: 'TypeError',
       message: 'Block list must be of type { cid, binary }'
     })

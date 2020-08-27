@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import fs from 'fs'
 import path from 'path'
 import multiformats from 'multiformats/basics'
@@ -9,6 +10,9 @@ import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
 import Car from 'datastore-car'
 import { fileURLToPath } from 'url'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -86,13 +90,13 @@ describe('Read Stream', () => {
 
   it('errors & immutability', async () => {
     const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
-    await assert.rejects(carDs.has(allBlocks[0].cid))
-    await assert.rejects(carDs.get(allBlocks[0].cid))
+    await assert.isRejected(carDs.has(allBlocks[0].cid))
+    await assert.isRejected(carDs.get(allBlocks[0].cid))
 
     // when we instantiate from a Stream, CarDatastore should be immutable
-    await assert.rejects(carDs.put(acid, new TextEncoder().encode('blip')))
-    await assert.rejects(carDs.delete(acid, new TextEncoder().encode('blip')))
-    await assert.rejects(carDs.setRoots(acid))
-    await assert.rejects(carDs.setRoots([acid]))
+    await assert.isRejected(carDs.put(acid, new TextEncoder().encode('blip')))
+    await assert.isRejected(carDs.delete(acid, new TextEncoder().encode('blip')))
+    await assert.isRejected(carDs.setRoots(acid))
+    await assert.isRejected(carDs.setRoots([acid]))
   })
 })

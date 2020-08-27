@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs'
@@ -10,6 +11,9 @@ import Car from 'datastore-car'
 import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
 import { fileURLToPath } from 'url'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -97,12 +101,12 @@ describe('Raw', () => {
   })
 
   it('errors', async () => {
-    await assert.rejects(indexer(), {
+    await assert.isRejected(indexer(), {
       name: 'TypeError',
       message: 'indexer() requires a file path or a ReadableStream'
     })
 
-    await assert.rejects(readRaw(true, expectedIndex[0]), {
+    await assert.isRejected(readRaw(true, expectedIndex[0]), {
       name: 'TypeError',
       message: 'Bad fd'
     })
@@ -110,7 +114,7 @@ describe('Raw', () => {
     const badBlock = Object.assign({}, expectedIndex[expectedIndex.length - 1])
     badBlock.blockLength += 10
     const fd = await fs.open(path.join(__dirname, 'go.car'))
-    await assert.rejects(readRaw(fd, badBlock), {
+    await assert.isRejected(readRaw(fd, badBlock), {
       name: 'Error',
       message: `Failed to read entire block (${badBlock.blockLength - 10} instead of ${badBlock.blockLength})`
     })

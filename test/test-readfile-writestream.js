@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import fs from 'fs'
 import multiformats from 'multiformats/basics'
 import { makeData, verifyBlocks, verifyHas, verifyRoots } from './fixture-data.js'
@@ -8,6 +9,9 @@ import { promisify } from 'util'
 import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
 import Car from 'datastore-car'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 const unlink = promisify(fs.unlink)
 
@@ -73,9 +77,9 @@ describe('Read File & Write Stream', () => {
   it('writeStream errors', async () => {
     const carDs = await writeStream(fs.createWriteStream('./test.car'))
     await carDs.put(cborBlocks[0].cid, cborBlocks[0].binary)
-    await assert.rejects(carDs.delete(cborBlocks[0].cid))
+    await assert.isRejected(carDs.delete(cborBlocks[0].cid))
     await carDs.close()
-    await assert.rejects(carDs.close())
+    await assert.isRejected(carDs.close())
   })
 
   after(async () => {

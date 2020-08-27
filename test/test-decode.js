@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs'
@@ -9,6 +10,9 @@ import { makeData, verifyDecoded } from './fixture-data.js'
 import * as coding from '../lib/coding.js'
 import dagCbor from '@ipld/dag-cbor'
 import { fileURLToPath } from 'url'
+
+chai.use(chaiAsPromised)
+const { assert } = chai
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -42,7 +46,7 @@ describe('Decode', () => {
   it('decode errors', async () => {
     const buf = await fs.readFile(path.join(__dirname, 'go.car'))
     // truncated
-    await assert.rejects(coding.decodeBuffer(multiformats, buf.slice(0, buf.length - 10)), {
+    await assert.isRejected(coding.decodeBuffer(multiformats, buf.slice(0, buf.length - 10)), {
       name: 'Error',
       message: 'Unexpected end of data'
     })
@@ -51,7 +55,7 @@ describe('Decode', () => {
     const buf2 = new Uint8Array(buf.length)
     buf.copy(buf2)
     buf2[101] = 0 // first block's CID
-    await assert.rejects(coding.decodeBuffer(multiformats, buf2), {
+    await assert.isRejected(coding.decodeBuffer(multiformats, buf2), {
       name: 'Error',
       message: 'Unexpected CID version (0)'
     })

@@ -1,27 +1,19 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import multiformats from 'multiformats/basics'
 import { acid, car, makeData, verifyBlocks, verifyHas, verifyRoots } from './fixture-data.js'
 import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
 import Car from 'datastore-car'
 
+chai.use(chaiAsPromised)
+const { assert } = chai
+
 multiformats.add(dagCbor)
 multiformats.multibase.add(base58)
 const { readBuffer } = Car(multiformats)
-
-if (!assert.rejects) {
-  // browser polyfill is incomplete
-  assert.rejects = async (promise, msg) => {
-    try {
-      await promise
-    } catch (err) {
-      return
-    }
-    assert.fail(`Promise did not reject: ${msg}`)
-  }
-}
 
 let rawBlocks
 
@@ -36,7 +28,7 @@ describe('Read Buffer', () => {
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)
-    await assert.rejects(carDs.get(rawBlocks[3].cid)) // doesn't exist
+    await assert.isRejected(carDs.get(rawBlocks[3].cid)) // doesn't exist
     await carDs.close()
   })
 
@@ -50,9 +42,9 @@ describe('Read Buffer', () => {
   // when we instantiate from a Uint8Array, CarDatastore should be immutable
   it('immutable', async () => {
     const carDs = await readBuffer(car)
-    await assert.rejects(carDs.put(acid, new TextEncoder().encode('blip')))
-    await assert.rejects(carDs.delete(acid, new TextEncoder().encode('blip')))
-    await assert.rejects(carDs.setRoots(acid))
-    await assert.rejects(carDs.setRoots([acid]))
+    await assert.isRejected(carDs.put(acid, new TextEncoder().encode('blip')))
+    await assert.isRejected(carDs.delete(acid, new TextEncoder().encode('blip')))
+    await assert.isRejected(carDs.setRoots(acid))
+    await assert.isRejected(carDs.setRoots([acid]))
   })
 })

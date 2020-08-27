@@ -39,6 +39,8 @@
     "@ipld/dag-cbor": "^1.1.10",
     "assert": "^2.0.0",
     "bl": "^4.0.3",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "cids": "^1.0.0",
     "garbage": "0.0.0",
     "hundreds": "0.0.8",

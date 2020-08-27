@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
 import fs from 'fs'
 import garbage from 'garbage'
 import varint from 'varint'
@@ -8,6 +8,8 @@ import multiformats from 'multiformats/basics'
 import dagCbor from '@ipld/dag-cbor'
 import Car from 'datastore-car'
 import { promisify } from 'util'
+
+const { assert } = chai
 
 const unlink = promisify(fs.unlink)
 

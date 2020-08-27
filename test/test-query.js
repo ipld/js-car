@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import path from 'path'
 import multiformats from 'multiformats/basics'
 import { car, makeData, compareBlockData } from './fixture-data.js'
@@ -8,21 +9,12 @@ import Car from 'datastore-car'
 import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
 
+chai.use(chaiAsPromised)
+const { assert } = chai
+
 multiformats.add(dagCbor)
 multiformats.multibase.add(base58)
 const { readBuffer, readFile } = Car(multiformats)
-
-if (!assert.rejects) {
-  // browser polyfill is incomplete
-  assert.rejects = async (promise, msg) => {
-    try {
-      await promise
-    } catch (err) {
-      return
-    }
-    assert.fail(`Promise did not reject: ${msg}`)
-  }
-}
 
 const factories = [['readBuffer', () => readBuffer(car)]]
 if (readFile) { // not in browser

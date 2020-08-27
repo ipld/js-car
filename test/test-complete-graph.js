@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import assert from 'assert'
+import chai from 'chai'
 import multiformats from 'multiformats/basics'
 import stream from 'readable-stream'
 
@@ -8,6 +8,8 @@ import IpldBlock from '@ipld/block'
 import Car from 'datastore-car'
 import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
+
+const { assert } = chai
 
 multiformats.add(dagCbor)
 multiformats.multibase.add(base58)
