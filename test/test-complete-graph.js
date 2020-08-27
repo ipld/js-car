@@ -15,31 +15,7 @@ multiformats.add(dagCbor)
 multiformats.multibase.add(base58)
 const { writeStream, readBuffer, completeGraph } = Car(multiformats)
 const Block = IpldBlock(multiformats)
-const same = assert.deepStrictEqual
 const { PassThrough } = stream
-
-function all (car) {
-  const _traverse = async function * (link, seen = new Set()) {
-    link = await link
-    seen.add(link.toString('base64'))
-    const encoded = await car.get(link)
-    const block = Block.create(encoded, link)
-    yield block
-    const cid = await block.cid()
-    if (cid.code === 0x55) {
-      return
-    }
-
-    for (const [, link] of block.reader().links()) {
-      if (seen.has(link.toString('base64'))) {
-        continue
-      }
-      yield * _traverse(link, seen)
-    }
-  }
-
-  return _traverse(car.getRoots().then(([root]) => root))
-}
 
 async function createGet (blocks) {
   const db = new Map()
@@ -77,20 +53,21 @@ describe('Create car for full graph', () => {
       },
       'dag-cbor')
     const expected = [root, leaf1, leaf2, raw]
+
     const get = await createGet(expected)
     const stream = new PassThrough()
     const car = await writeStream(stream)
     await completeGraph(await root.cid(), get, car)
     const data = await concat(stream)
 
-    const reader = await readBuffer(data)
-    const [readRoot, ...more] = await reader.getRoots()
-    same(more.length, 0)
-    assert.ok(readRoot.equals(await root.cid()))
+    const carDs = await readBuffer(data)
+    const roots = await carDs.getRoots()
+    assert.strictEqual(roots.length, 1)
+    assert.deepStrictEqual(roots[0], await root.cid())
 
-    for await (const block of all(reader)) {
+    for await (const { key: cid } of carDs.query()) {
       const expectedBlock = expected.shift()
-      assert.ok((await expectedBlock.cid()).equals(await block.cid()))
+      assert.strictEqual(cid, (await expectedBlock.cid()).toString())
     }
   })
 })
