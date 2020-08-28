@@ -1,5 +1,4 @@
 import interfaceDatastore from 'interface-datastore'
-import { toKey } from './lib/util.js'
 
 const { filter, map } = interfaceDatastore.utils
 
@@ -12,7 +11,7 @@ const { filter, map } = interfaceDatastore.utils
  */
 class CarDatastore {
   constructor (multiformats, reader, writer) {
-    this._multiformats = multiformats
+    this.multiformats = multiformats
     this._reader = reader
     this._writer = writer
   }
@@ -34,7 +33,7 @@ class CarDatastore {
    * @return {Uint8Array} the IPLD block data referenced by the CID.
    */
   async get (key) {
-    key = toKey(this._multiformats, key, 'get')
+    key = toKey(this.multiformats, key, 'get')
     return this._reader.get(key)
   }
 
@@ -55,7 +54,7 @@ class CarDatastore {
    * @return {boolean} indicating whether the key exists in this Datastore.
    */
   async has (key) {
-    key = toKey(this._multiformats, key, 'has')
+    key = toKey(this.multiformats, key, 'has')
     return this._reader.has(key)
   }
 
@@ -78,7 +77,7 @@ class CarDatastore {
    * `CID`.
    */
   async put (key, value) {
-    key = toKey(this._multiformats, key, 'put')
+    key = toKey(this.multiformats, key, 'put')
     if (!(value instanceof Uint8Array)) {
       throw new TypeError('put() can only receive Uint8Arrays or Buffers')
     }
@@ -97,7 +96,7 @@ class CarDatastore {
    * the block.
    */
   async delete (key) {
-    key = toKey(this._multiformats, key, 'delete')
+    key = toKey(this.multiformats, key, 'delete')
     return this._writer.delete(key)
   }
 
@@ -224,6 +223,14 @@ class CarDatastore {
     */
 
     return it
+  }
+}
+
+function toKey (multiformats, key, method) {
+  try {
+    return multiformats.CID.from(key.toString())
+  } catch (e) {
+    throw new TypeError(`${method}() only accepts CIDs or CID strings`)
   }
 }
 
