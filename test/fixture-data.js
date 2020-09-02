@@ -1,18 +1,18 @@
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import IpldDagPb from 'ipld-dag-pb'
-import CID from 'cids'
-import multiformats from 'multiformats/basics'
+import Block from '@ipld/block/basics'
 
 import dagCbor from '@ipld/dag-cbor'
+import dagPb from '@ipld/dag-pb'
 import base58 from 'multiformats/bases/base58'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
 
-const { DAGNode, DAGLink, util: pbUtil } = IpldDagPb
-
+const { multiformats, CID } = Block
+const { bytes } = multiformats
 multiformats.add(dagCbor)
+multiformats.add(dagPb)
 multiformats.multibase.add(base58)
 
 let rawBlocks
@@ -21,55 +21,53 @@ const cborBlocks = []
 let allBlocks
 let allBlocksFlattened
 
-const acid = multiformats.CID.from('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
+const acid = CID.from('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
 
-function toCBORStruct (name, link) {
-  return { name, link }
-}
-
-async function toPbBlock (pnd) {
-  const binary = pbUtil.serialize(pnd)
-  const cid = multiformats.CID.from((await pbUtil.cid(binary, { cidVersion: 0 })).toString())
-  return { cid, binary }
-}
-
-async function toCborBlock (cb) {
-  const binary = await multiformats.encode(cb, 'dag-cbor')
-  const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-  const cid = multiformats.CID.create(1, multiformats.get('dag-cbor').code, mh)
-  return { cid, binary }
-}
-
-async function toRawBlock (binary) {
-  const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-  const cid = multiformats.CID.create(1, multiformats.get('raw').code, mh)
-  return { cid, binary }
+async function toCidv0Block (block) {
+  const cid = CID.create(0, block.code, (await block.cid()).multihash)
+  return Block.create(block.encodeUnsafe(), cid)
 }
 
 async function makeData () {
   if (!rawBlocks) {
-    rawBlocks = await Promise.all('aaaa bbbb cccc zzzz'.split(' ').map((s) => toRawBlock(new TextEncoder().encode(s))))
+    rawBlocks = 'aaaa bbbb cccc zzzz'.split(' ').map((s) => {
+      return Block.encoder(new TextEncoder().encode(s), 'raw')
+    })
 
-    const pnd1 = new DAGNode(null, [
-      new DAGLink('cat', rawBlocks[0].binary.byteLength, new CID(rawBlocks[0].cid.toString()))
-    ])
-    pbBlocks.push(await toPbBlock(pnd1))
+    const toPbLink = async (name, block) => {
+      let size = block.encode().length
+      if ((await block.cid()).code === 0x70) {
+        // special cumulative size handling for linking to dag-pb blocks
+        size = block.decode().Links.reduce((p, c) => p + c.Tsize, size)
+      }
+      return {
+        Name: name,
+        Tsize: size,
+        Hash: await block.cid()
+      }
+    }
 
-    const pnd2 = new DAGNode(null, [
-      new DAGLink('dog', rawBlocks[1].binary.byteLength, new CID(rawBlocks[1].cid.toString())),
-      new DAGLink('first', pnd1.size, new CID(pbBlocks[0].cid.toString()).toString())
-    ])
-    pbBlocks.push(await toPbBlock(pnd2))
+    pbBlocks.push(await toCidv0Block(Block.encoder({
+      Links: [
+        await toPbLink('cat', rawBlocks[0])
+      ]
+    }, 'dag-pb')))
+    pbBlocks.push(await toCidv0Block(Block.encoder({
+      Links: [
+        await toPbLink('dog', rawBlocks[1]),
+        await toPbLink('first', pbBlocks[0])
+      ]
+    }, 'dag-pb')))
+    pbBlocks.push(await toCidv0Block(Block.encoder({
+      Links: [
+        await toPbLink('bear', rawBlocks[2]),
+        await toPbLink('second', pbBlocks[1])
+      ]
+    }, 'dag-pb')))
 
-    const pnd3 = new DAGNode(null, [
-      new DAGLink('bear', rawBlocks[2].binary.byteLength, new CID(rawBlocks[2].cid.toString())),
-      new DAGLink('second', pnd2.size, new CID(pbBlocks[1].cid.toString()))
-    ])
-    pbBlocks.push(await toPbBlock(pnd3))
-
-    const cbstructs = [toCBORStruct('blip', pbBlocks[2].cid), toCBORStruct('limbo', null)]
+    const cbstructs = [['blip', await pbBlocks[2].cid()], ['limbo', null]]
     for (const b of cbstructs) {
-      cborBlocks.push(await toCborBlock(b))
+      cborBlocks.push(Block.encoder({ name: b[0], link: b[1] }, 'dag-cbor'))
     }
 
     allBlocks = [['raw', rawBlocks.slice(0, 3)], ['pb', pbBlocks], ['cbor', cborBlocks]]
@@ -90,16 +88,16 @@ async function verifyDecoded (decoded, singleRoot) {
 
   assert.strictEqual(decoded.version, 1)
   assert.strictEqual(decoded.roots.length, singleRoot ? 1 : 2)
-  assert.strictEqual(decoded.roots[0].toString(), cborBlocks[0].cid.toString())
+  assert.strictEqual(decoded.roots[0].toString(), (await cborBlocks[0].cid()).toString())
   if (!singleRoot) {
-    assert.strictEqual(decoded.roots[1].toString(), cborBlocks[1].cid.toString())
+    assert.strictEqual(decoded.roots[1].toString(), (await cborBlocks[1].cid()).toString())
   }
   assert.strictEqual(decoded.blocks.length, allBlocksFlattened.length)
 
   const expectedBlocks = allBlocksFlattened.slice()
   const expectedCids = []
   for (const block of expectedBlocks) {
-    expectedCids.push(block.cid.toString())
+    expectedCids.push((await block.cid()).toString())
   }
 
   for (const block of decoded.blocks) {
@@ -107,8 +105,8 @@ async function verifyDecoded (decoded, singleRoot) {
     const index = expectedCids.indexOf(cid.toString())
     assert.ok(index >= 0, 'got expected block')
     assert.strictEqual(
-      toHex(expectedBlocks[index].binary),
-      toHex(block.binary),
+      bytes.toHex(expectedBlocks[index].encode()),
+      bytes.toHex(block.binary),
       'got expected block content')
     expectedBlocks.splice(index, 1)
     expectedCids.splice(index, 1)
@@ -124,15 +122,19 @@ async function verifyHas (carDs, modified) {
 
   async function verifyHasnt (cid, name) {
     assert.ok(!(await carDs.has(cid)), `datastore has unexpected key for ${name}`)
+    await assert.isRejected(carDs.get(cid), {
+      name: 'Error',
+      message: 'Not Found'
+    })
   }
 
   for (const [type, blocks] of allBlocks) {
     for (let i = 0; i < blocks.length; i++) {
       if (modified && i === 1) {
         // second of each type is removed from modified
-        await verifyHasnt(blocks[i].cid, `block #${i} (${type} / ${blocks[i].cid})`)
+        await verifyHasnt(await blocks[i].cid(), `block #${i} (${type} / ${await blocks[i].cid()})`)
       } else {
-        await verifyHas(blocks[i].cid, `block #${i} (${type} / ${blocks[i].cid})`)
+        await verifyHas(await blocks[i].cid(), `block #${i} (${type} / ${await blocks[i].cid()})`)
       }
     }
 
@@ -142,19 +144,23 @@ async function verifyHas (carDs, modified) {
   }
 
   // not a block we have
-  await verifyHasnt((await toRawBlock(new TextEncoder().encode('dddd'))).cid, 'dddd')
+  await verifyHasnt(await Block.encoder(new TextEncoder().encode('dddd'), 'raw').cid(), 'dddd')
 }
 
 function compareBlockData (actual, expected, id) {
-  assert.strictEqual(toHex(actual), toHex(expected), `comparing block as hex ${id}`)
+  assert.strictEqual(
+    bytes.toHex(actual),
+    bytes.toHex(expected),
+    `comparing block as hex ${id}`
+  )
 }
 
 async function verifyBlocks (carDs, modified) {
   async function verifyBlock (block, index, type) {
-    const expected = block.binary
+    const expected = block.encode()
     let actual
     try {
-      actual = await carDs.get(block.cid)
+      actual = await carDs.get(await block.cid())
     } catch (err) {
       assert.ifError(err, `get block length #${index} (${type})`)
     }
@@ -166,7 +172,8 @@ async function verifyBlocks (carDs, modified) {
       const block = blocks[i]
 
       if (modified && i === 1) {
-        await assert.isRejected(carDs.get(block.cid), {
+        // TODO: I don't think this branch is called anymore ...
+        await assert.isRejected(carDs.get(await block.cid()), {
           name: 'Error',
           message: 'Not Found'
         })
@@ -185,18 +192,22 @@ async function verifyBlocks (carDs, modified) {
 async function verifyRoots (carDs, modified) {
   // using toString() for now, backing buffers in Uint8Arrays are getting in the way
   // in the browser
-  const expected = [cborBlocks[0].cid.toString(), cborBlocks[1].cid.toString()]
+  const expected = [
+    (await cborBlocks[0].cid()).toString(),
+    (await cborBlocks[1].cid()).toString()
+  ]
   assert.deepStrictEqual((await carDs.getRoots()).map((c) => c.toString()), expected)
 }
 
-function toHex (b) {
-  return b.reduce((hex, byte) => hex + byte.toString(16).padStart(2, '0'), '')
+const car = bytes.fromHex('63a265726f6f747382d82a58250001711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8bd82a5825000171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365b6776657273696f6e01280155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b461616161280155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e646877626262622801551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a2745163636363511220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d0122d0a240155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b4120363617418048001122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a122d0a240155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e6468771203646f671804122d0a221220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d01205666972737418338301122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de122e0a2401551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a274511204626561721804122f0a22122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a12067365636f6e641895015b01711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8ba2646c696e6bd82a582300122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de646e616d6564626c6970360171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365ba2646c696e6bf6646e616d65656c696d626f')
+
+export {
+  makeData,
+  verifyBlocks,
+  verifyHas,
+  verifyRoots,
+  acid,
+  compareBlockData,
+  verifyDecoded,
+  car
 }
-
-function fromHex (str) {
-  return new Uint8Array(str.match(/../g).map(b => parseInt(b, 16)))
-}
-
-const car = fromHex('63a265726f6f747382d82a58250001711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8bd82a5825000171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365b6776657273696f6e01280155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b461616161280155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e646877626262622801551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a2745163636363511220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d0122d0a240155122061be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b4120363617418048001122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a122d0a240155122081cc5b17018674b401b42f35ba07bb79e211239c23bffe658da1577e3e6468771203646f671804122d0a221220e7dc486e97e6ebe5cdabab3e392bdad128b6e09acc94bb4e2aa2af7b986d24d01205666972737418338301122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de122e0a2401551220b6fbd675f98e2abd22d4ed29fdc83150fedc48597e92dd1a7a24381d44a274511204626561721804122f0a22122079a982de3c9907953d4d323cee1d0fb1ed8f45f8ef02870c0cb9e09246bd530a12067365636f6e641895015b01711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8ba2646c696e6bd82a582300122002acecc5de2438ea4126a3010ecb1f8a599c8eff22fff1a1dcffe999b27fd3de646e616d6564626c6970360171122069ea0740f9807a28f4d932c62e7c1c83be055e55072c90266ab3e79df63a365ba2646c696e6bf6646e616d65656c696d626f')
-
-export { makeData, verifyBlocks, verifyHas, verifyRoots, acid, compareBlockData, verifyDecoded, toHex, fromHex, car }

@@ -35,10 +35,10 @@ describe('Read File & Write Stream', () => {
 
   it('writeStream', async () => {
     const carDs = await writeStream(fs.createWriteStream('./test.car'))
-    await carDs.setRoots([cborBlocks[0].cid, cborBlocks[1].cid])
+    await carDs.setRoots([await cborBlocks[0].cid(), await cborBlocks[1].cid()])
     for (const block of rawBlocks.slice(0, 3).concat(pbBlocks).concat(cborBlocks)) {
       // add all but raw zzzz
-      await carDs.put(block.cid, block.binary)
+      await carDs.put(await block.cid(), block.encode())
     }
     await carDs.close()
   })
@@ -52,10 +52,10 @@ describe('Read File & Write Stream', () => {
   })
 
   it('writeStream no await', async () => {
-    const roots = [cborBlocks[0].cid, cborBlocks[1].cid]
+    const roots = [await cborBlocks[0].cid(), await cborBlocks[1].cid()]
     const blocks = []
     for (const block of rawBlocks.slice(0, 3).concat(pbBlocks).concat(cborBlocks)) {
-      blocks.push([block.cid, block.binary])
+      blocks.push([await block.cid(), block.encode()])
     }
 
     const carDs = await writeStream(fs.createWriteStream('./test.car'))
@@ -76,8 +76,8 @@ describe('Read File & Write Stream', () => {
 
   it('writeStream errors', async () => {
     const carDs = await writeStream(fs.createWriteStream('./test.car'))
-    await carDs.put(cborBlocks[0].cid, cborBlocks[0].binary)
-    await assert.isRejected(carDs.delete(cborBlocks[0].cid))
+    await carDs.put(await cborBlocks[0].cid(), cborBlocks[0].encode())
+    await assert.isRejected(carDs.delete(await cborBlocks[0].cid()))
     await carDs.close()
     await assert.isRejected(carDs.close())
   })

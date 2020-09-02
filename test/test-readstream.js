@@ -32,7 +32,7 @@ describe('Read Stream', () => {
     const blocks_ = allBlocks.slice()
     const cids = []
     for (const block of blocks_) {
-      cids.push(block.cid.toString())
+      cids.push((await block.cid()).toString())
     }
 
     const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
@@ -44,7 +44,7 @@ describe('Read Stream', () => {
       if (foundIndex < 0) {
         assert.fail(`Unexpected CID/key found: ${entry.key}`)
       }
-      compareBlockData(entry.value, blocks_[foundIndex].binary, `#${i++}`)
+      compareBlockData(entry.value, blocks_[foundIndex].encode(), `#${i++}`)
       cids.splice(foundIndex, 1)
       blocks_.splice(foundIndex, 1)
     }
@@ -60,7 +60,7 @@ describe('Read Stream', () => {
     const blocks_ = allBlocks.slice()
     const cids = []
     for (const block of blocks_) {
-      cids.push(await block.cid.toString())
+      cids.push((await block.cid()).toString())
     }
 
     const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
@@ -90,8 +90,8 @@ describe('Read Stream', () => {
 
   it('errors & immutability', async () => {
     const carDs = await readStreaming(fs.createReadStream(path.join(__dirname, 'go.car')))
-    await assert.isRejected(carDs.has(allBlocks[0].cid))
-    await assert.isRejected(carDs.get(allBlocks[0].cid))
+    await assert.isRejected(carDs.has(await allBlocks[0].cid()))
+    await assert.isRejected(carDs.get(await allBlocks[0].cid()))
 
     // when we instantiate from a Stream, CarDatastore should be immutable
     await assert.isRejected(carDs.put(acid, new TextEncoder().encode('blip')))

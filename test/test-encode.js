@@ -26,10 +26,13 @@ describe('Encode', () => {
 
   before(async () => {
     const data = await makeData()
-    allBlocks = data.allBlocksFlattened
+    allBlocks = []
+    for (const block of data.allBlocksFlattened) {
+      allBlocks.push({ cid: await block.cid(), binary: block.encode() })
+    }
     roots = []
     for (const block of data.cborBlocks) {
-      roots.push(block.cid)
+      roots.push(await block.cid())
     }
   })
 

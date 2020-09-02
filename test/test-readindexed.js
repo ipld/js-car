@@ -34,7 +34,7 @@ describe('Read Indexed', () => {
     await verifyHas(carDs)
     await verifyBlocks(carDs)
     await verifyRoots(carDs)
-    await assert.isRejected(carDs.get(rawBlocks[3].cid)) // doesn't exist
+    await assert.isRejected(carDs.get(await rawBlocks[3].cid())) // doesn't exist
     await carDs.close()
   })
 
@@ -61,7 +61,7 @@ describe('Read Indexed', () => {
       const blocks_ = allBlocks.slice()
       const cids = []
       for (const block of blocks_) {
-        cids.push(block.cid.toString())
+        cids.push((await block.cid()).toString())
       }
 
       let i = 0
@@ -71,7 +71,7 @@ describe('Read Indexed', () => {
         if (foundIndex < 0) {
           assert.fail(`Unexpected CID/key found: ${entry.key}`)
         }
-        compareBlockData(entry.value, blocks_[foundIndex].binary, `#${i++}`)
+        compareBlockData(entry.value, blocks_[foundIndex].encode(), `#${i++}`)
         cids.splice(foundIndex, 1)
         blocks_.splice(foundIndex, 1)
       }
@@ -90,7 +90,7 @@ describe('Read Indexed', () => {
     const blocks_ = allBlocks.slice()
     const cids = []
     for (const block of blocks_) {
-      cids.push(await block.cid.toString())
+      cids.push((await block.cid()).toString())
     }
 
     const carDs = await readFileIndexed(path.join(__dirname, 'go.car'))

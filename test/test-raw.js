@@ -6,7 +6,7 @@ import { promisify } from 'util'
 import path from 'path'
 import fs from 'fs'
 import multiformats from 'multiformats/basics'
-import { makeData, toHex } from './fixture-data.js'
+import { makeData } from './fixture-data.js'
 import Car from 'datastore-car'
 import dagCbor from '@ipld/dag-cbor'
 import base58 from 'multiformats/bases/base58'
@@ -14,6 +14,8 @@ import { fileURLToPath } from 'url'
 
 chai.use(chaiAsPromised)
 const { assert } = chai
+
+const { CID } = multiformats
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -27,18 +29,18 @@ const { indexer, readRaw } = Car(multiformats)
 
 describe('Raw', () => {
   const expectedRoots = [
-    multiformats.CID.from('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'),
-    multiformats.CID.from('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm')
+    CID.from('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'),
+    CID.from('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm')
   ]
   const expectedIndex = [
-    { cid: multiformats.CID.from('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'), offset: 100, length: 92, blockOffset: 137, blockLength: 55 },
-    { cid: multiformats.CID.from('QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d'), offset: 192, length: 133, blockOffset: 228, blockLength: 97 },
-    { cid: multiformats.CID.from('bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke'), offset: 325, length: 41, blockOffset: 362, blockLength: 4 },
-    { cid: multiformats.CID.from('QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys'), offset: 366, length: 130, blockOffset: 402, blockLength: 94 },
-    { cid: multiformats.CID.from('bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4'), offset: 496, length: 41, blockOffset: 533, blockLength: 4 },
-    { cid: multiformats.CID.from('QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT'), offset: 537, length: 82, blockOffset: 572, blockLength: 47 },
-    { cid: multiformats.CID.from('bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq'), offset: 619, length: 41, blockOffset: 656, blockLength: 4 },
-    { cid: multiformats.CID.from('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'), offset: 660, length: 55, blockOffset: 697, blockLength: 18 }
+    { cid: CID.from('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm'), offset: 100, length: 92, blockOffset: 137, blockLength: 55 },
+    { cid: CID.from('QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d'), offset: 192, length: 133, blockOffset: 228, blockLength: 97 },
+    { cid: CID.from('bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke'), offset: 325, length: 41, blockOffset: 362, blockLength: 4 },
+    { cid: CID.from('QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys'), offset: 366, length: 130, blockOffset: 402, blockLength: 94 },
+    { cid: CID.from('bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4'), offset: 496, length: 41, blockOffset: 533, blockLength: 4 },
+    { cid: CID.from('QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT'), offset: 537, length: 82, blockOffset: 572, blockLength: 47 },
+    { cid: CID.from('bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq'), offset: 619, length: 41, blockOffset: 656, blockLength: 4 },
+    { cid: CID.from('bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm'), offset: 660, length: 55, blockOffset: 697, blockLength: 18 }
   ]
   let allBlocksFlattened
 
@@ -70,7 +72,7 @@ describe('Raw', () => {
     const expectedBlocks = allBlocksFlattened.slice()
     const expectedCids = []
     for (const block of expectedBlocks) {
-      expectedCids.push(block.cid.toString())
+      expectedCids.push((await block.cid()).toString())
     }
 
     for (const blockIndex of expectedIndex) {
@@ -79,8 +81,8 @@ describe('Raw', () => {
       const index = expectedCids.indexOf(cid.toString())
       assert.ok(index >= 0, 'got expected block')
       assert.strictEqual(
-        toHex(expectedBlocks[index].binary),
-        toHex(block.binary),
+        multiformats.bytes.toHex(expectedBlocks[index].encode()),
+        multiformats.bytes.toHex(block.binary),
         'got expected block content')
       expectedBlocks.splice(index, 1)
       expectedCids.splice(index, 1)
