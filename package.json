@@ -14,7 +14,7 @@
     "lint": "standard",
     "test:cjs": "rm -rf dist && npm run build && cp test/go.car dist/cjs/node-test/ && mocha dist/cjs/node-test/test-*.js && npm run test:cjs:browser",
     "test:node": "hundreds mocha test/test-*.js",
-    "test:cjs:browser": "polendina --cleanup dist/cjs/browser-test/test-readbuffer.js dist/cjs/browser-test/test-query.js",
+    "test:cjs:browser": "polendina --cleanup dist/cjs/browser-test/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:cjs",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
     "docs": "jsdoc4readme --readme *.js lib/raw.js"
@@ -58,8 +58,7 @@
   },
   "exports": {
     ".": {
-      "import": "./car.js",
-      "browser": "./car-browser.js"
+      "import": "./car.js"
     }
   }
 }
