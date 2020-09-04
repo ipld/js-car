@@ -36,24 +36,16 @@
   "homepage": "https://github.com/rvagg/js-datastore-car#readme",
   "devDependencies": {
     "@ipld/block": "^6.0.3",
-    "@ipld/dag-cbor": "^1.1.10",
-    "@ipld/dag-pb": "ipld/js-dag-pb#master",
-    "assert": "^2.0.0",
-    "bl": "^4.0.3",
+    "@ipld/dag-pb": "github:ipld/js-dag-pb",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "garbage": "0.0.0",
     "hundreds": "0.0.8",
     "ipjs": "^3.1.11",
-    "jsdoc4readme": "^1.3.0",
-    "mocha": "^8.1.2",
-    "multiformats": "^3.0.3",
+    "mocha": "^8.1.3",
     "polendina": "^1.1.0",
     "standard": "^14.3.4"
   },
   "dependencies": {
-    "interface-datastore": "^2.0.0",
-    "readable-stream": "^3.6.0",
     "varint": "^5.0.0"
   },
   "exports": {
