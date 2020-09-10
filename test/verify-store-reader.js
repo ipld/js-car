@@ -1,14 +1,16 @@
 import { assert, Block, makeData } from './common.js'
 
-// TODO: blocks()
-// TODO: cids()
-
 function compareBlockData (actual, expected, id) {
   assert.strictEqual(
     Block.multiformats.bytes.toHex(actual.encode()),
     Block.multiformats.bytes.toHex(expected.encode()),
     `comparing block as hex ${id}`
   )
+}
+
+function compareCids (actual, expected, id) {
+  assert.strictEqual(actual.asCID, actual)
+  assert.strictEqual(actual.toString(), expected.toString())
 }
 
 async function verifyRoots (reader) {
@@ -65,8 +67,34 @@ async function verifyGet (reader) {
   }
 }
 
+async function verifyBlocks (reader) {
+  const { allBlocks } = await makeData()
+  let expected = []
+  for (const [, blocks] of allBlocks) {
+    expected = expected.concat([...blocks])
+  }
+
+  for await (const actual of reader.blocks()) {
+    compareBlockData(actual, expected.shift())
+  }
+}
+
+async function verifyCids (reader) {
+  const { allBlocks } = await makeData()
+  let expected = []
+  for (const [, blocks] of allBlocks) {
+    expected = expected.concat([...blocks])
+  }
+
+  for await (const actual of reader.cids()) {
+    compareCids(actual, await expected.shift().cid())
+  }
+}
+
 export {
   verifyRoots,
   verifyHas,
-  verifyGet
+  verifyGet,
+  verifyBlocks,
+  verifyCids
 }

@@ -2,7 +2,13 @@
 
 import { CarReader } from 'datastore-car'
 import { Block, carBytes, assert } from './common.js'
-import { verifyRoots, verifyHas, verifyGet } from './verify-store-reader.js'
+import {
+  verifyRoots,
+  verifyHas,
+  verifyGet,
+  verifyBlocks,
+  verifyCids
+} from './verify-store-reader.js'
 
 function makeIterable (data, chunkSize) {
   let pos = 0
@@ -28,6 +34,8 @@ describe('CarReader.fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
+    await verifyBlocks(reader)
+    await verifyCids(reader)
   })
 
   it('complete (64-byte chunks)', async () => {
@@ -35,6 +43,8 @@ describe('CarReader.fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
+    await verifyBlocks(reader)
+    await verifyCids(reader)
   })
 
   it('complete (32-byte chunks)', async () => {
@@ -42,6 +52,8 @@ describe('CarReader.fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
+    await verifyBlocks(reader)
+    await verifyCids(reader)
   })
 
   it('bad argument', async () => {

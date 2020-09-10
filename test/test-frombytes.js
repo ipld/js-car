@@ -2,7 +2,13 @@
 
 import { CarReader } from 'datastore-car'
 import { Block, carBytes, assert } from './common.js'
-import { verifyRoots, verifyHas, verifyGet } from './verify-store-reader.js'
+import {
+  verifyRoots,
+  verifyHas,
+  verifyGet,
+  verifyBlocks,
+  verifyCids
+} from './verify-store-reader.js'
 
 describe('CarReader.fromBytes()', () => {
   it('complete', async () => {
@@ -10,6 +16,8 @@ describe('CarReader.fromBytes()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
+    await verifyBlocks(reader)
+    await verifyCids(reader)
   })
 
   it('complete (get before has) switch', async () => {
@@ -17,6 +25,8 @@ describe('CarReader.fromBytes()', () => {
     await verifyRoots(reader)
     await verifyGet(reader)
     await verifyHas(reader)
+    await verifyBlocks(reader)
+    await verifyCids(reader)
   })
 
   it('bad argument', async () => {
