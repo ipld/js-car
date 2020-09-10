@@ -6,12 +6,6 @@ describe('Misc errors', () => {
   const buf = carBytes.slice()
 
   it('decode errors', async () => {
-    // truncated
-    await assert.isRejected(CarReader(Block).fromBytes(buf.slice(0, buf.length - 10)), {
-      name: 'Error',
-      message: 'Unexpected end of data'
-    })
-
     // cid v0
     const buf2 = new Uint8Array(buf.length)
     buf2.set(buf, 0)

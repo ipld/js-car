@@ -24,4 +24,11 @@ describe('CarReader.fromBytes()', () => {
       await assert.isRejected(CarReader(Block).fromBytes(arg))
     }
   })
+
+  it('decode error - truncated', async () => {
+    await assert.isRejected(CarReader(Block).fromBytes(carBytes.slice(0, carBytes.length - 10)), {
+      name: 'Error',
+      message: 'Unexpected end of data'
+    })
+  })
 })
