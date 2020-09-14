@@ -3,6 +3,8 @@
 import { CarWriter } from 'datastore-car'
 import { Block, carBytes, makeData, assert } from './common.js'
 
+const { toHex } = Block.multiformats.bytes
+
 function collector (iterable) {
   return (async () => {
     const chunks = []
@@ -28,8 +30,8 @@ describe('CarWriter', () => {
 
   function assertCarData (actual) {
     assert.strictEqual(
-      Block.multiformats.bytes.toHex(actual),
-      Block.multiformats.bytes.toHex(carBytes),
+      toHex(actual),
+      toHex(carBytes),
       'got expected bytes'
     )
   }
@@ -108,12 +110,80 @@ describe('CarWriter', () => {
     const writer = CarWriter(Block).create(roots)
 
     for (const block of allBlocksFlattened) {
-      await writer.put(block)
+      writer.put(block)
     }
-    await writer.close()
+    writer.close()
 
     const collection = collector(writer)
     const bytes = await collection
     assertCarData(bytes)
+  })
+
+  it('single root', async () => {
+    const writer = CarWriter(Block).create(roots[0])
+    const collection = collector(writer)
+
+    for (const block of allBlocksFlattened) {
+      await writer.put(block)
+    }
+    await writer.close()
+
+    const bytes = await collection
+
+    // test the start of the bytes to make sure we have the root def block we expect
+    // { roots: [ CID(bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm) ], version: 1 }
+    const expectedRootDef = 'a265726f6f747381d82a58250001711220f88bc853804cf294fe417e4fa83028689fcdb1b1592c5102e1474dbc200fab8b6776657273696f6e01'
+    const expectedStart = (expectedRootDef.length / 2).toString(16) + // length of root def block
+      expectedRootDef +
+      '28' // length of first raw block + CIDv0
+
+    assert.strictEqual(toHex(bytes).substring(0, expectedStart.length), expectedStart)
+  })
+
+  it('no roots', async () => {
+    const writer = CarWriter(Block).create()
+    const collection = collector(writer)
+
+    for (const block of allBlocksFlattened) {
+      await writer.put(block)
+    }
+    await writer.close()
+
+    const bytes = await collection
+
+    // test the start of the bytes to make sure we have the root def block we expect
+    // { roots: [], version: 1 }
+    const expectedRootDef = 'a265726f6f7473806776657273696f6e01'
+    const expectedStart = (expectedRootDef.length / 2).toString(16) + // length of root def block
+      expectedRootDef +
+      '28' // length of first raw block + CIDv0
+
+    assert.strictEqual(toHex(bytes).substring(0, expectedStart.length), expectedStart)
+  })
+
+  it('bad argument for create()', () => {
+    for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      assert.throws(() => CarWriter(Block).create(arg))
+    }
+  })
+
+  it('bad argument for put()', async () => {
+    const writer = CarWriter(Block).create()
+    for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      await assert.isRejected(writer.put(arg))
+    }
+  })
+
+  it('bad attempt to multiple iterate', async () => {
+    const writer = CarWriter(Block).create()
+    collector(writer)
+    await assert.isRejected(collector(writer), /multiple iterator/i)
+  })
+
+  it('bad attempt to multiple close', async () => {
+    const writer = CarWriter(Block).create()
+    collector(writer)
+    await writer.close()
+    await assert.isRejected(writer.close(), /closed/i)
   })
 })
