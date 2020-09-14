@@ -1,7 +1,13 @@
 /* eslint-env mocha */
 
-import { CarReader } from 'datastore-car'
-import { Block, carBytes, assert } from './common.js'
+import { CarReader, CarIndexer } from 'datastore-car'
+import {
+  Block,
+  carBytes,
+  goCarBytes,
+  goCarIndex,
+  assert
+} from './common.js'
 import {
   verifyRoots,
   verifyHas,
@@ -40,5 +46,26 @@ describe('CarReader.fromBytes()', () => {
       name: 'Error',
       message: 'Unexpected end of data'
     })
+  })
+})
+
+describe('CarIndexer.fromBytes()', () => {
+  it('complete', async () => {
+    const indexer = await CarIndexer(Block).fromBytes(goCarBytes)
+
+    await verifyRoots(indexer) // behaves like an Reader for roots
+
+    const indexData = []
+    for await (const index of indexer) {
+      indexData.push(index)
+    }
+
+    assert.deepStrictEqual(indexData, goCarIndex)
+  })
+
+  it('bad argument', async () => {
+    for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
+      await assert.isRejected(CarIndexer(Block).fromBytes(arg))
+    }
   })
 })

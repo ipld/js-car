@@ -1,5 +1,6 @@
 import {
   decodeComplete,
+  indexerComplete,
   asyncIterableReader,
   bytesReader
 } from './lib/decoder.js'
@@ -19,6 +20,24 @@ function CarReader (Block) {
         throw new TypeError('fromIterable() requires an async iterable')
       }
       return decodeComplete(Block, asyncIterableReader(asyncIterable))
+    }
+  }
+}
+
+function CarIndexer (Block) {
+  return {
+    async fromBytes (bytes) {
+      if (!(bytes instanceof Uint8Array)) {
+        throw new TypeError('fromBytes() requires a Uint8Array')
+      }
+      return indexerComplete(Block, bytesReader(bytes))
+    },
+
+    async fromIterable (asyncIterable) {
+      if (!asyncIterable || !(typeof asyncIterable[Symbol.asyncIterator] === 'function')) {
+        throw new TypeError('fromIterable() requires an async iterable')
+      }
+      return indexerComplete(Block, asyncIterableReader(asyncIterable))
     }
   }
 }
@@ -158,5 +177,6 @@ function CarWriter (Block) {
 
 export {
   CarReader,
+  CarIndexer,
   CarWriter
 }

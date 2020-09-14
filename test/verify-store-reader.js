@@ -67,27 +67,60 @@ async function verifyGet (reader) {
   }
 }
 
-async function verifyBlocks (reader) {
-  const { allBlocks } = await makeData()
-  let expected = []
-  for (const [, blocks] of allBlocks) {
-    expected = expected.concat([...blocks])
-  }
+async function verifyBlocks (reader, unordered) {
+  const { allBlocksFlattened } = await makeData()
+  if (!unordered) {
+    const expected = allBlocksFlattened.slice()
+    for await (const actual of reader.blocks()) {
+      compareBlockData(actual, expected.shift())
+    }
+  } else {
+    const expected = {}
+    for (const block of allBlocksFlattened) {
+      expected[(await block.cid()).toString()] = block
+    }
 
-  for await (const actual of reader.blocks()) {
-    compareBlockData(actual, expected.shift())
+    for await (const actual of reader.blocks()) {
+      const cid = await actual.cid()
+      const exp = expected[cid.toString()]
+      if (!exp) {
+        throw new Error(`Unexpected block: ${cid.toString()}`)
+      }
+      compareBlockData(actual, exp)
+      delete expected[cid.toString()]
+    }
+
+    if (Object.keys(expected).length) {
+      throw new Error('Did not find all expected blocks')
+    }
   }
 }
 
-async function verifyCids (reader) {
-  const { allBlocks } = await makeData()
-  let expected = []
-  for (const [, blocks] of allBlocks) {
-    expected = expected.concat([...blocks])
-  }
+async function verifyCids (reader, unordered) {
+  const { allBlocksFlattened } = await makeData()
+  if (!unordered) {
+    const expected = allBlocksFlattened.slice()
+    for await (const actual of reader.cids()) {
+      compareCids(actual, await expected.shift().cid())
+    }
+  } else {
+    const expected = {}
+    for (const block of allBlocksFlattened) {
+      expected[(await block.cid()).toString()] = block
+    }
 
-  for await (const actual of reader.cids()) {
-    compareCids(actual, await expected.shift().cid())
+    for await (const actual of reader.blocks()) {
+      const cid = await actual.cid()
+      const exp = expected[cid.toString()]
+      if (!exp) {
+        throw new Error(`Unexpected cid: ${cid.toString()}`)
+      }
+      delete expected[cid.toString()]
+    }
+
+    if (Object.keys(expected).length) {
+      throw new Error('Did not find all expected cids')
+    }
   }
 }
 
