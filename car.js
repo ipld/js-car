@@ -1,6 +1,7 @@
 import {
-  decodeComplete,
-  indexerComplete,
+  decodeReaderComplete,
+  decodeIndexerComplete,
+  decodeIterator,
   asyncIterableReader,
   bytesReader
 } from './lib/decoder.js'
@@ -12,14 +13,14 @@ function CarReader (Block) {
       if (!(bytes instanceof Uint8Array)) {
         throw new TypeError('fromBytes() requires a Uint8Array')
       }
-      return decodeComplete(Block, bytesReader(bytes))
+      return decodeReaderComplete(Block, bytesReader(bytes))
     },
 
     async fromIterable (asyncIterable) {
       if (!asyncIterable || !(typeof asyncIterable[Symbol.asyncIterator] === 'function')) {
         throw new TypeError('fromIterable() requires an async iterable')
       }
-      return decodeComplete(Block, asyncIterableReader(asyncIterable))
+      return decodeReaderComplete(Block, asyncIterableReader(asyncIterable))
     }
   }
 }
@@ -30,14 +31,32 @@ function CarIndexer (Block) {
       if (!(bytes instanceof Uint8Array)) {
         throw new TypeError('fromBytes() requires a Uint8Array')
       }
-      return indexerComplete(Block, bytesReader(bytes))
+      return decodeIndexerComplete(Block, bytesReader(bytes))
     },
 
     async fromIterable (asyncIterable) {
       if (!asyncIterable || !(typeof asyncIterable[Symbol.asyncIterator] === 'function')) {
         throw new TypeError('fromIterable() requires an async iterable')
       }
-      return indexerComplete(Block, asyncIterableReader(asyncIterable))
+      return decodeIndexerComplete(Block, asyncIterableReader(asyncIterable))
+    }
+  }
+}
+
+function CarIterator (Block) {
+  return {
+    async fromBytes (bytes) {
+      if (!(bytes instanceof Uint8Array)) {
+        throw new TypeError('fromBytes() requires a Uint8Array')
+      }
+      return decodeIterator(Block, bytesReader(bytes))
+    },
+
+    async fromIterable (asyncIterable) {
+      if (!asyncIterable || !(typeof asyncIterable[Symbol.asyncIterator] === 'function')) {
+        throw new TypeError('fromIterable() requires an async iterable')
+      }
+      return decodeIterator(Block, asyncIterableReader(asyncIterable))
     }
   }
 }
@@ -178,5 +197,6 @@ function CarWriter (Block) {
 export {
   CarReader,
   CarIndexer,
+  CarIterator,
   CarWriter
 }
