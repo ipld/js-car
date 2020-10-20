@@ -1,9 +1,11 @@
-import { assert, Block, makeData } from './common.js'
+import { bytes } from 'multiformats'
+import raw from 'multiformats/codecs/raw'
+import { toBlock, assert, makeData } from './common.js'
 
 function compareBlockData (actual, expected, id) {
   assert.strictEqual(
-    Block.multiformats.bytes.toHex(actual.encode()),
-    Block.multiformats.bytes.toHex(expected.encode()),
+    bytes.toHex(actual.bytes),
+    bytes.toHex(expected.bytes),
     `comparing block as hex ${id}`
   )
 }
@@ -18,10 +20,7 @@ async function verifyRoots (reader) {
   // in the browser
   const { cborBlocks } = await makeData()
 
-  const expected = [
-    (await cborBlocks[0].cid()).toString(),
-    (await cborBlocks[1].cid()).toString()
-  ]
+  const expected = [cborBlocks[0].cid.toString(), cborBlocks[1].cid.toString()]
   assert.deepStrictEqual((await reader.getRoots()).map((c) => c.toString()), expected)
 }
 
@@ -39,12 +38,12 @@ async function verifyHas (reader) {
 
   for (const [type, blocks] of allBlocks) {
     for (let i = 0; i < blocks.length; i++) {
-      await verifyHas(await blocks[i].cid(), `block #${i} (${type} / ${await blocks[i].cid()})`)
+      await verifyHas(blocks[i].cid, `block #${i} (${type} / ${blocks[i].cid})`)
     }
   }
 
   // not a block we have
-  await verifyHasnt(await Block.encoder(new TextEncoder().encode('dddd'), 'raw').cid(), 'dddd')
+  await verifyHasnt((await toBlock(new TextEncoder().encode('dddd'), raw)).cid, 'dddd')
 }
 
 async function verifyGet (reader) {
@@ -53,7 +52,7 @@ async function verifyGet (reader) {
   const verifyBlock = async (expected, index, type) => {
     let actual
     try {
-      actual = await reader.get(await expected.cid())
+      actual = await reader.get(expected.cid)
     } catch (err) {
       assert.ifError(err, `get block length #${index} (${type})`)
     }
@@ -77,11 +76,11 @@ async function verifyBlocks (reader, unordered) {
   } else {
     const expected = {}
     for (const block of allBlocksFlattened) {
-      expected[(await block.cid()).toString()] = block
+      expected[block.cid.toString()] = block
     }
 
     for await (const actual of reader.blocks()) {
-      const cid = await actual.cid()
+      const { cid } = actual
       const exp = expected[cid.toString()]
       if (!exp) {
         throw new Error(`Unexpected block: ${cid.toString()}`)
@@ -101,16 +100,16 @@ async function verifyCids (reader, unordered) {
   if (!unordered) {
     const expected = allBlocksFlattened.slice()
     for await (const actual of reader.cids()) {
-      compareCids(actual, await expected.shift().cid())
+      compareCids(actual, expected.shift().cid)
     }
   } else {
     const expected = {}
     for (const block of allBlocksFlattened) {
-      expected[(await block.cid()).toString()] = block
+      expected[block.cid.toString()] = block
     }
 
     for await (const actual of reader.blocks()) {
-      const cid = await actual.cid()
+      const { cid } = actual
       const exp = expected[cid.toString()]
       if (!exp) {
         throw new Error(`Unexpected cid: ${cid.toString()}`)
