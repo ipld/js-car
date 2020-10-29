@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 
+// Take a .car file and dump its contents into one file per block, with the
+// filename being the CID of that block.
+// Also prints a DAG-JSON form of the block and its CID to stdout.
+
 import fs from 'fs'
-import { CarIterator } from '@ipld/car'
+import CarIterator from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
+import codec from 'multiformats/codecs/codec'
 import raw from 'multiformats/codecs/raw'
 import json from 'multiformats/codecs/json'
 
@@ -14,9 +19,9 @@ if (!process.argv[2]) {
 }
 
 const codecs = {
-  [dagCbor.code]: dagCbor,
-  [dagPb.code]: dagPb,
-  [dagJson.code]: dagJson,
+  [dagCbor.code]: codec(dagCbor),
+  [dagPb.code]: codec(dagPb),
+  [dagJson.code]: codec(dagJson),
   [raw.code]: raw,
   [json.code]: json
 }

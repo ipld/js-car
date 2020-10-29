@@ -53,6 +53,18 @@
   "exports": {
     ".": {
       "import": "./car.js"
+    },
+    "./reader": {
+      "import": "./lib/reader.js"
+    },
+    "./indexer": {
+      "import": "./lib/indexer.js"
+    },
+    "./iterator": {
+      "import": "./lib/iterator.js"
+    },
+    "./writer": {
+      "import": "./lib/writer.js"
     }
   }
 }

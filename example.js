@@ -1,43 +1,42 @@
-import fs from 'fs'
-import multiformats from 'multiformats/basics'
-import car from 'datastore-car'
-import dagCbor from '@ipld/dag-cbor'
+#!/usr/bin/env node
 
-// dag-cbor is required for the CAR root block
-multiformats.add(dagCbor)
-const CarDatastore = car(multiformats)
+// Create a simple .car file with a single block and that block's CID as the
+// single root. Then read the .car and fetch the block again.
+
+import fs from 'fs'
+import { Readable } from 'stream'
+import { CarReader, CarWriter } from '@ipld/car'
+import raw from 'multiformats/codecs/raw'
+import CID from 'multiformats/cid'
+import { sha256 } from 'multiformats/hashes/sha2'
 
 async function example () {
-  const binary = new TextEncoder().encode('random meaningless bytes')
-  const mh = await multiformats.multihash.hash(binary, 'sha2-256')
-  const cid = multiformats.CID.create(1, multiformats.get('raw').code, mh)
+  const bytes = new TextEncoder().encode('random meaningless bytes')
+  const hash = await sha256.digest(raw.encode(bytes))
+  const cid = CID.create(1, raw.code, hash)
 
-  const outStream = fs.createWriteStream('example.car')
-  const writeDs = await CarDatastore.writeStream(outStream)
+  // create the writer and set the header with a single root
+  const writer = await CarWriter.create([cid])
+  Readable.from(writer).pipe(fs.createWriteStream('example.car'))
 
-  // set the header with a single root
-  await writeDs.setRoots(cid)
   // store a new block, creates a new file entry in the CAR archive
-  await writeDs.put(cid, binary)
-  await writeDs.close()
+  await writer.put({ cid, bytes })
+  await writer.close()
 
   const inStream = fs.createReadStream('example.car')
-  // read and parse the entire stream so we have `get()` and `has()` methods
-  // use readStreaming(inStream) to support efficient stream decoding with
-  // just query() available for iterative reads.
-  const readDs = await CarDatastore.readStreamComplete(inStream)
+  // read and parse the entire stream in one go, this will cache the contents of
+  // the car in memory so is not suitable for large files.
+  const reader = await CarReader.fromIterable(inStream)
 
   // read the list of roots from the header
-  const roots = await readDs.getRoots()
-  // retrieve a block, as a UInt8Array, reading from the ZIP archive
-  const got = await readDs.get(roots[0])
-  // also possible: for await (const { key, value } of readDs.query()) { ... }
+  const roots = await reader.getRoots()
+  // retrieve a block, as a { cid:CID, bytes:UInt8Array } pair from the archive
+  const got = await reader.get(roots[0])
+  // also possible: for await (const { cid, bytes } of CarIterator.fromIterable(inStream)) { ... }
 
   console.log('Retrieved [%s] from example.car with CID [%s]',
-    new TextDecoder().decode(got),
+    new TextDecoder().decode(got.bytes),
     roots[0].toString())
-
-  await readDs.close()
 }
 
 example().catch((err) => {
