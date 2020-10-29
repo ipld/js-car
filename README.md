@@ -1,6 +1,4 @@
-# datastore-car (js-datastore-car) [![Build Status](https://github.com/ipld/js-datastore-car/workflows/CI/badge.svg)](https://github.com/ipld/js-datastore-car/actions?workflow=CI)
-
-[![NPM](https://nodei.co/npm/datastore-car.svg)](https://nodei.co/npm/datastore-car/)
+# @ipld/car [![Build Status](https://github.com/ipld/js-car/workflows/CI/badge.svg)](https://github.com/ipld/js-car/actions?workflow=CI)
 
 A JavaScript Content ARchive (CAR) file reader and writer for for [IPLD](https://ipld.io) blocks. See original [Go implementation](https://github.com/ipfs/go-car).
 
