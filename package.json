@@ -4,7 +4,6 @@
   "description": "Content ARchive format reader and writer",
   "main": "car.js",
   "type": "module",
-  "browser": "./dist/cjs/car-browser.js",
   "directories": {
     "test": "test"
   },
@@ -53,10 +52,12 @@
   },
   "exports": {
     ".": {
-      "import": "./car.js"
+      "import": "./car.js",
+      "browser": "./car-browser.js"
     },
     "./reader": {
-      "import": "./lib/reader.js"
+      "import": "./lib/reader.js",
+      "browser": "./lib/reader-browser.js"
     },
     "./indexer": {
       "import": "./lib/indexer.js"

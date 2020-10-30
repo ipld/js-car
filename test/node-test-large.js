@@ -1,5 +1,7 @@
 /* eslint-env mocha */
 
+// this test is not intended to run in the browser
+
 import fs from 'fs'
 import { Readable } from 'stream'
 import garbage from 'garbage'

@@ -3,7 +3,8 @@ import * as car from '@ipld/car'
 import {
   CarReader,
   fromBytes as readerFromBytes,
-  fromIterable as readerFromIterable
+  fromIterable as readerFromIterable,
+  __browser
 } from '@ipld/car/reader'
 import {
   CarIndexer,
@@ -22,20 +23,24 @@ import { assert } from './common.js'
 // simple sanity check that our main exports match the direct exports
 describe('Interface', () => {
   it('exports match', () => {
-    assert.ok(car.CarReader === CarReader)
-    assert.ok(CarReader.fromBytes === readerFromBytes)
-    assert.ok(CarReader.fromIterable === readerFromIterable)
+    assert.strictEqual(car.CarReader, CarReader)
+    assert.strictEqual(CarReader.fromBytes, readerFromBytes)
+    assert.strictEqual(CarReader.fromIterable, readerFromIterable)
 
-    assert.ok(car.CarIndexer === CarIndexer)
-    assert.ok(CarIndexer.fromBytes === indexerFromBytes)
-    assert.ok(CarIndexer.fromIterable === indexerFromIterable)
+    assert.strictEqual(car.CarIndexer, CarIndexer)
+    assert.strictEqual(CarIndexer.fromBytes, indexerFromBytes)
+    assert.strictEqual(CarIndexer.fromIterable, indexerFromIterable)
 
-    assert.ok(car.CarIterator === CarIterator)
-    assert.ok(CarIterator.fromBytes === iteratorFromBytes)
-    assert.ok(CarIterator.fromIterable === iteratorFromIterable)
+    assert.strictEqual(car.CarIterator, CarIterator)
+    assert.strictEqual(CarIterator.fromBytes, iteratorFromBytes)
+    assert.strictEqual(CarIterator.fromIterable, iteratorFromIterable)
 
-    assert.ok(car.CarWriter === CarWriter)
-    assert.ok(car.CarWriterOut === CarWriterOut)
-    assert.ok(CarWriter.create === writerCreate)
+    assert.strictEqual(car.CarWriter, CarWriter)
+    assert.strictEqual(car.CarWriterOut, CarWriterOut)
+    assert.strictEqual(CarWriter.create, writerCreate)
+  })
+
+  it('browser exports', () => {
+    assert.strictEqual(__browser, !!process.browser)
   })
 })
