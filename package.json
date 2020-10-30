@@ -38,6 +38,7 @@
     "@ipld/dag-pb": "0.0.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+    "garbage": "^0.0.0",
     "hundreds": "0.0.9",
     "ipjs": "^3.3.0",
     "jsdoc4readme": "^1.3.0",
