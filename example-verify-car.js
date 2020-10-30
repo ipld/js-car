@@ -6,7 +6,7 @@
 
 import fs from 'fs'
 import { bytes, CID } from 'multiformats'
-import CarIterator from '@ipld/car/iterator'
+import { fromIterable } from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
@@ -39,7 +39,7 @@ const hashes = {
 
 async function run () {
   const inStream = fs.createReadStream(process.argv[2])
-  const reader = await CarIterator.fromIterable(inStream)
+  const reader = await fromIterable(inStream)
   let count = 0
   for await (const { bytes, cid } of reader.blocks()) {
     if (!codecs[cid.code]) {

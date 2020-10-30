@@ -1,11 +1,6 @@
-import CarReader from './lib/reader.js'
-import CarIndexer from './lib/indexer.js'
-import CarIterator from './lib/iterator.js'
-import CarWriter from './lib/writer.js'
+import { CarReader } from './lib/reader.js'
+import { CarIndexer } from './lib/indexer.js'
+import { CarIterator } from './lib/iterator.js'
+import { CarWriter, CarWriterOut } from './lib/writer.js'
 
-export {
-  CarReader,
-  CarIndexer,
-  CarIterator,
-  CarWriter
-}
+export { CarReader, CarIndexer, CarIterator, CarWriter, CarWriterOut }

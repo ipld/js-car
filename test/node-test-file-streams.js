@@ -47,10 +47,10 @@ describe('Node Streams CarReader.fromIterable()', () => {
   })
 
   it('complete', async () => {
-    const writer = CarWriter.create(roots)
+    const { writer, out } = CarWriter.create(roots)
 
     const pipe = promisify(pipeline)(
-      Readable.from(writer),
+      Readable.from(out),
       fs.createWriteStream(tmpCarPath)
     )
 

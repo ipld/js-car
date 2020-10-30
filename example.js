@@ -16,8 +16,8 @@ async function example () {
   const cid = CID.create(1, raw.code, hash)
 
   // create the writer and set the header with a single root
-  const writer = await CarWriter.create([cid])
-  Readable.from(writer).pipe(fs.createWriteStream('example.car'))
+  const { writer, out } = await CarWriter.create([cid])
+  Readable.from(out).pipe(fs.createWriteStream('example.car'))
 
   // store a new block, creates a new file entry in the CAR archive
   await writer.put({ cid, bytes })

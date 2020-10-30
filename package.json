@@ -43,7 +43,7 @@
     "jsdoc4readme": "^1.3.0",
     "mocha": "^8.2.0",
     "polendina": "^1.1.0",
-    "standard": "^15.0.1"
+    "standard": "^16.0.0"
   },
   "dependencies": {
     "@ipld/dag-cbor": "^2.0.2",

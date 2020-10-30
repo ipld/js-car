@@ -1,12 +1,12 @@
 /* eslint-env mocha */
 
-import { CarIndexer } from '@ipld/car'
+import { fromBytes, fromIterable } from '@ipld/car/indexer'
 import { goCarBytes, goCarIndex, makeIterable, assert } from './common.js'
 import { verifyRoots } from './verify-store-reader.js'
 
-describe('CarIndexer.fromBytes()', () => {
+describe('CarIndexer fromBytes()', () => {
   it('complete', async () => {
-    const indexer = await CarIndexer.fromBytes(goCarBytes)
+    const indexer = await fromBytes(goCarBytes)
 
     await verifyRoots(indexer) // behaves like an Reader for roots
 
@@ -20,12 +20,12 @@ describe('CarIndexer.fromBytes()', () => {
 
   it('bad argument', async () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      await assert.isRejected(CarIndexer.fromBytes(arg))
+      await assert.isRejected(fromBytes(arg))
     }
   })
 })
 
-describe('CarIndexer.fromIterable()', () => {
+describe('CarIndexer fromIterable()', () => {
   async function verifyIndexer (indexer) {
     await verifyRoots(indexer) // behaves like an Reader for roots
 
@@ -38,23 +38,23 @@ describe('CarIndexer.fromIterable()', () => {
   }
 
   it('complete (single chunk)', async () => {
-    const indexer = await CarIndexer.fromIterable(makeIterable(goCarBytes, goCarBytes.length))
+    const indexer = await fromIterable(makeIterable(goCarBytes, goCarBytes.length))
     return verifyIndexer(indexer)
   })
 
   it('complete (101-byte chunks)', async () => {
-    const indexer = await CarIndexer.fromIterable(makeIterable(goCarBytes, 101))
+    const indexer = await fromIterable(makeIterable(goCarBytes, 101))
     return verifyIndexer(indexer)
   })
 
   it('complete (32-byte chunks)', async () => {
-    const indexer = await CarIndexer.fromIterable(makeIterable(goCarBytes, 32))
+    const indexer = await fromIterable(makeIterable(goCarBytes, 32))
     return verifyIndexer(indexer)
   })
 
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      await assert.isRejected(CarIndexer.fromIterable(arg))
+      await assert.isRejected(fromIterable(arg))
     }
   })
 })
