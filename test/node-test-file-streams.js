@@ -18,7 +18,7 @@ import {
 } from './verify-store-reader.js'
 
 /** @typedef {import('multiformats').CID} CID */
-/** @typedef {import('../lib/types').Block} Block */
+/** @typedef {import('../api').Block} Block */
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

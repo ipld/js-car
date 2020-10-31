@@ -7,7 +7,7 @@ import { carBytes, makeData, assert, rndCid } from './common.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('../lib/types').Block} Block
+ * @typedef {import('../api').Block} Block
  */
 
 const { toHex } = bytes

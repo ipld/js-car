@@ -12,7 +12,7 @@ import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 
 /**
- * @typedef {import('../lib/types').Block} Block
+ * @typedef {import('../api').Block} Block
  */
 
 chai.use(chaiAsPromised)

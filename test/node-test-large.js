@@ -15,7 +15,7 @@ import CID from 'multiformats/cid'
 import { CarWriter, CarIndexer, CarReader } from '@ipld/car'
 import { assert } from './common.js'
 
-/** @typedef {import('../lib/types').BlockIndex} BlockIndex */
+/** @typedef {import('../api').BlockIndex} BlockIndex */
 
 describe('Large CAR', () => {
   /** @type {any[]} */
