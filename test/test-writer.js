@@ -2,7 +2,7 @@
 
 import { create } from '@ipld/car/writer'
 import { bytes } from 'multiformats'
-import { carBytes, makeData, assert } from './common.js'
+import { carBytes, makeData, assert, rndCid } from './common.js'
 
 const { toHex } = bytes
 
@@ -57,15 +57,13 @@ describe('CarWriter', () => {
     }
     writeQueue.push(writer.close())
 
-    let written = false
-    Promise.all(writeQueue).then(() => {
-      written = true
+    let collected = false
+    collection.then((bytes) => {
+      collected = true
+      assertCarData(bytes)
     })
-
-    const bytes = await collection
-    assert.strictEqual(written, true)
-
-    assertCarData(bytes)
+    await Promise.all(writeQueue)
+    assert.strictEqual(collected, true)
   })
 
   it('complete, deferred collection', async () => {
@@ -77,18 +75,14 @@ describe('CarWriter', () => {
     }
     writeQueue.push(writer.close())
 
-    let written = false
-    Promise.all(writeQueue).then(() => {
-      written = true
+    // attach to the iterator after we've queued all the writing
+    let collected = false
+    collector(out).then((bytes) => {
+      collected = true
+      assertCarData(bytes)
     })
-
-    // attach to the iterator after we've done the writing
-    const collection = collector(out)
-
-    const bytes = await collection
-    assert.strictEqual(written, true)
-
-    assertCarData(bytes)
+    await Promise.all(writeQueue)
+    assert.strictEqual(collected, true)
   })
 
   it('complete, no queue', async () => {
@@ -169,6 +163,14 @@ describe('CarWriter', () => {
     const { writer } = create()
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
       await assert.isRejected(writer.put(arg))
+    }
+
+    for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      await assert.isRejected(writer.put({ bytes: new Uint8Array(0), cid: arg }))
+    }
+
+    for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      await assert.isRejected(writer.put({ cid: rndCid, bytes: arg }))
     }
   })
 
