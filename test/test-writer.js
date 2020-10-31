@@ -100,6 +100,28 @@ describe('CarWriter', () => {
     assert.strictEqual(collected, true)
   })
 
+  it('complete, close after write', async () => {
+    const { writer, out } = create(roots)
+
+    assert.strictEqual(typeof out[Symbol.asyncIterator], 'function')
+    const collection = collector(out)
+
+    const writeQueue = []
+    for (const block of allBlocksFlattened) {
+      writeQueue.push(writer.put(block))
+    }
+    writeQueue.push(writer.close())
+
+    let written = false
+    Promise.all(writeQueue).then(() => {
+      written = true
+    })
+    const bytes = await collection
+    assert.strictEqual(written, false)
+    await new Promise((resolve) => resolve())
+    assertCarData(bytes)
+  })
+
   it('complete, no queue', async () => {
     const { writer, out } = create(roots)
     const collection = collector(out)
@@ -108,6 +130,25 @@ describe('CarWriter', () => {
       await writer.put(block)
     }
     await writer.close()
+
+    const bytes = await collection
+    assertCarData(bytes)
+  })
+
+  it('complete, slow drip', async () => {
+    const { writer, out } = create(roots)
+
+    // writer is async iterable
+    assert.strictEqual(typeof out[Symbol.asyncIterator], 'function')
+    const collection = collector(out)
+
+    for (const block of allBlocksFlattened) {
+      writer.put(block)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+    await writer.close()
+
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     const bytes = await collection
     assertCarData(bytes)

@@ -9,6 +9,17 @@ export interface CarEncoder {
   close(): Promise<void>
 }
 
+export interface IteratorChannel_Writer<T> {
+  write(chunk: T): Promise<void>
+  end(): Promise<void>
+}
+
+export interface IteratorChannel<T> {
+  writer: IteratorChannel_Writer<T>
+
+  iterator: AsyncIterator<T>
+}
+
 export type CarHeader = { version: number, roots: CID[] }
 
 export interface CarDecoder {
