@@ -4,17 +4,25 @@
 
 import fs from 'fs'
 import { Readable } from 'stream'
+// @ts-ignore
 import garbage from 'garbage'
+// @ts-ignore
 import varint from 'varint'
+// @ts-ignore
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 import CID from 'multiformats/cid'
 import { CarWriter, CarIndexer, CarReader } from '@ipld/car'
 import { assert } from './common.js'
 
+/** @typedef {import('../lib/types').BlockIndex} BlockIndex */
+
 describe('Large CAR', () => {
+  /** @type {any[]} */
   const objects = []
+  /** @type {string[]} */
   const cids = []
+  /** @type {BlockIndex[]} */
   const expectedIndex = []
 
   it('create, no roots', async () => {

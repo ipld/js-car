@@ -31,6 +31,7 @@ describe('CarReader fromBytes()', () => {
 
   it('bad argument', async () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
+      // @ts-ignore
       await assert.isRejected(fromBytes(arg))
     }
   })
@@ -82,6 +83,7 @@ describe('CarReader fromIterable()', () => {
 
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
+      // @ts-ignore
       await assert.isRejected(fromIterable(arg))
     }
   })

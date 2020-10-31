@@ -1,11 +1,20 @@
 /* eslint-env mocha */
+/* globals describe, it */
 
 import { create } from '@ipld/car/writer'
 import { bytes } from 'multiformats'
 import { carBytes, makeData, assert, rndCid } from './common.js'
 
+/**
+ * @typedef {import('multiformats').CID} CID
+ * @typedef {import('../lib/types').Block} Block
+ */
+
 const { toHex } = bytes
 
+/**
+ * @param {AsyncIterable<Uint8Array>} iterable
+ */
 function collector (iterable) {
   return (async () => {
     const chunks = []
@@ -25,10 +34,16 @@ function collector (iterable) {
 }
 
 describe('CarWriter', () => {
+  /** @type {Block[]} */
   let cborBlocks
+  /** @type {Block[]} */
   let allBlocksFlattened
+  /** @type {CID[]} */
   let roots
 
+  /**
+   * @param {Uint8Array} actual
+   */
   function assertCarData (actual) {
     assert.strictEqual(
       toHex(actual),
@@ -155,6 +170,7 @@ describe('CarWriter', () => {
 
   it('bad argument for create()', () => {
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      // @ts-ignore
       assert.throws(() => create(arg))
     }
   })
@@ -162,14 +178,17 @@ describe('CarWriter', () => {
   it('bad argument for put()', async () => {
     const { writer } = create()
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      // @ts-ignore
       await assert.isRejected(writer.put(arg))
     }
 
     for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      // @ts-ignore
       await assert.isRejected(writer.put({ bytes: new Uint8Array(0), cid: arg }))
     }
 
     for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
+      // @ts-ignore
       await assert.isRejected(writer.put({ cid: rndCid, bytes: arg }))
     }
   })

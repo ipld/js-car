@@ -2,19 +2,38 @@ import { bytes } from 'multiformats'
 import raw from 'multiformats/codecs/raw'
 import { toBlock, assert, makeData } from './common.js'
 
+/**
+ * @typedef {import('multiformats').CID} CID
+ * @typedef {import('../lib/types').Block} Block
+ * @typedef {import('../lib/types').RootsReader} RootsReader
+ * @typedef {import('../lib/types').BlockIterator} BlockIterator
+ * @typedef {import('../lib/types').BlockReader} BlockReader
+ */
+
+/**
+ * @param {Block} actual
+ * @param {Block} expected
+ * @param {string | void} id
+ */
 function compareBlockData (actual, expected, id) {
   assert.strictEqual(
     bytes.toHex(actual.bytes),
     bytes.toHex(expected.bytes),
-    `comparing block as hex ${id}`
+    `comparing block as hex ${id || ''}`
   )
 }
 
-function compareCids (actual, expected, id) {
-  assert.strictEqual(actual.asCID, actual)
+/**
+ * @param {CID} actual
+ * @param {CID} expected
+ */
+function compareCids (actual, expected) {
   assert.strictEqual(actual.toString(), expected.toString())
 }
 
+/**
+ * @param {RootsReader} reader
+ */
 async function verifyRoots (reader) {
   // using toString() for now, backing buffers in Uint8Arrays are getting in the way
   // in the browser
@@ -24,13 +43,24 @@ async function verifyRoots (reader) {
   assert.deepStrictEqual((await reader.getRoots()).map((c) => c.toString()), expected)
 }
 
+/**
+ * @param {BlockReader} reader
+ */
 async function verifyHas (reader) {
   const { allBlocks } = await makeData()
 
+  /**
+   * @param {CID} cid
+   * @param {string} name
+   */
   const verifyHas = async (cid, name) => {
     assert.ok(await reader.has(cid), `reader doesn't have expected key for ${name}`)
   }
 
+  /**
+   * @param {CID} cid
+   * @param {string} name
+   */
   const verifyHasnt = async (cid, name) => {
     assert.ok(!(await reader.has(cid)), `reader has unexpected key for ${name}`)
     assert.strictEqual(await reader.get(cid), undefined)
@@ -46,17 +76,28 @@ async function verifyHas (reader) {
   await verifyHasnt((await toBlock(new TextEncoder().encode('dddd'), raw)).cid, 'dddd')
 }
 
+/**
+ * @param {BlockReader} reader
+ */
 async function verifyGet (reader) {
   const { allBlocks } = await makeData()
 
+  /**
+   * @param {Block} expected
+   * @param {number} index
+   * @param {string} type
+   */
   const verifyBlock = async (expected, index, type) => {
     let actual
     try {
       actual = await reader.get(expected.cid)
+      assert.isDefined(actual)
+      if (actual) {
+        compareBlockData(actual, expected, `#${index} (${type})`)
+      }
     } catch (err) {
       assert.ifError(err, `get block length #${index} (${type})`)
     }
-    compareBlockData(actual, expected, `#${index} (${type})`)
   }
 
   for (const [type, blocks] of allBlocks) {
@@ -66,20 +107,29 @@ async function verifyGet (reader) {
   }
 }
 
-async function verifyBlocks (reader, unordered) {
+/**
+ * @param {BlockIterator} iterator
+ * @param {boolean | void} unordered
+ */
+async function verifyBlocks (iterator, unordered) {
   const { allBlocksFlattened } = await makeData()
   if (!unordered) {
     const expected = allBlocksFlattened.slice()
-    for await (const actual of reader.blocks()) {
-      compareBlockData(actual, expected.shift())
+    for await (const actual of iterator.blocks()) {
+      const next = expected.shift()
+      assert.isDefined(next)
+      if (next) {
+        compareBlockData(actual, next)
+      }
     }
   } else {
+    /** @type {{[prop: string]: Block}} */
     const expected = {}
     for (const block of allBlocksFlattened) {
       expected[block.cid.toString()] = block
     }
 
-    for await (const actual of reader.blocks()) {
+    for await (const actual of iterator.blocks()) {
       const { cid } = actual
       const exp = expected[cid.toString()]
       if (!exp) {
@@ -95,20 +145,29 @@ async function verifyBlocks (reader, unordered) {
   }
 }
 
-async function verifyCids (reader, unordered) {
+/**
+ * @param {BlockIterator} iterator
+ * @param {boolean | void} unordered
+ */
+async function verifyCids (iterator, unordered) {
   const { allBlocksFlattened } = await makeData()
   if (!unordered) {
     const expected = allBlocksFlattened.slice()
-    for await (const actual of reader.cids()) {
-      compareCids(actual, expected.shift().cid)
+    for await (const actual of iterator.cids()) {
+      const next = expected.shift()
+      assert.isDefined(next)
+      if (next) {
+        compareCids(actual, next.cid)
+      }
     }
   } else {
+    /** @type {{[prop: string]: Block}} */
     const expected = {}
     for (const block of allBlocksFlattened) {
       expected[block.cid.toString()] = block
     }
 
-    for await (const actual of reader.blocks()) {
+    for await (const actual of iterator.blocks()) {
       const { cid } = actual
       const exp = expected[cid.toString()]
       if (!exp) {

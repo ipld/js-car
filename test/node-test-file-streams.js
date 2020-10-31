@@ -17,13 +17,18 @@ import {
   verifyCids
 } from './verify-store-reader.js'
 
+/** @typedef {import('multiformats').CID} CID */
+/** @typedef {import('../lib/types').Block} Block */
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const tmpCarPath = path.join(__dirname, 'tmp.car')
 
 describe('Node Streams CarReader.fromIterable()', () => {
+  /** @type {Block[]} */
   let allBlocksFlattened
+  /** @type {CID[]} */
   let roots
 
   before(async () => {

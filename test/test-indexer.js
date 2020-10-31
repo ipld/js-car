@@ -4,6 +4,8 @@ import { fromBytes, fromIterable } from '@ipld/car/indexer'
 import { goCarBytes, goCarIndex, makeIterable, assert } from './common.js'
 import { verifyRoots } from './verify-store-reader.js'
 
+/** @typedef {import('@ipld/car/indexer').CarIndexer} CarIndexer */
+
 describe('CarIndexer fromBytes()', () => {
   it('complete', async () => {
     const indexer = await fromBytes(goCarBytes)
@@ -20,12 +22,14 @@ describe('CarIndexer fromBytes()', () => {
 
   it('bad argument', async () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
+      // @ts-ignore
       await assert.isRejected(fromBytes(arg))
     }
   })
 })
 
 describe('CarIndexer fromIterable()', () => {
+  /** @param {CarIndexer} indexer */
   async function verifyIndexer (indexer) {
     await verifyRoots(indexer) // behaves like an Reader for roots
 
@@ -54,6 +58,7 @@ describe('CarIndexer fromIterable()', () => {
 
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
+      // @ts-ignore
       await assert.isRejected(fromIterable(arg))
     }
   })

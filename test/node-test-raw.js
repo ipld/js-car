@@ -10,14 +10,17 @@ import { bytes } from 'multiformats'
 import { CarReader } from '@ipld/car'
 import { assert, makeData, goCarIndex } from './common.js'
 
-fs.open = promisify(fs.open)
-fs.close = promisify(fs.close)
+/** @typedef {import('../lib/types').Block} Block */
+
+const fsopen = promisify(fs.open)
+const fsclose = promisify(fs.close)
 
 const { toHex } = bytes
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('CarReader.readRaw', () => {
+  /** @type {Block[]} */
   let allBlocksFlattened
 
   before(async () => {
@@ -25,6 +28,9 @@ describe('CarReader.readRaw', () => {
     allBlocksFlattened = data.allBlocksFlattened
   })
 
+  /**
+   * @param {fs.promises.FileHandle | number} fd
+   */
   async function verifyRead (fd) {
     const expectedBlocks = allBlocksFlattened.slice()
     const expectedCids = []
@@ -47,18 +53,19 @@ describe('CarReader.readRaw', () => {
   }
 
   it('read raw using index (fd)', async () => {
-    const fd = await fs.open(path.join(__dirname, 'go.car'))
+    const fd = await fsopen(path.join(__dirname, 'go.car'), 'r')
     await verifyRead(fd)
-    await fs.close(fd)
+    await fsclose(fd)
   })
 
   it('read raw using index (FileHandle)', async () => {
-    const fd = await fs.promises.open(path.join(__dirname, 'go.car'))
+    const fd = await fs.promises.open(path.join(__dirname, 'go.car'), 'r')
     await verifyRead(fd)
-    await fd.close(fd)
+    await fd.close()
   })
 
   it('errors', async () => {
+    // @ts-ignore
     await assert.isRejected(CarReader.readRaw(true, goCarIndex[0]), {
       name: 'TypeError',
       message: 'Bad fd'
@@ -66,11 +73,11 @@ describe('CarReader.readRaw', () => {
 
     const badBlock = Object.assign({}, goCarIndex[goCarIndex.length - 1])
     badBlock.blockLength += 10
-    const fd = await fs.open(path.join(__dirname, 'go.car'))
+    const fd = await fsopen(path.join(__dirname, 'go.car'), 'r')
     await assert.isRejected(CarReader.readRaw(fd, badBlock), {
       name: 'Error',
       message: `Failed to read entire block (${badBlock.blockLength - 10} instead of ${badBlock.blockLength})`
     })
-    await fs.close(fd)
+    await fsclose(fd)
   })
 })

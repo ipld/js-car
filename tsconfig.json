@@ -17,6 +17,7 @@
     "alwaysStrict": true,
     "esModuleInterop": true,
     "target": "ES2018",
+    "module": "ESNext",
     "moduleResolution": "node",
     "declaration": true,
     "declarationMap": true,
@@ -25,20 +26,18 @@
     "stripInternal": true,
     "resolveJsonModule": true,
     "paths": {
-      "@ipld/car": [
-        "lib"
-      ]
+      "@ipld/car": [ "car.js", "car-browser.js", "lib/" ],
+      "@ipld/car/writer": [ "./lib/writer.js" ],
+      "@ipld/car/reader": [ "./lib/reader.js" ],
+      "@ipld/car/iterator": [ "./lib/iterator.js" ],
+      "@ipld/car/indexer": [ "./lib/indexer.js" ]
     },
     "baseUrl": "."
   },
-  "include": [
-    "lib",
-		"."
-  ],
+  "include": [ "lib", "." ],
   "exclude": [
-    "node_modules",
-    "test",
-    "dist",
+    "node_modules/",
+    "./dist/",
     "example*.js"
   ],
   "compileOnSave": false

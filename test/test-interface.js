@@ -41,6 +41,7 @@ describe('Interface', () => {
   })
 
   it('browser exports', () => {
+    // @ts-ignore
     assert.strictEqual(__browser, !!process.browser)
   })
 })

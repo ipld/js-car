@@ -18,8 +18,6 @@ export interface RootsReader {
 }
 
 export interface BlockIterator extends RootsReader {
-  getRoots(): Promise<CID[]>
-
   blocks(): AsyncGenerator<Block>
 
   cids(): AsyncGenerator<CID>
@@ -39,6 +37,12 @@ export interface BlockWriter {
   put(block: Block): Promise<void>
 
   close(): Promise<void>
+}
+
+export interface WriterChannel {
+  writer: BlockWriter
+
+  out: AsyncIterable<Uint8Array>
 }
 
 // export interface CarIndexer extends RootsReader, AsyncIterable<BlockIndex> {}

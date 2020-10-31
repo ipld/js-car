@@ -1,23 +1,42 @@
 import { bytes, CID } from 'multiformats'
 import { sha256 } from 'multiformats/hashes/sha2'
 import raw from 'multiformats/codecs/raw'
+// @ts-ignore
 import * as dagCbor from '@ipld/dag-cbor'
+// @ts-ignore
 import * as dagPb from '@ipld/dag-pb'
 
+// @ts-ignore
 import chai from 'chai'
+// @ts-ignore
 import chaiAsPromised from 'chai-as-promised'
+
+/**
+ * @typedef {import('../lib/types').Block} Block
+ */
 
 chai.use(chaiAsPromised)
 const { assert } = chai
 
+/** @type {Block[]} */
 let rawBlocks
+/** @type {Block[]} */
 const pbBlocks = []
+/** @type {Block[]} */
 const cborBlocks = []
+/** @type {[string, Block[]][]} */
 let allBlocks
+/** @type {Block[]} */
 let allBlocksFlattened
 
 const rndCid = CID.parse('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
 
+/**
+ * @param {any} object
+ * @param {{code: number, encode: (obj: any) => Uint8Array}} codec
+ * @param {number} version
+ * @returns {Promise<Block & { object: any }>}
+ */
 async function toBlock (object, codec, version = 1) {
   const bytes = codec.encode(object)
   const hash = await sha256.digest(bytes)
@@ -27,15 +46,19 @@ async function toBlock (object, codec, version = 1) {
 
 async function makeData () {
   if (!rawBlocks) {
-    rawBlocks = 'aaaa bbbb cccc zzzz'.split(' ').map((s) => {
+    rawBlocks = await Promise.all('aaaa bbbb cccc zzzz'.split(' ').map((s) => {
       return toBlock(new TextEncoder().encode(s), raw)
-    })
-    rawBlocks = await Promise.all(rawBlocks)
+    }))
 
+    /**
+     * @param {string} name
+     * @param {Block} block
+     */
     const toPbLink = (name, block) => {
       let size = block.bytes.length
       if (block.cid.code === 0x70) {
         // special cumulative size handling for linking to dag-pb blocks
+        // @ts-ignore
         size = block.object.Links.reduce((p, c) => p + c.Tsize, size)
       }
       return {
@@ -59,7 +82,7 @@ async function makeData () {
     }
 
     allBlocks = [['raw', rawBlocks.slice(0, 3)], ['pb', pbBlocks], ['cbor', cborBlocks]]
-    allBlocksFlattened = allBlocks.reduce((p, c) => p.concat(c[1]), [])
+    allBlocksFlattened = allBlocks.reduce((/** @type {Block[]} */ p, c) => p.concat(c[1]), [])
   }
 
   return {
@@ -71,6 +94,11 @@ async function makeData () {
   }
 }
 
+/**
+ * @param {Uint8Array} data
+ * @param {number} chunkSize
+ * @returns {AsyncIterable<Uint8Array>}
+ */
 function makeIterable (data, chunkSize) {
   let pos = 0
   return {
@@ -79,7 +107,7 @@ function makeIterable (data, chunkSize) {
         async next () {
           await new Promise((resolve) => setTimeout(resolve, 5))
           if (pos >= data.length) {
-            return { done: true }
+            return { done: true, value: undefined }
           }
           const value = data.slice(pos, pos += chunkSize)
           return { done: false, value }
