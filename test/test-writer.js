@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* globals describe, it */
 
-import { create } from '@ipld/car/writer'
+import CarWriter from '@ipld/car/writer'
 import { bytes } from 'multiformats'
 import { carBytes, makeData, assert, rndCid } from './common.js'
 
@@ -60,7 +60,7 @@ describe('CarWriter', () => {
   })
 
   it('complete', async () => {
-    const { writer, out } = create(roots)
+    const { writer, out } = CarWriter.create(roots)
 
     // writer is async iterable
     assert.strictEqual(typeof out[Symbol.asyncIterator], 'function')
@@ -82,7 +82,7 @@ describe('CarWriter', () => {
   })
 
   it('complete, deferred collection', async () => {
-    const { writer, out } = create(roots)
+    const { writer, out } = CarWriter.create(roots)
 
     const writeQueue = []
     for (const block of allBlocksFlattened) {
@@ -101,7 +101,7 @@ describe('CarWriter', () => {
   })
 
   it('complete, close after write', async () => {
-    const { writer, out } = create(roots)
+    const { writer, out } = CarWriter.create(roots)
 
     assert.strictEqual(typeof out[Symbol.asyncIterator], 'function')
     const collection = collector(out)
@@ -123,7 +123,7 @@ describe('CarWriter', () => {
   })
 
   it('complete, no queue', async () => {
-    const { writer, out } = create(roots)
+    const { writer, out } = CarWriter.create(roots)
     const collection = collector(out)
 
     for (const block of allBlocksFlattened) {
@@ -136,7 +136,7 @@ describe('CarWriter', () => {
   })
 
   it('complete, slow drip', async () => {
-    const { writer, out } = create(roots)
+    const { writer, out } = CarWriter.create(roots)
 
     // writer is async iterable
     assert.strictEqual(typeof out[Symbol.asyncIterator], 'function')
@@ -155,7 +155,7 @@ describe('CarWriter', () => {
   })
 
   it('complete, no queue, deferred collection', async () => {
-    const { writer, out } = create(roots)
+    const { writer, out } = CarWriter.create(roots)
 
     for (const block of allBlocksFlattened) {
       writer.put(block)
@@ -168,7 +168,7 @@ describe('CarWriter', () => {
   })
 
   it('single root', async () => {
-    const { writer, out } = create(roots[0])
+    const { writer, out } = CarWriter.create(roots[0])
     const collection = collector(out)
 
     for (const block of allBlocksFlattened) {
@@ -189,7 +189,7 @@ describe('CarWriter', () => {
   })
 
   it('no roots', async () => {
-    const { writer, out } = create()
+    const { writer, out } = CarWriter.create()
     const collection = collector(out)
 
     for (const block of allBlocksFlattened) {
@@ -212,12 +212,12 @@ describe('CarWriter', () => {
   it('bad argument for create()', () => {
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
       // @ts-ignore
-      assert.throws(() => create(arg))
+      assert.throws(() => CarWriter.create(arg))
     }
   })
 
   it('bad argument for put()', async () => {
-    const { writer } = create()
+    const { writer } = CarWriter.create()
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
       // @ts-ignore
       await assert.isRejected(writer.put(arg))
@@ -235,13 +235,13 @@ describe('CarWriter', () => {
   })
 
   it('bad attempt to multiple iterate', async () => {
-    const { out } = create()
+    const { out } = CarWriter.create()
     collector(out)
     await assert.isRejected(collector(out), /multiple iterator/i)
   })
 
   it('bad attempt to multiple close', async () => {
-    const { writer, out } = create()
+    const { writer, out } = CarWriter.create()
     collector(out)
     await writer.close()
     await assert.isRejected(writer.close(), /closed/i)

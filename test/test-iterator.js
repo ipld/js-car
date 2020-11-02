@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { fromBytes, fromIterable } from '@ipld/car/iterator'
+import CarIterator from '@ipld/car/iterator'
 import { carBytes, makeIterable, assert } from './common.js'
 import {
   verifyRoots,
@@ -10,33 +10,33 @@ import {
 
 describe('CarIterator fromBytes()', () => {
   it('blocks', async () => {
-    const reader = await fromBytes(carBytes)
+    const reader = await CarIterator.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyBlocks(reader)
   })
 
   it('cids', async () => {
-    const reader = await fromBytes(carBytes)
+    const reader = await CarIterator.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyCids(reader)
   })
 
   it('bad double blocks read', async () => {
-    const reader = await fromBytes(carBytes)
+    const reader = await CarIterator.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyBlocks(reader)
     await assert.isRejected(verifyBlocks(reader), /more than once/i)
   })
 
   it('bad double cids read', async () => {
-    const reader = await fromBytes(carBytes)
+    const reader = await CarIterator.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyCids(reader)
     await assert.isRejected(verifyCids(reader), /more than once/i)
   })
 
   it('bad blocks then cids read', async () => {
-    const reader = await fromBytes(carBytes)
+    const reader = await CarIterator.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyBlocks(reader)
     await assert.isRejected(verifyCids(reader), /more than once/i)
@@ -45,7 +45,7 @@ describe('CarIterator fromBytes()', () => {
   it('bad argument', async () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
       // @ts-ignore
-      await assert.isRejected(fromBytes(arg))
+      await assert.isRejected(CarIterator.fromBytes(arg))
     }
   })
 })
@@ -55,13 +55,13 @@ describe('CarIterator.fromIterable()', () => {
     const chunkDesc = chunkSize === carBytes.length ? 'single chunk' : `${chunkSize}  bytes`
 
     it(`blocks (${chunkDesc})`, async () => {
-      const reader = await fromIterable(makeIterable(carBytes, chunkSize))
+      const reader = await CarIterator.fromIterable(makeIterable(carBytes, chunkSize))
       await verifyRoots(reader)
       await verifyBlocks(reader)
     })
 
     it(`cids (${chunkDesc})`, async () => {
-      const reader = await fromIterable(makeIterable(carBytes, chunkSize))
+      const reader = await CarIterator.fromIterable(makeIterable(carBytes, chunkSize))
       await verifyRoots(reader)
       await verifyCids(reader)
     })
@@ -70,7 +70,7 @@ describe('CarIterator.fromIterable()', () => {
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
       // @ts-ignore
-      await assert.isRejected(fromIterable(arg))
+      await assert.isRejected(CarIterator.fromIterable(arg))
     }
   })
 })

@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { fromBytes, fromIterable } from '@ipld/car/reader'
+import CarReader from '@ipld/car/reader'
 import { carBytes, makeIterable, assert } from './common.js'
 import {
   verifyRoots,
@@ -12,7 +12,7 @@ import {
 
 describe('CarReader fromBytes()', () => {
   it('complete', async () => {
-    const reader = await fromBytes(carBytes)
+    const reader = await CarReader.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
@@ -21,7 +21,7 @@ describe('CarReader fromBytes()', () => {
   })
 
   it('complete (get before has) switch', async () => {
-    const reader = await fromBytes(carBytes)
+    const reader = await CarReader.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyGet(reader)
     await verifyHas(reader)
@@ -32,12 +32,12 @@ describe('CarReader fromBytes()', () => {
   it('bad argument', async () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
       // @ts-ignore
-      await assert.isRejected(fromBytes(arg))
+      await assert.isRejected(CarReader.fromBytes(arg))
     }
   })
 
   it('decode error - truncated', async () => {
-    await assert.isRejected(fromBytes(carBytes.slice(0, carBytes.length - 10)), {
+    await assert.isRejected(CarReader.fromBytes(carBytes.slice(0, carBytes.length - 10)), {
       name: 'Error',
       message: 'Unexpected end of data'
     })
@@ -46,7 +46,7 @@ describe('CarReader fromBytes()', () => {
 
 describe('CarReader fromIterable()', () => {
   it('complete (single chunk)', async () => {
-    const reader = await fromIterable(makeIterable(carBytes, carBytes.length))
+    const reader = await CarReader.fromIterable(makeIterable(carBytes, carBytes.length))
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
@@ -55,7 +55,7 @@ describe('CarReader fromIterable()', () => {
   })
 
   it('complete (101-byte chunks)', async () => {
-    const reader = await fromIterable(makeIterable(carBytes, 101))
+    const reader = await CarReader.fromIterable(makeIterable(carBytes, 101))
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
@@ -64,7 +64,7 @@ describe('CarReader fromIterable()', () => {
   })
 
   it('complete (64-byte chunks)', async () => {
-    const reader = await fromIterable(makeIterable(carBytes, 64))
+    const reader = await CarReader.fromIterable(makeIterable(carBytes, 64))
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
@@ -73,7 +73,7 @@ describe('CarReader fromIterable()', () => {
   })
 
   it('complete (32-byte chunks)', async () => {
-    const reader = await fromIterable(makeIterable(carBytes, 32))
+    const reader = await CarReader.fromIterable(makeIterable(carBytes, 32))
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
@@ -84,12 +84,12 @@ describe('CarReader fromIterable()', () => {
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
       // @ts-ignore
-      await assert.isRejected(fromIterable(arg))
+      await assert.isRejected(CarReader.fromIterable(arg))
     }
   })
 
   it('decode error - truncated', async () => {
-    await assert.isRejected(fromIterable(makeIterable(carBytes.slice(0, carBytes.length - 10), 64)), {
+    await assert.isRejected(CarReader.fromIterable(makeIterable(carBytes.slice(0, carBytes.length - 10), 64)), {
       name: 'Error',
       message: 'Unexpected end of data'
     })
