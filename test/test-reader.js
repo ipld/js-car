@@ -18,6 +18,7 @@ describe('CarReader fromBytes()', () => {
     await verifyGet(reader)
     await verifyBlocks(reader.blocks())
     await verifyCids(reader.cids())
+    assert.strictEqual(reader.version, 1)
   })
 
   it('complete (get before has) switch', async () => {

@@ -29,6 +29,7 @@
       "@ipld/car": [ "car.js", "car-browser.js", "lib/" ],
       "@ipld/car/writer": [ "./lib/writer.js" ],
       "@ipld/car/reader": [ "./lib/reader.js" ],
+      "@ipld/car/indexed-reader": [ "./lib/indexed-reader.js" ],
       "@ipld/car/iterator": [ "./lib/iterator.js" ],
       "@ipld/car/indexer": [ "./lib/indexer.js" ]
     },

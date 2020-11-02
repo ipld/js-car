@@ -11,6 +11,7 @@ import { verifyRoots, verifyBlocks, verifyCids } from './verify-store-reader.js'
 async function verifyBlockIterator (iter) {
   await verifyRoots(iter)
   await verifyBlocks(iter)
+  assert.strictEqual(iter.version, 1)
   return iter
 }
 
@@ -21,6 +22,7 @@ async function verifyBlockIterator (iter) {
 async function verifyCIDIterator (iter) {
   await verifyRoots(iter)
   await verifyCids(iter)
+  assert.strictEqual(iter.version, 1)
   return iter
 }
 

@@ -66,6 +66,10 @@
       "import": "./lib/reader.js",
       "browser": "./lib/reader-browser.js"
     },
+    "./indexed-reader": {
+      "import": "./lib/indexed-reader.js",
+      "browser": "./lib/indexed-reader-browser.js"
+    },
     "./indexer": {
       "import": "./lib/indexer.js"
     },

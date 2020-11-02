@@ -16,6 +16,7 @@ export type BlockIndex = BlockHeader & {
 }
 
 export interface RootsReader {
+  version: number
   getRoots(): Promise<CID[]>
 }
 

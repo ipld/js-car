@@ -7,8 +7,8 @@ import { verifyRoots } from './verify-store-reader.js'
 describe('CarIndexer fromBytes()', () => {
   it('complete', async () => {
     const indexer = await CarIndexer.fromBytes(goCarBytes)
-
     await verifyRoots(indexer) // behaves like an Reader for roots
+    assert.strictEqual(indexer.version, 1)
 
     const indexData = []
     for await (const index of indexer) {
@@ -30,6 +30,7 @@ describe('CarIndexer fromIterable()', () => {
   /** @param {CarIndexer} indexer */
   async function verifyIndexer (indexer) {
     await verifyRoots(indexer) // behaves like an Reader for roots
+    assert.strictEqual(indexer.version, 1)
 
     const indexData = []
     for await (const index of indexer) {
