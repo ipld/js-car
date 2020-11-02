@@ -16,8 +16,8 @@ describe('CarReader fromBytes()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
-    await verifyBlocks(reader)
-    await verifyCids(reader)
+    await verifyBlocks(reader.blocks())
+    await verifyCids(reader.cids())
   })
 
   it('complete (get before has) switch', async () => {
@@ -25,8 +25,8 @@ describe('CarReader fromBytes()', () => {
     await verifyRoots(reader)
     await verifyGet(reader)
     await verifyHas(reader)
-    await verifyBlocks(reader)
-    await verifyCids(reader)
+    await verifyBlocks(reader.blocks())
+    await verifyCids(reader.cids())
   })
 
   it('bad argument', async () => {
@@ -50,8 +50,8 @@ describe('CarReader fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
-    await verifyBlocks(reader)
-    await verifyCids(reader)
+    await verifyBlocks(reader.blocks())
+    await verifyCids(reader.cids())
   })
 
   it('complete (101-byte chunks)', async () => {
@@ -59,8 +59,8 @@ describe('CarReader fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
-    await verifyBlocks(reader)
-    await verifyCids(reader)
+    await verifyBlocks(reader.blocks())
+    await verifyCids(reader.cids())
   })
 
   it('complete (64-byte chunks)', async () => {
@@ -68,8 +68,8 @@ describe('CarReader fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
-    await verifyBlocks(reader)
-    await verifyCids(reader)
+    await verifyBlocks(reader.blocks())
+    await verifyCids(reader.cids())
   })
 
   it('complete (32-byte chunks)', async () => {
@@ -77,8 +77,8 @@ describe('CarReader fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
-    await verifyBlocks(reader)
-    await verifyCids(reader)
+    await verifyBlocks(reader.blocks())
+    await verifyCids(reader.cids())
   })
 
   it('bad argument', async () => {

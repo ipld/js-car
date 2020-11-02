@@ -19,14 +19,15 @@ export interface RootsReader {
   getRoots(): Promise<CID[]>
 }
 
-export interface BlockIterator {
-  blocks(): AsyncGenerator<Block>
-  cids(): AsyncGenerator<CID>
-}
+export interface BlockIterator extends AsyncIterable<Block> {}
+
+export interface CIDIterator extends AsyncIterable<CID> {}
 
 export interface BlockReader {
   has(key: CID): Promise<boolean>
   get(key: CID): Promise<Block | undefined>
+  blocks(): BlockIterator
+  cids(): CIDIterator
 }
 
 export interface BlockWriter {
@@ -41,7 +42,10 @@ export interface WriterChannel {
 
 /* Specific implementations for CAR block storage */
 
-export interface CarIterator extends BlockIterator, RootsReader {}
-export interface CarReader extends CarIterator, BlockReader {}
+/*
+export interface CarBlockIterator extends BlockIterator, RootsReader {}
+export interface CarCIDIterator extends CIDIterator, RootsReader {}
+export interface CarReader extends BlockReader, RootsReader {}
+export interface CarIndexer extends AsyncIterable<BlockIndex>, RootsReader {}
 export interface CarWriter extends BlockWriter {}
-export interface CarIndexer extends AsyncIterable<BlockIndex> {}
+*/

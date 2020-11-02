@@ -1,76 +1,72 @@
 /* eslint-env mocha */
 
-import CarIterator from '@ipld/car/iterator'
+import { CarBlockIterator, CarCIDIterator } from '@ipld/car/iterator'
 import { carBytes, makeIterable, assert } from './common.js'
-import {
-  verifyRoots,
-  verifyBlocks,
-  verifyCids
-} from './verify-store-reader.js'
+import { verifyRoots, verifyBlocks, verifyCids } from './verify-store-reader.js'
 
-describe('CarIterator fromBytes()', () => {
-  it('blocks', async () => {
-    const reader = await CarIterator.fromBytes(carBytes)
-    await verifyRoots(reader)
-    await verifyBlocks(reader)
-  })
+/**
+ * @param {CarBlockIterator} iter
+ * @returns {Promise<CarBlockIterator>}
+ */
+async function verifyBlockIterator (iter) {
+  await verifyRoots(iter)
+  await verifyBlocks(iter)
+  return iter
+}
 
-  it('cids', async () => {
-    const reader = await CarIterator.fromBytes(carBytes)
-    await verifyRoots(reader)
-    await verifyCids(reader)
-  })
+/**
+ * @param {CarCIDIterator} iter
+ * @returns {Promise<CarCIDIterator>}
+ */
+async function verifyCIDIterator (iter) {
+  await verifyRoots(iter)
+  await verifyCids(iter)
+  return iter
+}
 
-  it('bad double blocks read', async () => {
-    const reader = await CarIterator.fromBytes(carBytes)
-    await verifyRoots(reader)
-    await verifyBlocks(reader)
-    await assert.isRejected(verifyBlocks(reader), /more than once/i)
-  })
-
-  it('bad double cids read', async () => {
-    const reader = await CarIterator.fromBytes(carBytes)
-    await verifyRoots(reader)
-    await verifyCids(reader)
-    await assert.isRejected(verifyCids(reader), /more than once/i)
-  })
-
-  it('bad blocks then cids read', async () => {
-    const reader = await CarIterator.fromBytes(carBytes)
-    await verifyRoots(reader)
-    await verifyBlocks(reader)
-    await assert.isRejected(verifyCids(reader), /more than once/i)
-  })
-
-  it('bad argument', async () => {
-    for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      // @ts-ignore
-      await assert.isRejected(CarIterator.fromBytes(arg))
-    }
-  })
-})
-
-describe('CarIterator.fromIterable()', () => {
-  for (const chunkSize of [carBytes.length, 100, 64, 32]) {
-    const chunkDesc = chunkSize === carBytes.length ? 'single chunk' : `${chunkSize}  bytes`
-
-    it(`blocks (${chunkDesc})`, async () => {
-      const reader = await CarIterator.fromIterable(makeIterable(carBytes, chunkSize))
-      await verifyRoots(reader)
-      await verifyBlocks(reader)
+for (const type of ['Block', 'CID']) {
+  describe(`Car${type}Iterator`, () => {
+    it('fromBytes()', async () => {
+      if (type === 'Block') {
+        await verifyBlockIterator(await CarBlockIterator.fromBytes(carBytes))
+      } else {
+        await verifyCIDIterator(await CarCIDIterator.fromBytes(carBytes))
+      }
     })
 
-    it(`cids (${chunkDesc})`, async () => {
-      const reader = await CarIterator.fromIterable(makeIterable(carBytes, chunkSize))
-      await verifyRoots(reader)
-      await verifyCids(reader)
+    it('fromBytes() bad double read', async () => {
+      if (type === 'Block') {
+        const iter = await verifyBlockIterator(await CarBlockIterator.fromBytes(carBytes))
+        await assert.isRejected(verifyBlocks(iter), /more than once/i)
+      } else {
+        const iter = await verifyCIDIterator(await CarCIDIterator.fromBytes(carBytes))
+        await assert.isRejected(verifyCids(iter), /more than once/i)
+      }
     })
-  }
 
-  it('bad argument', async () => {
-    for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      // @ts-ignore
-      await assert.isRejected(CarIterator.fromIterable(arg))
+    it('fromBytes() bad argument', async () => {
+      for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
+        // @ts-ignore
+        await assert.isRejected((type === 'Block' ? CarBlockIterator : CarCIDIterator).fromBytes(arg))
+      }
+    })
+
+    it('fromIterable() bad argument', async () => {
+      for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
+        // @ts-ignore
+        await assert.isRejected((type === 'Block' ? CarBlockIterator : CarCIDIterator).fromIterable(arg))
+      }
+    })
+
+    for (const chunkSize of [carBytes.length, 100, 64, 32]) {
+      const chunkDesc = chunkSize === carBytes.length ? 'single chunk' : `${chunkSize}  bytes`
+      it(`fromIterable() blocks (${chunkDesc})`, async () => {
+        if (type === 'Block') {
+          await verifyBlockIterator(await CarBlockIterator.fromIterable(makeIterable(carBytes, chunkSize)))
+        } else {
+          await verifyCIDIterator(await CarCIDIterator.fromIterable(makeIterable(carBytes, chunkSize)))
+        }
+      })
     }
   })
-})
+}

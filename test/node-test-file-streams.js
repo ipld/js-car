@@ -47,8 +47,8 @@ describe('Node Streams CarReader.fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
-    await verifyBlocks(reader, true)
-    await verifyCids(reader, true)
+    await verifyBlocks(reader.blocks(), true)
+    await verifyCids(reader.cids(), true)
   })
 
   it('complete', async () => {
@@ -76,8 +76,8 @@ describe('Node Streams CarReader.fromIterable()', () => {
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
-    await verifyBlocks(reader, true)
-    await verifyCids(reader, true)
+    await verifyBlocks(reader.blocks(), true)
+    await verifyCids(reader.cids(), true)
 
     await fs.promises.unlink(tmpCarPath)
   })

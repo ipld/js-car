@@ -2,7 +2,7 @@
 import * as car from '@ipld/car'
 import CarReader, { __browser } from '@ipld/car/reader'
 import CarIndexer from '@ipld/car/indexer'
-import CarIterator from '@ipld/car/iterator'
+import { CarBlockIterator, CarCIDIterator } from '@ipld/car/iterator'
 import CarWriter from '@ipld/car/writer'
 
 import { assert } from './common.js'
@@ -12,7 +12,8 @@ describe('Interface', () => {
   it('exports match', () => {
     assert.strictEqual(car.CarReader, CarReader)
     assert.strictEqual(car.CarIndexer, CarIndexer)
-    assert.strictEqual(car.CarIterator, CarIterator)
+    assert.strictEqual(car.CarBlockIterator, CarBlockIterator)
+    assert.strictEqual(car.CarCIDIterator, CarCIDIterator)
     assert.strictEqual(car.CarWriter, CarWriter)
   })
 

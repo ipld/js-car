@@ -7,6 +7,7 @@ import { toBlock, assert, makeData } from './common.js'
  * @typedef {import('../api').Block} Block
  * @typedef {import('../api').RootsReader} RootsReader
  * @typedef {import('../api').BlockIterator} BlockIterator
+ * @typedef {import('../api').CIDIterator} CIDIterator
  * @typedef {import('../api').BlockReader} BlockReader
  */
 
@@ -115,7 +116,7 @@ async function verifyBlocks (iterator, unordered) {
   const { allBlocksFlattened } = await makeData()
   if (!unordered) {
     const expected = allBlocksFlattened.slice()
-    for await (const actual of iterator.blocks()) {
+    for await (const actual of iterator) {
       const next = expected.shift()
       assert.isDefined(next)
       if (next) {
@@ -129,7 +130,7 @@ async function verifyBlocks (iterator, unordered) {
       expected[block.cid.toString()] = block
     }
 
-    for await (const actual of iterator.blocks()) {
+    for await (const actual of iterator) {
       const { cid } = actual
       const exp = expected[cid.toString()]
       if (!exp) {
@@ -146,14 +147,14 @@ async function verifyBlocks (iterator, unordered) {
 }
 
 /**
- * @param {BlockIterator} iterator
+ * @param {CIDIterator} iterator
  * @param {boolean | void} unordered
  */
 async function verifyCids (iterator, unordered) {
   const { allBlocksFlattened } = await makeData()
   if (!unordered) {
     const expected = allBlocksFlattened.slice()
-    for await (const actual of iterator.cids()) {
+    for await (const actual of iterator) {
       const next = expected.shift()
       assert.isDefined(next)
       if (next) {
@@ -167,8 +168,7 @@ async function verifyCids (iterator, unordered) {
       expected[block.cid.toString()] = block
     }
 
-    for await (const actual of iterator.blocks()) {
-      const { cid } = actual
+    for await (const cid of iterator) {
       const exp = expected[cid.toString()]
       if (!exp) {
         throw new Error(`Unexpected cid: ${cid.toString()}`)
