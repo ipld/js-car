@@ -12,7 +12,7 @@ import varint from 'varint'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 import CID from 'multiformats/cid'
-import { CarWriter, CarIndexer, CarReader } from '@ipld/car'
+import { CarWriter, CarIndexer, CarReader, CarIndexedReader } from '@ipld/car'
 import { assert } from './common.js'
 
 /** @typedef {import('../api').BlockIndex} BlockIndex */
@@ -87,6 +87,18 @@ describe('Large CAR', () => {
 
   it('CarReader.fromIterable', async () => {
     const reader = await CarReader.fromIterable(fs.createReadStream('./test.car'))
+    assert.deepStrictEqual(await reader.getRoots(), [])
+    let i = 0
+    for await (const { cid, bytes } of reader.blocks()) {
+      assert.strictEqual(cid.toString(), cids[i], `cid #${i} ${cid} <> ${cids[i]}`)
+      const obj = dagCbor.decode(bytes)
+      assert.deepStrictEqual(obj, objects[i], `object #${i}`)
+      i++
+    }
+  })
+
+  it('CarIndexedReader.fromFile', async () => {
+    const reader = await CarIndexedReader.fromFile('./test.car')
     assert.deepStrictEqual(await reader.getRoots(), [])
     let i = 0
     for await (const { cid, bytes } of reader.blocks()) {
