@@ -7,6 +7,14 @@ See also:
  * Original [Go implementation](https://github.com/ipfs/go-car)
  * [CAR specification](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md)
  * [IPLD](https://ipld.io)
+ 
+
+## Contents
+
+ * [Example](#example)
+ * [Usage](#usage)
+ * [API](#api)
+ * [License](#license)
 
 ## Example
 
@@ -61,6 +69,127 @@ Will output:
 ```
 Retrieved [random meaningless bytes] from example.car with CID [bafkreihwkf6mtnjobdqrkiksr7qhp6tiiqywux64aylunbvmfhzeql2coa]
 ```
+
+## Usage
+
+`@ipld/car` is consumed through factory methods on its different classes. Each
+class represents a discrete set of functionality. You should select the classes
+that make the most sense for your use-case.
+
+### [`CarReader`](#CarReader)
+
+The basic `CarReader` class is consumed via:
+
+```js
+import CarReader from '@ipld/car/reader'
+```
+
+Or alternatively: `import { CarReader } from '@ipld/car'`. CommonJS `require`
+will also work for the same import paths and references.
+
+`CarReader` is useful for relatively small CAR archives as it buffers the
+entirety of the archive in memory to provide access to its data. This class is
+also suitable in a browser environment. The `CarReader` class provides
+random-access [`get(key)`](#CarReader_get) and  [`has(key)`](#CarReader_has)
+methods as well as iterators for [`blocks()`](#CarReader_blocks)] and
+[`cids()`](#CarReader_cids)].
+
+`CarReader` can be instantiated from a
+[single `Uint8Array`](#CarReader__fromBytes) or from
+[an `AsyncIterable`](#CarReader__fromIterable) of `Uint8Array`s (note that
+Node.js streams are `AsyncIterable`s and can be consumed in this way).
+
+### [`CarIndexedReader`](#CarIndexedReader)
+
+The `CarIndexedReader` class is a special form of `CarReader` and can be
+consumed in **Node.js only** (not in the browser) via:
+
+```js
+import CarIndexedReader from '@ipld/car/indexed-reader'
+```
+
+Or alternatively: `import { CarIndexedReader } from '@ipld/car'`. CommonJS
+`require` will also work for the same import paths and references.
+
+A `CarIndexedReader` provides the same functionality as `CarReader` but is
+instantiated from [a path to a CAR file](#CarIndexedReader__fromFile) and also
+adds a [`close()`](#CarWriter_close) method that must be called when the reader
+is no longer required, to clean up resources.
+
+`CarIndexedReader` performs a single full-scan of a CAR file, collecting a list
+of `CID`s and their block positions in the archive. It then performs
+random-access reads when blocks are requested via `get()` and the `blocks()` and
+`cids()` iterators.
+
+This class may be sutiable for random-access (primarily via `has()` and `get()`)
+to relatively large CAR files.
+
+### [`CarBlockIterator`](#CarBlockIterator) and [`CarCIDIterator`](#CarCIDIterator)
+
+```js
+import { CarBlockIterator } from '@ipld/car/iterator'
+// or
+import { CarCIDIterator } from '@ipld/car/iterator'
+```
+
+Or alternatively:
+`import { CarBlockIterator, CarCIDIterator } from '@ipld/car'`. CommonJS
+`require` will also work for the same import paths and references.
+
+These two classes provide `AsyncIterable`s to the blocks or just the `CIDs`
+contained within a CAR archive. These are efficient mechanisms for scanning an
+entire CAR archive, regardless of size, if random-access to blocks is not
+required.
+
+`CarBlockIterator` and `CarCIDIterator` can be instantiated from a
+single `Uint8Array` (see
+[`CarBlockIterator.fromBytes()`](#CarBlockIterator__fromBytes) and
+[`CarCIDIterator.fromBytes()`](#CarCIDIterator__fromBytes)) or from
+an `AsyncIterable` of `Uint8Array`s (see
+[`CarBlockIterator.fromIterable()`](#CarBlockIterator__fromIterable) and
+[`CarCIDIterator.fromIterable()`](#CarCIDIterator__fromIterable))—note that
+Node.js streams are `AsyncIterable`s and can be consumed in this way.
+
+### [`CarIndexer`](#CarIndexer)
+
+The `CarIndexer` class can be used to scan a CAR archive and provide indexing
+data on the contents. It can be consumed via:
+
+```js
+import CarIndexer from '@ipld/car/indexed-reader'
+```
+
+Or alternatively: `import { CarIndexer } from '@ipld/car'`. CommonJS
+`require` will also work for the same import paths and references.
+
+This class is used within [`CarIndexedReader`](#CarIndexedReader) and is only
+useful in cases where an external index of a CAR needs to be generated and used.
+
+The index data can also be used with
+[`CarReader.readRaw()`](#CarReader__readRaw)] to fetch block data directly from
+a file descriptor using the index data for that block.
+
+### [`CarWriter`](#CarWriter)
+
+A `CarWriter` is used to create new CAR archives. It can be consumed via:
+
+```js
+import CarWriter from '@ipld/car/writer'
+```
+
+Or alternatively: `import { CarWriter } from '@ipld/car'`. CommonJS
+`require` will also work for the same import paths and references.
+
+[Creation of a `CarWriter`](#CarWriter__create) involves a "channel", or a
+`{ writer:CarWriter, out:AsyncIterable<Uint8Array> }` pair. The `writer` side
+of the channel is used to [`put()`](#CarWriter_put) blocks, while the `out`
+side of the channel emits the bytes that form the encoded CAR archive.
+
+In Node.js, you can use the
+[`Readable.from()`](https://nodejs.org/api/stream.html#stream_stream_readable_from_iterable_options)
+API to convert the `out` `AsyncIterable` to a standard Node.js stream, or it can
+be directly fed to a
+[`stream.pipeline()`](https://nodejs.org/api/stream.html#stream_stream_pipeline_source_transforms_destination_callback).
 
 ## API
 
