@@ -234,6 +234,15 @@ describe('CarWriter', () => {
     }
   })
 
+  it('bad write after closed', async () => {
+    const { writer, out } = CarWriter.create()
+    const collection = collector(out)
+    await writer.put(allBlocksFlattened[0])
+    await writer.close()
+    await assert.isRejected(writer.put(allBlocksFlattened[1]), /closed/)
+    await collection
+  })
+
   it('bad attempt to multiple iterate', async () => {
     const { out } = CarWriter.create()
     collector(out)

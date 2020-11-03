@@ -18,7 +18,7 @@
     "test:cjs:browser": "polendina --cleanup dist/cjs/browser-test/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:cjs",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
-    "docs": "jsdoc4readme --readme --description-only *.js lib/*.js"
+    "docs": "jsdoc4readme --readme --description-only lib/reader*.js lib/indexed-reader.js lib/iterator.js lib/indexer.js lib/writer.js"
   },
   "repository": {
     "type": "git",
