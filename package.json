@@ -18,7 +18,7 @@
     "test:cjs:browser": "polendina --cleanup dist/cjs/browser-test/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:cjs",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
-    "docs": "jsdoc4readme --readme *.js lib/*.js"
+    "docs": "jsdoc4readme --readme --description-only *.js lib/*.js"
   },
   "repository": {
     "type": "git",
@@ -54,6 +54,7 @@
   },
   "dependencies": {
     "@ipld/dag-cbor": "^2.0.2",
+    "@microsoft/tsdoc": "^0.12.21",
     "multiformats": "^4.3.1",
     "varint": "^6.0.0"
   },
