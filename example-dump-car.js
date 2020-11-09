@@ -5,7 +5,7 @@
 // Also prints a DAG-JSON form of the block and its CID to stdout.
 
 import fs from 'fs'
-import { fromIterable } from '@ipld/car/iterator'
+import { CarBlockIterator } from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
@@ -35,8 +35,8 @@ function decode (cid, bytes) {
 
 async function run () {
   const inStream = fs.createReadStream(process.argv[2])
-  const reader = await fromIterable(inStream)
-  for await (const { cid, bytes } of reader.blocks()) {
+  const reader = await CarBlockIterator.fromIterable(inStream)
+  for await (const { cid, bytes } of reader) {
     await fs.promises.writeFile(cid.toString(), bytes)
 
     const decoded = decode(cid, bytes)

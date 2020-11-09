@@ -6,7 +6,7 @@
 
 import fs from 'fs'
 import { bytes, CID } from 'multiformats'
-import { fromIterable } from '@ipld/car/iterator'
+import { CarBlockIterator } from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
@@ -39,9 +39,9 @@ const hashes = {
 
 async function run () {
   const inStream = fs.createReadStream(process.argv[2])
-  const reader = await fromIterable(inStream)
+  const reader = await CarBlockIterator.fromIterable(inStream)
   let count = 0
-  for await (const { bytes, cid } of reader.blocks()) {
+  for await (const { bytes, cid } of reader) {
     if (!codecs[cid.code]) {
       console.log(`Unexpected codec: 0x${cid.code.toString(16)}`)
       process.exit(1)
