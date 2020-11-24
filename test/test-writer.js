@@ -13,29 +13,38 @@ import { carBytes, makeData, assert, rndCid } from './common.js'
 const { toHex } = bytes
 
 /**
+ * @param {Uint8Array[]} chunks
+ */
+function concatBytes (chunks) {
+  const length = chunks.reduce((p, c) => p + c.length, 0)
+  const bytes = new Uint8Array(length)
+  let off = 0
+  for (const chunk of chunks) {
+    bytes.set(chunk, off)
+    off += chunk.length
+  }
+  return bytes
+}
+
+/**
  * @param {AsyncIterable<Uint8Array>} iterable
  */
 function collector (iterable) {
-  return (async () => {
-    const chunks = []
-    let length = 0
+  const chunks = []
+  const cfn = (async () => {
     for await (const chunk of iterable) {
       chunks.push(chunk)
-      length += chunk.length
     }
-    const bytes = new Uint8Array(length)
-    length = 0
-    for (const chunk of chunks) {
-      bytes.set(chunk, length)
-      length += chunk.length
-    }
-    return bytes
+    return concatBytes(chunks)
   })()
+  return cfn
 }
 
 describe('CarWriter', () => {
   /** @type {Block[]} */
   let cborBlocks
+  /** @type {[string, Block[]][]} */
+  let allBlocks
   /** @type {Block[]} */
   let allBlocksFlattened
   /** @type {CID[]} */
@@ -55,6 +64,7 @@ describe('CarWriter', () => {
   before(async () => {
     const data = await makeData()
     cborBlocks = data.cborBlocks
+    allBlocks = data.allBlocks
     allBlocksFlattened = data.allBlocksFlattened
     roots = [cborBlocks[0].cid, cborBlocks[1].cid]
   })
@@ -118,7 +128,7 @@ describe('CarWriter', () => {
     })
     const bytes = await collection
     assert.strictEqual(written, false)
-    await new Promise((resolve) => resolve())
+    await Promise.resolve()
     assertCarData(bytes)
   })
 
@@ -207,6 +217,36 @@ describe('CarWriter', () => {
       '28' // length of first raw block + CIDv0
 
     assert.strictEqual(toHex(bytes).substring(0, expectedStart.length), expectedStart)
+  })
+
+  it('appender', async () => {
+    let writerOut = CarWriter.create(roots)
+    let collection = collector(writerOut.out)
+    await writerOut.writer.close()
+    const headerBytes = await collection
+
+    /** @param {number} index */
+    const append = async (index) => {
+      writerOut = CarWriter.createAppender()
+      collection = collector(writerOut.out)
+      for (const block of allBlocks[index][1]) {
+        await writerOut.writer.put(block)
+      }
+      await writerOut.writer.close()
+      return collection
+    }
+
+    const rawBytes = await append(0)
+    const pbBytes = await append(1)
+    const cborBytes = await append(2)
+
+    assert(rawBytes.length > 0)
+    assert(pbBytes.length > 0)
+    assert(cborBytes.length > 0)
+
+    const reassembled = concatBytes([headerBytes, rawBytes, pbBytes, cborBytes])
+
+    assert.strictEqual(toHex(reassembled), toHex(carBytes))
   })
 
   it('bad argument for create()', () => {

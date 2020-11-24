@@ -228,6 +228,7 @@ be directly fed to a
  * [`async CarWriter#put(block)`](#CarWriter_put)
  * [`async CarWriter#close()`](#CarWriter_close)
  * [`async CarWriter.create(roots)`](#CarWriter__create)
+ * [`async CarWriter.createAppender()`](#CarWriter__createAppender)
 
 <a name="CarReader"></a>
 ### `class CarReader`
@@ -679,6 +680,19 @@ any remaining bytes are written.
 
 Create a new CAR writer "channel" which consists of a
 `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }` pair.
+
+<a name="CarWriter__createAppender"></a>
+### `async CarWriter.createAppender()`
+
+* Returns:  `WriterChannel`: The channel takes the form of
+  `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
+
+Create a new CAR appender "channel" which consists of a
+`{ writer:CarWriter, out:AsyncIterable<Uint8Array> }` pair.
+This appender does not consider roots and does not produce a CAR header.
+It is designed to append blocks to an _existing_ CAR archive. It is
+expected that `out` will be concatenated onto the end of an existing
+archive that already has a properly formatted header.
 
 ## License
 
