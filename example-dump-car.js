@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
+// This example requires these additional dependencies:
+//   - @ipld/dag-pb
+//   - @ipld/dag-json
+// And needs to be run as a "module" which either means a package.json with
+//   `"type": "module"`
+// or the file needs to be renamed `example.mjs`.
+
 // Take a .car file and dump its contents into one file per block, with the
 // filename being the CID of that block.
 // Also prints a DAG-JSON form of the block and its CID to stdout.

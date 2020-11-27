@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// This example needs to be run as a "module" which either means a package.json
+// with
+//   `"type": "module"`
+// or the file needs to be renamed `example.mjs`.
+
 // Create a simple .car file with a single block and that block's CID as the
 // single root. Then read the .car and fetch the block again.
 
