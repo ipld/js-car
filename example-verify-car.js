@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
+// This example requires these additional dependencies:
+//   - @ipld/dag-pb
+//   - @ipld/dag-json
+// And needs to be run as a "module" which either means a package.json with
+//   `"type": "module"`
+// or the file needs to be renamed `example.mjs`.
+
 // Example: verify a car file's blocks have round-tripishness.
 // This example is overly verbose but illustrates some concepts involved in CAR
 // files.
