@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rvagg/js-datastore-car.git"
+    "url": "git+https://github.com/ipld/js-car.git"
   },
   "keywords": [
     "car",
@@ -33,9 +33,9 @@
   "author": "Rod <rod@vagg.org> (http://r.va.gg/)",
   "license": "(Apache-2.0 AND MIT)",
   "bugs": {
-    "url": "https://github.com/rvagg/js-datastore-car/issues"
+    "url": "https://github.com/ipld/js-car/issues"
   },
-  "homepage": "https://github.com/rvagg/js-datastore-car#readme",
+  "homepage": "https://github.com/ipld/js-car#readme",
   "devDependencies": {
     "@ipld/dag-pb": "^0.0.1",
     "@types/mocha": "^8.0.4",
