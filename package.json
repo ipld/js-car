@@ -60,16 +60,16 @@
   },
   "exports": {
     ".": {
-      "import": "./car.js",
-      "browser": "./car-browser.js"
+      "browser": "./car-browser.js",
+      "import": "./car.js"
     },
     "./reader": {
-      "import": "./lib/reader.js",
-      "browser": "./lib/reader-browser.js"
+      "browser": "./lib/reader-browser.js",
+      "import": "./lib/reader.js"
     },
     "./indexed-reader": {
-      "import": "./lib/indexed-reader.js",
-      "browser": "./lib/indexed-reader-browser.js"
+      "browser": "./lib/indexed-reader-browser.js",
+      "import": "./lib/indexed-reader.js"
     },
     "./indexer": {
       "import": "./lib/indexer.js"
