@@ -55,21 +55,21 @@
   },
   "dependencies": {
     "@ipld/dag-cbor": "^2.0.3",
-    "multiformats": "^4.4.1",
+    "multiformats": "^4.6.1",
     "varint": "^6.0.0"
   },
   "exports": {
     ".": {
-      "import": "./car.js",
-      "browser": "./car-browser.js"
+      "browser": "./car-browser.js",
+      "import": "./car.js"
     },
     "./reader": {
-      "import": "./lib/reader.js",
-      "browser": "./lib/reader-browser.js"
+      "browser": "./lib/reader-browser.js",
+      "import": "./lib/reader.js"
     },
     "./indexed-reader": {
-      "import": "./lib/indexed-reader.js",
-      "browser": "./lib/indexed-reader-browser.js"
+      "browser": "./lib/indexed-reader-browser.js",
+      "import": "./lib/indexed-reader.js"
     },
     "./indexer": {
       "import": "./lib/indexer.js"
