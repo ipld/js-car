@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@ipld/dag-cbor": "^2.0.3",
-    "multiformats": "^4.4.1",
+    "multiformats": "^4.6.1",
     "varint": "^6.0.0"
   },
   "exports": {
