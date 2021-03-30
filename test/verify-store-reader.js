@@ -1,5 +1,5 @@
 import { bytes } from 'multiformats'
-import raw from 'multiformats/codecs/raw'
+import * as raw from 'multiformats/codecs/raw'
 import { toBlock, assert, makeData } from './common.js'
 
 /**
