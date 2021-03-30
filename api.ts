@@ -1,4 +1,4 @@
-import CID from 'multiformats/cid'
+import { CID } from 'multiformats/cid'
 
 /* Generic types for interfacing with block storage */
 

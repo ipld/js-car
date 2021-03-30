@@ -11,7 +11,7 @@ import varint from 'varint'
 // @ts-ignore
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
-import CID from 'multiformats/cid'
+import { CID } from 'multiformats/cid'
 import { CarWriter, CarIndexer, CarReader, CarIndexedReader } from '@ipld/car'
 import { assert } from './common.js'
 

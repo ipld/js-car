@@ -1,4 +1,4 @@
-import CID from 'multiformats/cid'
+import { CID } from 'multiformats/cid'
 import { Block, BlockIndex } from '../api'
 
 export interface CarEncoder {

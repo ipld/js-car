@@ -1,6 +1,6 @@
 import { bytes, CID } from 'multiformats'
 import { sha256 } from 'multiformats/hashes/sha2'
-import raw from 'multiformats/codecs/raw'
+import * as raw from 'multiformats/codecs/raw'
 // @ts-ignore
 import * as dagCbor from '@ipld/dag-cbor'
 // @ts-ignore
