@@ -1,32 +1,45 @@
 import { bytes, CID } from 'multiformats'
 import { sha256 } from 'multiformats/hashes/sha2'
-import raw from 'multiformats/codecs/raw'
-// @ts-ignore
+import * as raw from 'multiformats/codecs/raw'
 import * as dagCbor from '@ipld/dag-cbor'
-// @ts-ignore
 import * as dagPb from '@ipld/dag-pb'
 
-// @ts-ignore
 import chai from 'chai'
-// @ts-ignore
 import chaiAsPromised from 'chai-as-promised'
 
 /**
  * @typedef {import('../api').Block} Block
+ * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
+
+/**
+ * @extends {Block}
+ */
+class TestBlock {
+  /**
+   * @param {Uint8Array} bytes
+   * @param {CID} cid
+   * @param {any} object
+   */
+  constructor (bytes, cid, object) {
+    this.bytes = bytes
+    this.cid = cid
+    this.object = object
+  }
+}
 
 chai.use(chaiAsPromised)
 const { assert } = chai
 
-/** @type {Block[]} */
+/** @type {TestBlock[]} */
 let rawBlocks
-/** @type {Block[]} */
+/** @type {TestBlock[]} */
 const pbBlocks = []
-/** @type {Block[]} */
+/** @type {TestBlock[]} */
 const cborBlocks = []
-/** @type {[string, Block[]][]} */
+/** @type {[string, TestBlock[]][]} */
 let allBlocks
-/** @type {Block[]} */
+/** @type {TestBlock[]} */
 let allBlocksFlattened
 
 const rndCid = CID.parse('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm')
@@ -35,13 +48,13 @@ const rndCid = CID.parse('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6ca
  * @param {any} object
  * @param {{code: number, encode: (obj: any) => Uint8Array}} codec
  * @param {number} version
- * @returns {Promise<Block & { object: any }>}
+ * @returns {Promise<TestBlock & { object: any }>}
  */
 async function toBlock (object, codec, version = 1) {
   const bytes = codec.encode(object)
   const hash = await sha256.digest(bytes)
   const cid = CID.create(version, codec.code, hash)
-  return { bytes, cid, object }
+  return new TestBlock(bytes, cid, object)
 }
 
 async function makeData () {
@@ -52,14 +65,15 @@ async function makeData () {
 
     /**
      * @param {string} name
-     * @param {Block} block
+     * @param {TestBlock} block
      */
     const toPbLink = (name, block) => {
       let size = block.bytes.length
       if (block.cid.code === 0x70) {
         // special cumulative size handling for linking to dag-pb blocks
-        // @ts-ignore
-        size = block.object.Links.reduce((p, c) => p + c.Tsize, size)
+        /** @type {PBNode} */
+        const node = block.object
+        size = node.Links.reduce((p, c) => p + (c.Tsize || 0), size)
       }
       return {
         Name: name,
@@ -82,7 +96,7 @@ async function makeData () {
     }
 
     allBlocks = [['raw', rawBlocks.slice(0, 3)], ['pb', pbBlocks], ['cbor', cborBlocks]]
-    allBlocksFlattened = allBlocks.reduce((/** @type {Block[]} */ p, c) => p.concat(c[1]), [])
+    allBlocksFlattened = allBlocks.reduce((/** @type {TestBlock[]} */ p, c) => p.concat(c[1]), /** @type {TestBlock[]} */ [])
   }
 
   return {

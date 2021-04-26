@@ -4,14 +4,11 @@
 
 import fs from 'fs'
 import { Readable } from 'stream'
-// @ts-ignore
-import garbage from 'garbage'
-// @ts-ignore
+import { garbage } from 'ipld-garbage'
 import varint from 'varint'
-// @ts-ignore
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
-import CID from 'multiformats/cid'
+import { CID } from 'multiformats/cid'
 import { CarWriter, CarIndexer, CarReader, CarIndexedReader } from '@ipld/car'
 import { assert } from './common.js'
 
@@ -30,13 +27,13 @@ describe('Large CAR', () => {
     Readable.from(out).pipe(fs.createWriteStream('./test.car'))
 
     // offset starts at header length
-    let offset = dagCbor.encode({ version: 1, roots: [] }, 'dag-cbor').length
-    offset += varint.encode(offset.length).length
+    let offset = dagCbor.encode({ version: 1, roots: [] }).length
+    offset += varint.encode(offset).length
 
     for (let i = 0; i < 500; i++) {
-      const obj = garbage.object(1000)
+      const obj = garbage(1000)
       objects.push(obj)
-      const bytes = dagCbor.encode(obj, 'dag-cbor')
+      const bytes = dagCbor.encode(obj)
       const hash = await sha256.digest(bytes)
       const cid = CID.create(1, dagCbor.code, hash)
       cids.push(cid.toString())

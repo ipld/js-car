@@ -21,10 +21,12 @@
     "moduleResolution": "node",
     "declaration": true,
     "declarationMap": true,
-    "outDir": "dist",
+    "outDir": "types",
     "skipLibCheck": true,
     "stripInternal": true,
     "resolveJsonModule": true,
+    "emitDeclarationOnly": true,
+    "baseUrl": ".",
     "paths": {
       "@ipld/car": [ "car.js", "car-browser.js", "lib/" ],
       "@ipld/car/writer": [ "./lib/writer.js" ],
@@ -32,13 +34,12 @@
       "@ipld/car/indexed-reader": [ "./lib/indexed-reader.js" ],
       "@ipld/car/iterator": [ "./lib/iterator.js" ],
       "@ipld/car/indexer": [ "./lib/indexer.js" ]
-    },
-    "baseUrl": "."
+    }
   },
-  "include": [ "lib", "." ],
   "exclude": [
-    "node_modules/",
-    "./dist/",
+    "node_modules",
+    "esm",
+    "cjs",
     "example*.js"
   ],
   "compileOnSave": false
