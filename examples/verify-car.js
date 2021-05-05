@@ -17,9 +17,8 @@ import { CarBlockIterator } from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
-import { codec } from 'multiformats/codecs/codec'
-import raw from 'multiformats/codecs/raw'
-import json from 'multiformats/codecs/json'
+import * as raw from 'multiformats/codecs/raw'
+import * as json from 'multiformats/codecs/json'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { from as hasher } from 'multiformats/hashes/hasher'
 import { blake2b256 } from '@multiformats/blake2/blake2b'
@@ -32,9 +31,9 @@ if (!process.argv[2]) {
 }
 
 const codecs = {
-  [dagCbor.code]: codec(dagCbor),
-  [dagPb.code]: codec(dagPb),
-  [dagJson.code]: codec(dagJson),
+  [dagCbor.code]: dagCbor,
+  [dagPb.code]: dagPb,
+  [dagJson.code]: dagJson,
   [raw.code]: raw,
   [json.code]: json
 }

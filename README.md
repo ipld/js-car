@@ -25,8 +25,8 @@ See also:
 import fs from 'fs'
 import { Readable } from 'stream'
 import { CarReader, CarWriter } from '@ipld/car'
-import raw from 'multiformats/codecs/raw'
-import CID from 'multiformats/cid'
+import * as raw from 'multiformats/codecs/raw'
+import { CID } from 'multiformats/cid'
 import { sha256 } from 'multiformats/hashes/sha2'
 
 async function example () {
@@ -69,6 +69,8 @@ Will output:
 ```
 Retrieved [random meaningless bytes] from example.car with CID [bafkreihwkf6mtnjobdqrkiksr7qhp6tiiqywux64aylunbvmfhzeql2coa]
 ```
+
+See the [examples](./examples) directory for more.
 
 ## Usage
 

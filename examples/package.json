@@ -1,0 +1,25 @@
+{
+  "name": "@ipld/car-examples",
+  "version": "0.0.0-dev",
+  "description": "How to use the Content Addressable aRchive format reader and writer",
+  "main": "example.js",
+  "type": "module",
+  "scripts": {
+    "start": "node round-trip.js",
+    "round-trip": "node round-trip.js",
+    "verify": "node verify-car.js",
+    "dump": "node dump-car.js"
+  },
+  "author": "Rod <rod@vagg.org> (http://r.va.gg/)",
+  "license": "(Apache-2.0 AND MIT)",
+  "dependencies": {
+    "@ipld/car": "file:..",
+    "@ipld/dag-cbor": "^5.0.0",
+    "@ipld/dag-json": "^5.0.0",
+    "@ipld/dag-pb": "^1.1.0",
+    "@multiformats/blake2": "^0.0.0",
+    "@types/varint": "^6.0.0",
+    "multiformats": "^7.0.0",
+    "varint": "^6.0.0"
+  }
+}
