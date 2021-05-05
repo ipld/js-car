@@ -11,8 +11,8 @@
 import fs from 'fs'
 import { Readable } from 'stream'
 import { CarReader, CarWriter } from '@ipld/car'
-import raw from 'multiformats/codecs/raw'
-import CID from 'multiformats/cid'
+import * as raw from 'multiformats/codecs/raw'
+import { CID } from 'multiformats/cid'
 import { sha256 } from 'multiformats/hashes/sha2'
 
 async function example () {

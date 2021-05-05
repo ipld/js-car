@@ -16,9 +16,8 @@ import { CarBlockIterator } from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
-import { codec } from 'multiformats/codecs/codec'
-import raw from 'multiformats/codecs/raw'
-import json from 'multiformats/codecs/json'
+import * as raw from 'multiformats/codecs/raw'
+import * as json from 'multiformats/codecs/json'
 
 if (!process.argv[2]) {
   console.log('Usage: example-dump-car.js <path/to/car>')
@@ -26,9 +25,9 @@ if (!process.argv[2]) {
 }
 
 const codecs = {
-  [dagCbor.code]: codec(dagCbor),
-  [dagPb.code]: codec(dagPb),
-  [dagJson.code]: codec(dagJson),
+  [dagCbor.code]: dagCbor,
+  [dagPb.code]: dagPb,
+  [dagJson.code]: dagJson,
   [raw.code]: raw,
   [json.code]: json
 }
