@@ -78,6 +78,13 @@ See the [examples](./examples) directory for more.
 class represents a discrete set of functionality. You should select the classes
 that make the most sense for your use-case.
 
+Please be aware that `@ipld/car` **does not validate** that block data matches
+the paired CIDs when reading a CAR. See the
+[verify-car.js](./examples/verify-car.js) example for one possible approach to
+validating blocks as they are read. Any CID verification requires that the hash
+function that was used to generate the CID be available, the CAR format does
+not restrict the allowable multihashes.
+
 ### [`CarReader`](#CarReader)
 
 The basic `CarReader` class is consumed via:
