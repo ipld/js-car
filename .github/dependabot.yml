@@ -9,7 +9,7 @@ updates:
       include: 'scope'
   - package-ecosystem: 'npm'
     directory: '/'
-      schedule:
+    schedule:
       interval: 'daily'
     commit-message:
       prefix: 'chore'
