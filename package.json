@@ -60,7 +60,7 @@
   "dependencies": {
     "@ipld/dag-cbor": "^5.0.0",
     "@types/varint": "^6.0.0",
-    "multiformats": "^7.0.0",
+    "multiformats": "^8.0.3",
     "varint": "^6.0.0"
   },
   "exports": {
