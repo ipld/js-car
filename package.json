@@ -11,7 +11,7 @@
   "scripts": {
     "build": "npm run build:js && npm run build:types",
     "build:js": "ipjs build --tests --main && npm run build:copy",
-    "build:copy": "cp -a tsconfig.json *.js *.ts lib/ test/ dist/",
+    "build:copy": "cp -a tsconfig.json *.js *.ts lib/ test/ examples/ dist/",
     "build:types": "npm run build:copy && cd dist && tsc --build",
     "prepublishOnly": "npm run build",
     "publish": "ipjs publish",
@@ -19,7 +19,7 @@
     "test:cjs": "rm -rf dist && npm run build && cp test/go.car dist/cjs/node-test/ && mocha dist/cjs/node-test/test-*.js && mocha dist/cjs/node-test/node-test-*.js && npm run test:cjs:browser",
     "test:node": "hundreds mocha test/test-*.js test/node-test-*.js",
     "test:cjs:browser": "polendina --cleanup dist/cjs/browser-test/test-*.js",
-    "test": "npm run lint && npm run test:node && npm run test:cjs",
+    "test": "npm run lint && npm run test:node && npm run test:cjs && npm run test --prefix examples/",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
     "docs": "jsdoc4readme --readme --description-only lib/reader*.js lib/indexed-reader.js lib/iterator.js lib/indexer.js lib/writer.js"
   },

@@ -40,7 +40,7 @@
     "node_modules",
     "esm",
     "cjs",
-    "example*.js"
+    "examples"
   ],
   "compileOnSave": false
 }

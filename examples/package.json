@@ -4,11 +4,13 @@
   "description": "How to use the Content Addressable aRchive format reader and writer",
   "main": "example.js",
   "type": "module",
+  "private": true,
   "scripts": {
     "start": "node round-trip.js",
     "round-trip": "node round-trip.js",
     "verify": "node verify-car.js",
-    "dump": "node dump-car.js"
+    "dump": "node dump-car.js",
+    "test": "npm install && node test-examples.js"
   },
   "author": "Rod <rod@vagg.org> (http://r.va.gg/)",
   "license": "(Apache-2.0 AND MIT)",
