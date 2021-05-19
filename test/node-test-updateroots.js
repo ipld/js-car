@@ -57,23 +57,23 @@ describe('Node CarWriter.updateHeader()', () => {
     await fs.promises.unlink(tmpCarPath)
   })
 
-  it('update header (fd)', async () => {
+  it('update roots (fd)', async () => {
     const fd = await fsopen(tmpCarPath, 'r+')
-    await CarWriter.updateRoots(fd, newRoots)
+    await CarWriter.updateRootsInFile(fd, newRoots)
     await fsclose(fd)
     await verify()
   })
 
-  it('update header (FileHandle)', async () => {
+  it('update roots (FileHandle)', async () => {
     const fd = await fs.promises.open(tmpCarPath, 'r+')
-    await CarWriter.updateRoots(fd, newRoots)
+    await CarWriter.updateRootsInFile(fd, newRoots)
     await fd.close()
     await verify()
   })
 
   it('error: bad fd', async () => {
     // @ts-ignore
-    await assert.isRejected(CarWriter.updateRoots(true, newRoots), {
+    await assert.isRejected(CarWriter.updateRootsInFile(true, newRoots), {
       name: 'TypeError',
       message: 'Bad fd'
     })
@@ -81,9 +81,9 @@ describe('Node CarWriter.updateHeader()', () => {
 
   it('error: wrong header size', async () => {
     const fd = await fs.promises.open(tmpCarPath, 'r+')
-    await assert.isRejected(CarWriter.updateRoots(fd, [...newRoots, newRoots[0]]), /can only overwrite a header of the same length/)
-    await assert.isRejected(CarWriter.updateRoots(fd, [newRoots[0]]), /can only overwrite a header of the same length/)
-    await assert.isRejected(CarWriter.updateRoots(fd, []), /can only overwrite a header of the same length/)
+    await assert.isRejected(CarWriter.updateRootsInFile(fd, [...newRoots, newRoots[0]]), /can only overwrite a header of the same length/)
+    await assert.isRejected(CarWriter.updateRootsInFile(fd, [newRoots[0]]), /can only overwrite a header of the same length/)
+    await assert.isRejected(CarWriter.updateRootsInFile(fd, []), /can only overwrite a header of the same length/)
     await fd.close()
   })
 })

@@ -238,7 +238,8 @@ be directly fed to a
  * [`async CarWriter#close()`](#CarWriter_close)
  * [`async CarWriter.create(roots)`](#CarWriter__create)
  * [`async CarWriter.createAppender()`](#CarWriter__createAppender)
- * [`async CarWriter.updateRoots(fd, roots)`](#CarWriter__updateRoots)
+ * [`async CarWriter.updateRootsInBytes(bytes, roots)`](#CarWriter__updateRootsInBytes)
+ * [`async CarWriter.updateRootsInFile(fd, roots)`](#CarWriter__updateRootsInFile)
 
 <a name="CarReader"></a>
 ### `class CarReader`
@@ -709,8 +710,31 @@ It is designed to append blocks to an _existing_ CAR archive. It is
 expected that `out` will be concatenated onto the end of an existing
 archive that already has a properly formatted header.
 
-<a name="CarWriter__updateRoots"></a>
-### `async CarWriter.updateRoots(fd, roots)`
+<a name="CarWriter__updateRootsInBytes"></a>
+### `async CarWriter.updateRootsInBytes(bytes, roots)`
+
+* `bytes` `(Uint8Array)`
+* `roots` `(CID[])`: A new list of roots to replace the existing list in
+  the CAR header. The new header must take up the same number of bytes as the
+  existing header, so the roots should collectively be the same byte length
+  as the existing roots.
+
+* Returns:  `Promise<Uint8Array>`
+
+Update the list of roots in the header of an existing CAR as represented
+in a Uint8Array.
+
+This operation is an _overwrite_, the total length of the CAR will not be
+modified. A rejection will occur if the new header will not be the same
+length as the existing header, in which case the CAR will not be modified.
+It is the responsibility of the user to ensure that the roots being
+replaced encode as the same length as the new roots.
+
+The byte array passed in an argument will be modified and also returned
+upon successful modification.
+
+<a name="CarWriter__updateRootsInFile"></a>
+### `async CarWriter.updateRootsInFile(fd, roots)`
 
 * `fd` `(fs.promises.FileHandle|number)`: A file descriptor from the
   Node.js `fs` module. Either an integer, from `fs.open()` or a `FileHandle`
