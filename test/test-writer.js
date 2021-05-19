@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* globals describe, it */
 
-import CarWriter from '@ipld/car/writer'
+import { CarWriter } from '@ipld/car/writer'
 import { bytes } from 'multiformats'
 import { carBytes, makeData, assert, rndCid } from './common.js'
 

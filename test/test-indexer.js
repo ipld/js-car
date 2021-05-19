@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import CarIndexer from '@ipld/car/indexer'
+import { CarIndexer } from '@ipld/car/indexer'
 import { goCarBytes, goCarIndex, makeIterable, assert } from './common.js'
 import { verifyRoots } from './verify-store-reader.js'
 
