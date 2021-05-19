@@ -2,7 +2,7 @@
 
 import path from 'path'
 import { fileURLToPath } from 'url'
-import CarIndexedReader from '@ipld/car/indexed-reader'
+import { CarIndexedReader } from '@ipld/car/indexed-reader'
 import { assert, goCarIndex } from './common.js'
 import {
   verifyRoots,

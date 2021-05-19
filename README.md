@@ -90,7 +90,7 @@ not restrict the allowable multihashes.
 The basic `CarReader` class is consumed via:
 
 ```js
-import CarReader from '@ipld/car/reader'
+import { CarReader } from '@ipld/car/reader'
 ```
 
 Or alternatively: `import { CarReader } from '@ipld/car'`. CommonJS `require`
@@ -114,7 +114,7 @@ The `CarIndexedReader` class is a special form of `CarReader` and can be
 consumed in **Node.js only** (not in the browser) via:
 
 ```js
-import CarIndexedReader from '@ipld/car/indexed-reader'
+import { CarIndexedReader } from '@ipld/car/indexed-reader'
 ```
 
 Or alternatively: `import { CarIndexedReader } from '@ipld/car'`. CommonJS
@@ -219,7 +219,7 @@ be directly fed to a
  * [`async CarIndexedReader#get(key)`](#CarIndexedReader_get)
  * [`async * CarIndexedReader#blocks()`](#CarIndexedReader_blocks)
  * [`async * CarIndexedReader#cids()`](#CarIndexedReader_cids)
- * [`async CarWriter#close()`](#CarWriter_close)
+ * [`async CarIndexedReader#close()`](#CarIndexedReader_close)
  * [`async CarIndexedReader.fromFile(path)`](#CarIndexedReader__fromFile)
  * [`class CarBlockIterator`](#CarBlockIterator)
  * [`async CarBlockIterator#getRoots()`](#CarBlockIterator_getRoots)
@@ -255,9 +255,11 @@ Implements the `RootsReader` interface:
 [`blocks()`](#CarReader__blocks) (defined as a `BlockIterator`) and
 [`cids()`](#CarReader__cids) (defined as a `CIDIterator`).
 
-Load this class with either `import CarReader from '@ipld/car/reader'`
-(`const CarReader = require('@ipld/car/reader')`). Or
+Load this class with either `import { CarReader } from '@ipld/car/reader'`
+(`const { CarReader } = require('@ipld/car/reader')`). Or
 `import { CarReader } from '@ipld/car'` (`const { CarReader } = require('@ipld/car')`).
+The former will likely result in smaller bundle sizes where this is
+important.
 
 <a name="CarReader_getRoots"></a>
 ### `async CarReader#getRoots()`
@@ -378,10 +380,11 @@ CAR file, an additional [`CarReader#close`](#CarReader_close) method is attached
 _must_ be called to have full clean-up of resources after use.
 
 Load this class with either
-`import CarIndexedReader from '@ipld/car/indexed-reader'`
-(`const CarIndexedReader = require('@ipld/car/indexed-reader')`). Or
+`import { CarIndexedReader } from '@ipld/car/indexed-reader'`
+(`const { CarIndexedReader } = require('@ipld/car/indexed-reader')`). Or
 `import { CarIndexedReader } from '@ipld/car'`
-(`const { CarIndexedReader } = require('@ipld/car')`).
+(`const { CarIndexedReader } = require('@ipld/car')`). The former will likely
+result in smaller bundle sizes where this is important.
 
 <a name="CarIndexedReader_getRoots"></a>
 ### `async CarIndexedReader#getRoots()`
@@ -422,8 +425,8 @@ See [`CarReader#blocks`](#CarReader_blocks)
 
 See [`CarReader#cids`](#CarReader_cids)
 
-<a name="CarWriter_close"></a>
-### `async CarWriter#close()`
+<a name="CarIndexedReader_close"></a>
+### `async CarIndexedReader#close()`
 
 * Returns:  `Promise<void>`
 
@@ -592,10 +595,11 @@ An iteration can only be performce _once_ per instantiation.
 the [`getRoots()`](#CarIndexer__getRoots) method.
 
 Load this class with either
-`import CarIndexer from '@ipld/car/indexer'`
-(`const CarIndexer = require('@ipld/car/indexer')`). Or
+`import { CarIndexer } from '@ipld/car/indexer'`
+(`const { CarIndexer } = require('@ipld/car/indexer')`). Or
 `import { CarIndexer } from '@ipld/car'`
-(`const { CarIndexer } = require('@ipld/car')`).
+(`const { CarIndexer } = require('@ipld/car')`). The former will likely
+result in smaller bundle sizes where this is important.
 
 <a name="CarIndexer_getRoots"></a>
 ### `async CarIndexer#getRoots()`
@@ -656,10 +660,11 @@ the generated data to queue in memory. This should be avoided for large CAR
 archives of course due to the memory costs and potential for memory overflow.
 
 Load this class with either
-`import CarWriter from '@ipld/car/writer'`
-(`const CarWriter = require('@ipld/car/writer')`). Or
+`import { CarWriter } from '@ipld/car/writer'`
+(`const { CarWriter } = require('@ipld/car/writer')`). Or
 `import { CarWriter } from '@ipld/car'`
-(`const { CarWriter } = require('@ipld/car')`).
+(`const { CarWriter } = require('@ipld/car')`). The former will likely
+result in smaller bundle sizes where this is important.
 
 <a name="CarWriter_put"></a>
 ### `async CarWriter#put(block)`

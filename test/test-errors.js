@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-import CarReader from '@ipld/car/reader'
+import { CarReader } from '@ipld/car/reader'
 import { carBytes, assert } from './common.js'
 
 describe('Misc errors', () => {
