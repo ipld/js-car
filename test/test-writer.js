@@ -2,11 +2,18 @@
 /* globals describe, it */
 
 import { CarWriter } from '@ipld/car/writer'
-import { bytes } from 'multiformats'
+import { CarReader } from '@ipld/car/reader'
+import { bytes, CID } from 'multiformats'
 import { carBytes, makeData, assert, rndCid } from './common.js'
+import {
+  verifyRoots,
+  verifyHas,
+  verifyGet,
+  verifyBlocks,
+  verifyCids
+} from './verify-store-reader.js'
 
 /**
- * @typedef {import('multiformats').CID} CID
  * @typedef {import('../api').Block} Block
  */
 
@@ -38,6 +45,24 @@ function collector (iterable) {
     return concatBytes(chunks)
   })()
   return cfn
+}
+
+const newRoots = [
+  CID.parse('bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq'),
+  CID.parse('bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4')
+]
+
+/**
+ * @param {Uint8Array} bytes
+ */
+async function verifyUpdateRoots (bytes) {
+  const reader = await CarReader.fromBytes(bytes)
+  await assert.isRejected(verifyRoots(reader)) // whoa, different roots? like magic
+  assert.deepEqual(await reader.getRoots(), newRoots)
+  await verifyHas(reader)
+  await verifyGet(reader)
+  await verifyBlocks(reader.blocks(), true)
+  await verifyCids(reader.cids(), true)
 }
 
 describe('CarWriter', () => {
@@ -294,5 +319,18 @@ describe('CarWriter', () => {
     collector(out)
     await writer.close()
     await assert.isRejected(writer.close(), /closed/i)
+  })
+
+  it('update roots (fd)', async () => {
+    const bytes = carBytes.slice()
+    await CarWriter.updateRootsInBytes(bytes, newRoots)
+    await verifyUpdateRoots(bytes)
+  })
+
+  it('update roots error: wrong header size', async () => {
+    const bytes = carBytes.slice()
+    await assert.isRejected(CarWriter.updateRootsInBytes(bytes, [...newRoots, newRoots[0]]), /can only overwrite a header of the same length/)
+    await assert.isRejected(CarWriter.updateRootsInBytes(bytes, [newRoots[0]]), /can only overwrite a header of the same length/)
+    await assert.isRejected(CarWriter.updateRootsInBytes(bytes, []), /can only overwrite a header of the same length/)
   })
 })
