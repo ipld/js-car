@@ -1,5 +1,4 @@
-import { bytes } from 'multiformats'
-import { CID, CIDVersion } from 'multiformats/cid'
+import { bytes, CID } from 'multiformats'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -48,7 +47,7 @@ const rndCid = CID.parse('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6ca
 /**
  * @param {any} object
  * @param {{code: number, encode: (obj: any) => Uint8Array}} codec
- * @param {CIDVersion} version
+ * @param {import('multiformats/cid').CIDVersion} version
  * @returns {Promise<TestBlock & { object: any }>}
  */
 async function toBlock (object, codec, version = 1) {
