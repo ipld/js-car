@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/ipld/js-car#readme",
   "devDependencies": {
-    "@ipld/dag-pb": "^1.1.4",
+    "@ipld/dag-pb": "^2.0.0",
     "@types/chai": "^4.2.18",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^8.2.2",
