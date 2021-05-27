@@ -47,7 +47,7 @@ const rndCid = CID.parse('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6ca
 /**
  * @param {any} object
  * @param {{code: number, encode: (obj: any) => Uint8Array}} codec
- * @param {number} version
+ * @param {import('multiformats/cid').CIDVersion} version
  * @returns {Promise<TestBlock & { object: any }>}
  */
 async function toBlock (object, codec, version = 1) {
