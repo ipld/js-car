@@ -34,10 +34,10 @@ describe('Misc errors', () => {
 
   it('bad version', async () => {
     // quick sanity check that makeHeader() works properly!
-    const buf2 = bytes.fromHex('0aa16776657273696f6e02')
-    // {version:2} - fixed string, likely to be used by CARv2 to escape header parsing rules
-    assert.strictEqual(bytes.toHex(makeHeader({ version: 2 })), '0aa16776657273696f6e02')
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR version: 2')
+    const buf2 = bytes.fromHex('0aa16776657273696f6e03')
+    assert.strictEqual(bytes.toHex(makeHeader({ version: 3 })), '0aa16776657273696f6e03')
+    // {version:3}
+    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR version: 3')
   })
 
   describe('bad header', async () => {
