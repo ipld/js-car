@@ -13,7 +13,7 @@ import * as raw from 'multiformats/codecs/raw'
 import * as json from 'multiformats/codecs/json'
 
 if (!process.argv[2]) {
-  console.log('Usage: example-dump-car.js <path/to/car>')
+  console.log('Usage: dump-car.js <path/to/car>')
   process.exit(1)
 }
 
