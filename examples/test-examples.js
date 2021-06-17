@@ -97,6 +97,18 @@ Blocks:
 `)
     console.log('\u001b[32m✔\u001b[39m [example] dump-index ../test/go.carv2')
   })
+}).then(async () => {
+  await runExample('dump-index', ['../test/go.carv2']).then(({ stdout, stderr }) => {
+    assert.strictEqual(stderr, '')
+    assert.strictEqual(stdout,
+`{"blockLength":47,"blockOffset":143,"cid":{"/":"QmfEoLyB5NndqeKieExd1rtJzTduQUPEV8TwAYcUiy3H5Z"},"length":82,"offset":108}
+{"blockLength":99,"blockOffset":226,"cid":{"/":"QmczfirA7VEH7YVvKPTPoU69XM3qY4DC39nnTsWd4K3SkM"},"length":135,"offset":190}
+{"blockLength":54,"blockOffset":360,"cid":{"/":"Qmcpz2FHJD7VAhg1fxFXdYJKePtkx1BsHuCrAgWVnaHMTE"},"length":89,"offset":325}
+{"blockLength":4,"blockOffset":451,"cid":{"/":"bafkreifuosuzujyf4i6psbneqtwg2fhplc2wxptc5euspa2gn3bwhnihfu"},"length":41,"offset":414}
+{"blockLength":7,"blockOffset":492,"cid":{"/":"bafkreifc4hca3inognou377hfhvu2xfchn2ltzi7yu27jkaeujqqqdbjju"},"length":44,"offset":455}
+`)
+    console.log('\u001b[32m✔\u001b[39m [example] dump-index ../test/go.carv2')
+  })
 }).catch((err) => {
   console.error(err.stack)
   process.exit(1)

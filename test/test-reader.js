@@ -5,7 +5,16 @@ import { CarWriter } from '@ipld/car/writer'
 import * as Block from 'multiformats/block'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
-import { carBytes, makeIterable, assert } from './common.js'
+import * as dagPb from '@ipld/dag-pb'
+import {
+  carBytes,
+  makeIterable,
+  assert,
+  goCarV2Bytes,
+  goCarV2Roots,
+  goCarV2Index,
+  goCarV2Contents
+} from './common.js'
 import {
   verifyRoots,
   verifyHas,
@@ -46,6 +55,30 @@ describe('CarReader fromBytes()', () => {
       name: 'Error',
       message: 'Unexpected end of data'
     })
+  })
+
+  it('v2 complete', async () => {
+    const reader = await CarReader.fromBytes(goCarV2Bytes)
+    const roots = await reader.getRoots()
+    assert.strictEqual(roots.length, 1)
+    assert(goCarV2Roots[0].equals(roots[0]))
+    assert.strictEqual(reader.version, 2)
+    for (const { cid } of goCarV2Index) {
+      const block = await reader.get(cid)
+      assert.isDefined(block)
+      if (block) {
+        assert(cid.equals(block.cid))
+        let content
+        if (cid.code === dagPb.code) {
+          content = dagPb.decode(block.bytes)
+        } else if (cid.code === 85) { // raw
+          content = new TextDecoder().decode(block.bytes)
+        } else {
+          assert.fail('Unexpected codec')
+        }
+        assert.deepStrictEqual(content, goCarV2Contents[cid.toString()])
+      }
+    }
   })
 
   it('decode error - trailing null bytes', async () => {
@@ -145,6 +178,18 @@ describe('CarReader fromIterable()', () => {
 
   it('decode error - truncated', async () => {
     await assert.isRejected(CarReader.fromIterable(makeIterable(carBytes.slice(0, carBytes.length - 10), 64)), {
+      name: 'Error',
+      message: 'Unexpected end of data'
+    })
+  })
+
+  it('v2 decode error - truncated', async () => {
+    const bytes = goCarV2Bytes.slice()
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    // dataSize is an 64-bit uint at byte offset 35 from the begining, we're shortening it
+    // by 10 to simulate a premature end of CARv1 content
+    dv.setBigUint64(35, BigInt(448 - 10), true)
+    await assert.isRejected(CarReader.fromIterable(makeIterable(bytes, 64)), {
       name: 'Error',
       message: 'Unexpected end of data'
     })

@@ -1,7 +1,15 @@
 /* eslint-env mocha */
 
 import { CarIndexer } from '@ipld/car/indexer'
-import { goCarBytes, goCarIndex, makeIterable, assert } from './common.js'
+import {
+  goCarBytes,
+  goCarIndex,
+  goCarV2Bytes,
+  goCarV2Roots,
+  goCarV2Index,
+  makeIterable,
+  assert
+} from './common.js'
 import { verifyRoots } from './verify-store-reader.js'
 
 describe('CarIndexer fromBytes()', () => {
@@ -16,6 +24,21 @@ describe('CarIndexer fromBytes()', () => {
     }
 
     assert.deepStrictEqual(indexData, goCarIndex)
+  })
+
+  it('v2 complete', async () => {
+    const indexer = await CarIndexer.fromBytes(goCarV2Bytes)
+    const roots = await indexer.getRoots()
+    assert.strictEqual(roots.length, 1)
+    assert(goCarV2Roots[0].equals(roots[0]))
+    assert.strictEqual(indexer.version, 2)
+
+    const indexData = []
+    for await (const index of indexer) {
+      indexData.push(index)
+    }
+
+    assert.deepStrictEqual(indexData, goCarV2Index)
   })
 
   it('bad argument', async () => {
