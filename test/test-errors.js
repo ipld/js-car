@@ -40,37 +40,46 @@ describe('Misc errors', () => {
     await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR version: 2')
   })
 
-  it('bad header', async () => {
-    // sanity check, this should be fine
-    let buf2 = makeHeader({ version: 1, roots: [] })
-    await assert.isFulfilled(CarReader.fromBytes(buf2))
+  describe('bad header', async () => {
+    it('sanity check', async () => {
+      // sanity check, this should be fine
+      const buf2 = makeHeader({ version: 1, roots: [] })
+      await assert.isFulfilled(CarReader.fromBytes(buf2))
+    })
 
-    // no 'version' array
-    buf2 = makeHeader({ roots: [] })
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR version: undefined')
+    it('no \'version\' array', async () => {
+      const buf2 = makeHeader({ roots: [] })
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
 
-    // bad 'version' type
-    buf2 = makeHeader({ version: '1', roots: [] })
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR version: "1"')
+    it('bad \'version\' type', async () => {
+      const buf2 = makeHeader({ version: '1', roots: [] })
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
 
-    // no 'roots' array
-    buf2 = makeHeader({ version: 1 })
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    it('no \'roots\' array', async () => {
+      const buf2 = makeHeader({ version: 1 })
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
 
-    // bad 'roots' type
-    buf2 = makeHeader({ version: 1, roots: {} })
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    it('bad \'roots\' type', async () => {
+      const buf2 = makeHeader({ version: 1, roots: {} })
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
 
-    // extraneous properties
-    buf2 = makeHeader({ version: 1, roots: [], blip: true })
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    it('extraneous properties', async () => {
+      const buf2 = makeHeader({ version: 1, roots: [], blip: true })
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
 
-    // not an object
-    buf2 = makeHeader([1, []])
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    it('not an object', async () => {
+      const buf2 = makeHeader([1, []])
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
 
-    // not an object
-    buf2 = makeHeader(null)
-    await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    it('not an object', async () => {
+      const buf2 = makeHeader(null)
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
   })
 })

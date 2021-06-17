@@ -1,0 +1,6 @@
+type CarHeader struct {
+  version Int
+  roots optional [&Any]
+  # roots is _not_ optional for CarV1 but we defer that check within code to
+  # gracefully handle the >V1 case where it's just {version:X}
+}
