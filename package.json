@@ -13,7 +13,7 @@
     "build:types": "tsc --build && mv types dist",
     "test:cjs": "rm -rf dist && npm run build && cp test/go.car dist/cjs/node-test/ && mocha dist/cjs/node-test/test-*.js && mocha dist/cjs/node-test/node-test-*.js && npm run test:cjs:browser",
     "test:esm": "rm -rf dist && npm run build && cp test/go.car dist/esm/node-test/ && mocha dist/esm/node-test/test-*.js && mocha dist/esm/node-test/node-test-*.js && npm run test:esm:browser",
-    "test:node": "c8 --check-coverage --branches 100 --functions 100 --lines 100 mocha test/test-*.js test/node-test-*.js",
+    "test:node": "c8 --check-coverage --branches 100 --functions 100 --lines 100 --exclude lib/header-validator.js --exclude test/ mocha test/test-*.js test/node-test-*.js",
     "test:cjs:browser": "polendina --page --worker --serviceworker --cleanup dist/cjs/browser-test/test-*.js",
     "test:esm:browser": "polendina --page --worker --serviceworker --cleanup dist/esm/browser-test/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:cjs && npm run test --prefix examples/",
