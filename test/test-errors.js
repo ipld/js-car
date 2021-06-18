@@ -3,7 +3,7 @@ import { bytes } from 'multiformats'
 import { encode as cbEncode } from '@ipld/dag-cbor'
 import { encode as vEncode } from 'varint'
 import { CarReader } from '@ipld/car/reader'
-import { carBytes, assert } from './common.js'
+import { carBytes, assert, goCarV2Bytes } from './common.js'
 
 /**
  * @param {any} block
@@ -80,6 +80,19 @@ describe('Misc errors', () => {
     it('not an object', async () => {
       const buf2 = makeHeader(null)
       await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR header format')
+    })
+
+    it('recursive v2 header', async () => {
+      // first 51 bytes are the carv2 header:
+      //   11b prefix, 16b characteristics, 8b data offset, 8b data size, 8b index offset
+      const v2Header = goCarV2Bytes.slice(0, 51)
+      // parser should expect to get a carv1 header at the data offset, but it uses the same
+      // code to check the carv2 header so let's make sure it doesn't allow recursive carv2
+      // headers
+      const buf2 = new Uint8Array(51 * 2)
+      buf2.set(v2Header, 0)
+      buf2.set(v2Header, 51)
+      await assert.isRejected(CarReader.fromBytes(buf2), Error, 'Invalid CAR version: 2 (expected 1)')
     })
   })
 })
