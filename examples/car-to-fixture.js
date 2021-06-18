@@ -42,10 +42,7 @@ async function run () {
   const indexer = await CarIndexer.fromBytes(bytes)
   const reader = await CarReader.fromBytes(bytes)
   const fixture = {
-    header: {
-      roots: await reader.getRoots(),
-      version: reader.version
-    },
+    header: reader._header, // a little naughty but we need gory details
     blocks: []
   }
   let i = 0
