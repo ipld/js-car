@@ -16,12 +16,12 @@
   "license": "(Apache-2.0 AND MIT)",
   "dependencies": {
     "@ipld/car": "file:..",
-    "@ipld/dag-cbor": "^5.0.0",
-    "@ipld/dag-json": "^5.0.0",
-    "@ipld/dag-pb": "^1.1.0",
+    "@ipld/dag-cbor": "^6.0.4",
+    "@ipld/dag-json": "^7.0.4",
+    "@ipld/dag-pb": "^2.0.2",
     "@multiformats/blake2": "^0.0.0",
     "@types/varint": "^6.0.0",
-    "multiformats": "^7.0.0",
+    "multiformats": "^9.0.4",
     "varint": "^6.0.0"
   }
 }

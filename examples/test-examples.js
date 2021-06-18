@@ -51,15 +51,15 @@ runExample('round-trip').then(({ stdout, stderr }) => {
 QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d [dag-pb]
 '{"Links":[{"Hash":{"/":"bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke"},"Name":"bear","Tsize":4},{"Hash":{"/":"QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys"},"Name":"second","Tsize":149}]}'
 bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke [raw]
-'{"0":99,"1":99,"2":99,"3":99}'
+'{"/":{"bytes":"Y2NjYw"}}'
 QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys [dag-pb]
 '{"Links":[{"Hash":{"/":"bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4"},"Name":"dog","Tsize":4},{"Hash":{"/":"QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT"},"Name":"first","Tsize":51}]}'
 bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4 [raw]
-'{"0":98,"1":98,"2":98,"3":98}'
+'{"/":{"bytes":"YmJiYg"}}'
 QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT [dag-pb]
 '{"Links":[{"Hash":{"/":"bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq"},"Name":"cat","Tsize":4}]}'
 bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq [raw]
-'{"0":97,"1":97,"2":97,"3":97}'
+'{"/":{"bytes":"YWFhYQ"}}'
 bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm [dag-cbor]
 '{"link":null,"name":"limbo"}'
 `)
