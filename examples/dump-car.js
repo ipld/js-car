@@ -35,11 +35,15 @@ function decode (cid, bytes) {
 async function run () {
   const inStream = fs.createReadStream(process.argv[2])
   const reader = await CarBlockIterator.fromIterable(inStream)
+  console.log(`Version: ${reader.version}`)
+  console.log(`Roots: [${(await reader.getRoots()).map((r) => r.toString()).join(', ')}]`)
+  console.log('Blocks:')
+  let i = 1
   for await (const { cid, bytes } of reader) {
     await fs.promises.writeFile(cid.toString(), bytes)
 
     const decoded = decode(cid, bytes)
-    console.log(`${cid} [${codecs[cid.code].name}]`)
+    console.log(`#${i++} ${cid} [${codecs[cid.code].name}]`)
     console.dir(new TextDecoder().decode(dagJson.encode(decoded)))
   }
 }
