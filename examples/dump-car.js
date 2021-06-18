@@ -3,6 +3,7 @@
 // Take a .car file and dump its contents into one file per block, with the
 // filename being the CID of that block.
 // Also prints a DAG-JSON form of the block and its CID to stdout.
+// If `--inspect` is supplied, don't write the blocks, just print them to stdout.
 
 import fs from 'fs'
 import { CarBlockIterator } from '@ipld/car/iterator'
@@ -13,7 +14,7 @@ import * as raw from 'multiformats/codecs/raw'
 import * as json from 'multiformats/codecs/json'
 
 if (!process.argv[2]) {
-  console.log('Usage: example-dump-car.js <path/to/car>')
+  console.log('Usage: dump-car.js [--inspect] <path/to/car>')
   process.exit(1)
 }
 
@@ -33,13 +34,20 @@ function decode (cid, bytes) {
 }
 
 async function run () {
-  const inStream = fs.createReadStream(process.argv[2])
+  const inspect = process.argv.includes('--inspect')
+  const inStream = fs.createReadStream(process.argv.filter((a) => a !== '--inspect')[2])
   const reader = await CarBlockIterator.fromIterable(inStream)
+  console.log(`Version: ${reader.version}`)
+  console.log(`Roots: [${(await reader.getRoots()).map((r) => r.toString()).join(', ')}]`)
+  console.log('Blocks:')
+  let i = 1
   for await (const { cid, bytes } of reader) {
-    await fs.promises.writeFile(cid.toString(), bytes)
+    if (!inspect) {
+      await fs.promises.writeFile(cid.toString(), bytes)
+    }
 
     const decoded = decode(cid, bytes)
-    console.log(`${cid} [${codecs[cid.code].name}]`)
+    console.log(`#${i++} ${cid} [${codecs[cid.code].name}]`)
     console.dir(new TextDecoder().decode(dagJson.encode(decoded)))
   }
 }
