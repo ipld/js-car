@@ -46,21 +46,24 @@ runExample('round-trip').then(({ stdout, stderr }) => {
   await runExample('dump-car', ['../test/go.car']).then(async ({ stdout, stderr }) => {
     assert.strictEqual(stderr, '')
     assert.strictEqual(stdout,
-`bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm [dag-cbor]
+`Version: 1
+Roots: [bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm, bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm]
+Blocks:
+#1 bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm [dag-cbor]
 '{"link":{"/":"QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d"},"name":"blip"}'
-QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d [dag-pb]
+#2 QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d [dag-pb]
 '{"Links":[{"Hash":{"/":"bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke"},"Name":"bear","Tsize":4},{"Hash":{"/":"QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys"},"Name":"second","Tsize":149}]}'
-bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke [raw]
+#3 bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke [raw]
 '{"/":{"bytes":"Y2NjYw"}}'
-QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys [dag-pb]
+#4 QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys [dag-pb]
 '{"Links":[{"Hash":{"/":"bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4"},"Name":"dog","Tsize":4},{"Hash":{"/":"QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT"},"Name":"first","Tsize":51}]}'
-bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4 [raw]
+#5 bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4 [raw]
 '{"/":{"bytes":"YmJiYg"}}'
-QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT [dag-pb]
+#6 QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT [dag-pb]
 '{"Links":[{"Hash":{"/":"bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq"},"Name":"cat","Tsize":4}]}'
-bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq [raw]
+#7 bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq [raw]
 '{"/":{"bytes":"YWFhYQ"}}'
-bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm [dag-cbor]
+#8 bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm [dag-cbor]
 '{"link":null,"name":"limbo"}'
 `)
     assert.strictEqual((await Promise.all(goCarCids.map((c) => stat(c)))).map((s) => s.isFile()).filter(Boolean).length, goCarCids.length)
