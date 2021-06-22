@@ -20,10 +20,25 @@ export interface IteratorChannel<T> {
   iterator: AsyncIterator<T>
 }
 
-export type CarHeader = { version: number, roots: CID[] }
+export interface CarHeader {
+  version: 1,
+  roots: CID[]
+}
+
+export interface CarV2FixedHeader {
+  characteristics: [bigint, bigint],
+  dataOffset: number,
+  dataSize: number,
+  indexOffset: number
+}
+
+export interface CarV2Header extends CarV2FixedHeader {
+  version: 2,
+  roots: CID[],
+}
 
 export interface CarDecoder {
-  header(): Promise<CarHeader>
+  header(): Promise<CarHeader|CarV2Header>
 
   blocks(): AsyncGenerator<Block>
 

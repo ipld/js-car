@@ -67,6 +67,39 @@ bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm [dag-cbor]
     await cleanGoCarDump()
     console.log('\u001b[32m✔\u001b[39m [example] dump-car ../test/go.car')
   })
+}).then(async () => {
+  await runExample('dump-index', ['example.car']).then(({ stdout, stderr }) => {
+    assert.strictEqual(stderr, '')
+    assert.strictEqual(stdout, '{"blockLength":24,"blockOffset":96,"cid":{"/":"bafkreihwkf6mtnjobdqrkiksr7qhp6tiiqywux64aylunbvmfhzeql2coa"},"length":61,"offset":59}\n')
+    console.log('\u001b[32m✔\u001b[39m [example] dump-index example.car')
+  })
+}).then(async () => {
+  await runExample('dump-index', ['../test/go.car']).then(({ stdout, stderr }) => {
+    assert.strictEqual(stderr, '')
+    assert.strictEqual(stdout,
+`{"blockLength":55,"blockOffset":137,"cid":{"/":"bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6cad5lrm"},"length":92,"offset":100}
+{"blockLength":97,"blockOffset":228,"cid":{"/":"QmNX6Tffavsya4xgBi2VJQnSuqy9GsxongxZZ9uZBqp16d"},"length":133,"offset":192}
+{"blockLength":4,"blockOffset":362,"cid":{"/":"bafkreifw7plhl6mofk6sfvhnfh64qmkq73oeqwl6sloru6rehaoujituke"},"length":41,"offset":325}
+{"blockLength":94,"blockOffset":402,"cid":{"/":"QmWXZxVQ9yZfhQxLD35eDR8LiMRsYtHxYqTFCBbJoiJVys"},"length":130,"offset":366}
+{"blockLength":4,"blockOffset":533,"cid":{"/":"bafkreiebzrnroamgos2adnbpgw5apo3z4iishhbdx77gldnbk57d4zdio4"},"length":41,"offset":496}
+{"blockLength":47,"blockOffset":572,"cid":{"/":"QmdwjhxpxzcMsR3qUuj7vUL8pbA7MgR3GAxWi2GLHjsKCT"},"length":82,"offset":537}
+{"blockLength":4,"blockOffset":656,"cid":{"/":"bafkreidbxzk2ryxwwtqxem4l3xyyjvw35yu4tcct4cqeqxwo47zhxgxqwq"},"length":41,"offset":619}
+{"blockLength":18,"blockOffset":697,"cid":{"/":"bafyreidj5idub6mapiupjwjsyyxhyhedxycv4vihfsicm2vt46o7morwlm"},"length":55,"offset":660}
+`)
+    console.log('\u001b[32m✔\u001b[39m [example] dump-index ../test/go.carv2')
+  })
+}).then(async () => {
+  await runExample('dump-index', ['../test/go.carv2']).then(({ stdout, stderr }) => {
+    assert.strictEqual(stderr, '')
+    assert.strictEqual(stdout,
+`{"blockLength":47,"blockOffset":143,"cid":{"/":"QmfEoLyB5NndqeKieExd1rtJzTduQUPEV8TwAYcUiy3H5Z"},"length":82,"offset":108}
+{"blockLength":99,"blockOffset":226,"cid":{"/":"QmczfirA7VEH7YVvKPTPoU69XM3qY4DC39nnTsWd4K3SkM"},"length":135,"offset":190}
+{"blockLength":54,"blockOffset":360,"cid":{"/":"Qmcpz2FHJD7VAhg1fxFXdYJKePtkx1BsHuCrAgWVnaHMTE"},"length":89,"offset":325}
+{"blockLength":4,"blockOffset":451,"cid":{"/":"bafkreifuosuzujyf4i6psbneqtwg2fhplc2wxptc5euspa2gn3bwhnihfu"},"length":41,"offset":414}
+{"blockLength":7,"blockOffset":492,"cid":{"/":"bafkreifc4hca3inognou377hfhvu2xfchn2ltzi7yu27jkaeujqqqdbjju"},"length":44,"offset":455}
+`)
+    console.log('\u001b[32m✔\u001b[39m [example] dump-index ../test/go.carv2')
+  })
 }).catch((err) => {
   console.error(err.stack)
   process.exit(1)
