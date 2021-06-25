@@ -41,12 +41,13 @@ export interface WriterChannel {
   out: AsyncIterable<Uint8Array>
 }
 
+export interface CarReader extends BlockReader, RootsReader {}
+
 /* Specific implementations for CAR block storage */
 
 /*
 export interface CarBlockIterator extends BlockIterator, RootsReader {}
 export interface CarCIDIterator extends CIDIterator, RootsReader {}
-export interface CarReader extends BlockReader, RootsReader {}
 export interface CarIndexer extends AsyncIterable<BlockIndex>, RootsReader {}
 export interface CarWriter extends BlockWriter {}
 */
