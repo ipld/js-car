@@ -89,6 +89,21 @@
   },
   "typesVersions": {
     "*": {
+      "reader": [
+        "types/lib/reader.d.ts"
+      ],
+      "indexed-reader": [
+        "types/lib/indexed-reader.d.ts"
+      ],
+      "indexer": [
+        "types/lib/indexer.d.ts"
+      ],
+      "iterator": [
+        "types/lib/iterator.d.ts"
+      ],
+      "writer": [
+        "types/lib/writer.d.ts"
+      ],
       "*": [
         "types/*"
       ],
