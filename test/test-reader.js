@@ -47,6 +47,15 @@ describe('CarReader fromBytes()', () => {
       message: 'Unexpected end of data'
     })
   })
+
+  it('decode error - trailing null bytes', async () => {
+    const bytes = new Uint8Array(carBytes.length + 5)
+    bytes.set(carBytes)
+    await assert.isRejected(CarReader.fromBytes(bytes), {
+      name: 'Error',
+      message: 'Unexpected CID version'
+    })
+  })
 })
 
 describe('CarReader fromIterable()', () => {
