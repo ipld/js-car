@@ -11,8 +11,8 @@
   "scripts": {
     "build": "npm run build:js && npm run build:types",
     "build:js": "ipjs build --tests --main && npm run build:copy",
-    "build:copy": "mkdir -p dist/examples/ && cp -a tsconfig.json *.js *.ts lib/ test/ dist/ && cp examples/*.* dist/examples/",
-    "build:types": "npm run build:copy && cd dist && tsc --build",
+    "build:copy": "mkdir -p dist/examples/ && cp -a tsconfig.json *.js *.ts lib test examples dist/",
+    "build:types": "tsc --build && mv types dist",
     "prepublishOnly": "npm run build",
     "publish": "ipjs publish",
     "lint": "standard",
