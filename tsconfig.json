@@ -38,10 +38,8 @@
   },
   "exclude": [
     "node_modules",
-    "esm",
-    "cjs",
-    "examples",
-    "index.js"
+    "dist",
+    "examples"
   ],
   "compileOnSave": false
 }
