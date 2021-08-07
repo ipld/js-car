@@ -4,7 +4,7 @@
 // block. The format is standardised for describing CAR fixtures at
 // https://ipld.io/specs/transport/car/fixture/
 
-import fs from 'fs/promises'
+import fs from 'fs'
 import { CarReader } from '@ipld/car/reader'
 import { CarIndexer } from '@ipld/car/indexer'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -34,7 +34,7 @@ function decode (cid, bytes) {
 }
 
 async function run () {
-  const bytes = await fs.readFile(process.argv[2])
+  const bytes = await fs.promises.readFile(process.argv[2])
   // this is not the most optimal way to get both an index and a reader,
   // nor is reading in the bytes into memory necessarily the best thing
   // to be doing, but this is fine for small files and where efficiency
