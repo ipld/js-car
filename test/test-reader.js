@@ -51,10 +51,26 @@ describe('CarReader fromBytes()', () => {
   it('decode error - trailing null bytes', async () => {
     const bytes = new Uint8Array(carBytes.length + 5)
     bytes.set(carBytes)
-    await assert.isRejected(CarReader.fromBytes(bytes), {
-      name: 'Error',
-      message: 'Unexpected CID version'
-    })
+    try {
+      await CarReader.fromBytes(bytes)
+    } catch (err) {
+      assert.strictEqual(err.message, 'Invalid CAR section (zero length)')
+      return
+    }
+    assert.fail('Did not throw')
+  })
+
+  it('decode error - bad first byte', async () => {
+    const bytes = new Uint8Array(carBytes.length + 5)
+    bytes.set(carBytes)
+    bytes[0] = 0
+    try {
+      await CarReader.fromBytes(bytes)
+    } catch (err) {
+      assert.strictEqual(err.message, 'Invalid CAR header (zero length)')
+      return
+    }
+    assert.fail('Did not throw')
   })
 })
 
