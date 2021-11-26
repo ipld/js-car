@@ -68,6 +68,9 @@
       "browser": "./car-browser.js",
       "import": "./car.js"
     },
+    "./decoder": {
+      "import": "./lib/decoder.js"
+    },
     "./reader": {
       "browser": "./lib/reader-browser.js",
       "import": "./lib/reader.js"
@@ -91,6 +94,9 @@
     "*": {
       "reader": [
         "types/lib/reader.d.ts"
+      ],
+      "decoder": [
+        "types/lib/decoder.d.ts"
       ],
       "indexed-reader": [
         "types/lib/indexed-reader.d.ts"
