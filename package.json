@@ -3,66 +3,32 @@
   "version": "0.0.0-dev",
   "description": "Content Addressable aRchive format reader and writer",
   "main": "car.js",
-  "type": "module",
   "types": "./types/car.d.ts",
-  "directories": {
-    "test": "test"
-  },
+  "type": "module",
   "scripts": {
+    "lint": "standard",
     "build": "npm run build:js && npm run build:types",
     "build:js": "ipjs build --tests --main && npm run build:copy",
     "build:copy": "mkdir -p dist/examples/ && cp -a tsconfig.json *.js *.ts lib test dist/ && cp examples/*.* dist/examples/",
     "build:types": "tsc --build && mv types dist",
-    "prepublishOnly": "npm run build",
-    "publish": "ipjs publish",
-    "lint": "standard",
     "test:cjs": "rm -rf dist && npm run build && cp test/go.car dist/cjs/node-test/ && mocha dist/cjs/node-test/test-*.js && mocha dist/cjs/node-test/node-test-*.js && npm run test:cjs:browser",
-    "test:node": "hundreds mocha test/test-*.js test/node-test-*.js",
-    "test:cjs:browser": "polendina --cleanup dist/cjs/browser-test/test-*.js",
+    "test:esm": "rm -rf dist && npm run build && cp test/go.car dist/esm/node-test/ && mocha dist/esm/node-test/test-*.js && mocha dist/esm/node-test/node-test-*.js && npm run test:esm:browser",
+    "test:node": "c8 --check-coverage --branches 100 --functions 100 --lines 100 mocha test/test-*.js test/node-test-*.js",
+    "test:cjs:browser": "polendina --page --worker --serviceworker --cleanup dist/cjs/browser-test/test-*.js",
+    "test:esm:browser": "polendina --page --worker --serviceworker --cleanup dist/esm/browser-test/test-*.js",
     "test": "npm run lint && npm run test:node && npm run test:cjs && npm run test --prefix examples/",
+    "test:ci": "npm run lint && npm run test:node && npm run test:esm && npm run test:cjs && npm run test --prefix examples/",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
     "docs": "jsdoc4readme --readme --description-only lib/reader*.js lib/indexed-reader.js lib/iterator.js lib/indexer.js lib/writer*.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ipld/js-car.git"
   },
   "keywords": [
     "car",
     "ipld",
-    "ipfs"
+    "ipfs",
+    "multiformats"
   ],
   "author": "Rod <rod@vagg.org> (http://r.va.gg/)",
   "license": "(Apache-2.0 AND MIT)",
-  "bugs": {
-    "url": "https://github.com/ipld/js-car/issues"
-  },
-  "homepage": "https://github.com/ipld/js-car#readme",
-  "devDependencies": {
-    "@ipld/dag-pb": "^2.0.0",
-    "@types/chai": "^4.2.18",
-    "@types/chai-as-promised": "^7.1.4",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.24.0",
-    "@typescript-eslint/parser": "^4.24.0",
-    "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
-    "hundreds": "^0.0.9",
-    "ipjs": "^5.0.0",
-    "ipld-garbage": "^4.0.0",
-    "jsdoc4readme": "^1.4.0",
-    "mocha": "^9.0.0",
-    "polendina": "^1.1.0",
-    "standard": "^16.0.3",
-    "typescript": "^4.2.4"
-  },
-  "dependencies": {
-    "@ipld/dag-cbor": "^6.0.0",
-    "@types/varint": "^6.0.0",
-    "multiformats": "^9.0.0",
-    "varint": "^6.0.0"
-  },
   "exports": {
     ".": {
       "browser": "./car-browser.js",
@@ -90,6 +56,47 @@
       "import": "./lib/writer.js"
     }
   },
+  "dependencies": {
+    "@ipld/dag-cbor": "^6.0.15",
+    "multiformats": "^9.5.4",
+    "varint": "^6.0.0"
+  },
+  "devDependencies": {
+    "@ipld/dag-pb": "^2.1.14",
+    "@types/chai": "^4.3.0",
+    "@types/chai-as-promised": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.12",
+    "@types/varint": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "c8": "^7.10.0",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "ipjs": "^5.2.0",
+    "ipld-garbage": "^4.0.10",
+    "jsdoc4readme": "^1.4.0",
+    "mocha": "^9.1.3",
+    "polendina": "~2.0.1",
+    "standard": "^16.0.4",
+    "typescript": "~4.5.2"
+  },
+  "standard": {
+    "ignore": [
+      "dist"
+    ]
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipld/js-car.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ipld/js-car/issues"
+  },
+  "homepage": "https://github.com/ipld/js-car#readme",
   "typesVersions": {
     "*": {
       "reader": [
@@ -117,5 +124,91 @@
         "types/*"
       ]
     }
+  },
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits",
+          "releaseRules": [
+            {
+              "breaking": true,
+              "release": "major"
+            },
+            {
+              "revert": true,
+              "release": "patch"
+            },
+            {
+              "type": "feat",
+              "release": "minor"
+            },
+            {
+              "type": "fix",
+              "release": "patch"
+            },
+            {
+              "type": "chore",
+              "release": "patch"
+            },
+            {
+              "type": "docs",
+              "release": "patch"
+            },
+            {
+              "type": "test",
+              "release": "patch"
+            },
+            {
+              "scope": "no-release",
+              "release": false
+            }
+          ]
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits",
+          "presetConfig": {
+            "types": [
+              {
+                "type": "feat",
+                "section": "Features"
+              },
+              {
+                "type": "fix",
+                "section": "Bug Fixes"
+              },
+              {
+                "type": "chore",
+                "section": "Trivial Changes"
+              },
+              {
+                "type": "docs",
+                "section": "Trivial Changes"
+              },
+              {
+                "type": "test",
+                "section": "Tests"
+              }
+            ]
+          }
+        }
+      ],
+      "@semantic-release/changelog",
+      [
+        "@semantic-release/npm",
+        {
+          "pkgRoot": "dist"
+        }
+      ],
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
   }
 }
