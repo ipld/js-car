@@ -1,3 +1,11 @@
+### [3.2.3](https://github.com/ipld/js-car/compare/v3.2.2...v3.2.3) (2021-12-13)
+
+
+### Trivial Changes
+
+* **deps:** bump @ipld/dag-cbor from 6.0.15 to 7.0.0 ([6daa36c](https://github.com/ipld/js-car/commit/6daa36c601a48bb740c9f776491a10478b25b847))
+* **no-release:** bump @ipld/dag-cbor from 6.0.15 to 7.0.0 in /examples ([#62](https://github.com/ipld/js-car/issues/62)) ([18f6787](https://github.com/ipld/js-car/commit/18f6787785aae2904ca11fcafbfc20e023e081c5))
+
 ### [3.2.2](https://github.com/ipld/js-car/compare/v3.2.1...v3.2.2) (2021-12-10)
 
 
