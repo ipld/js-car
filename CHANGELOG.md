@@ -1,3 +1,13 @@
+### [3.2.4](https://github.com/ipld/js-car/compare/v3.2.3...v3.2.4) (2022-03-02)
+
+
+### Trivial Changes
+
+* **deps-dev:** bump typescript from 4.5.5 to 4.6.2 ([#66](https://github.com/ipld/js-car/issues/66)) ([84e8c4d](https://github.com/ipld/js-car/commit/84e8c4dd9094724f16185ba3a4265300985569d2))
+* **no-release:** bump @types/node from 16.11.14 to 17.0.0 ([#63](https://github.com/ipld/js-car/issues/63)) ([4f01b28](https://github.com/ipld/js-car/commit/4f01b280179a9892465277e4063c8581dd9ebc19))
+* **no-release:** bump actions/setup-node from 2.5.0 to 2.5.1 ([#64](https://github.com/ipld/js-car/issues/64)) ([a53d5c7](https://github.com/ipld/js-car/commit/a53d5c77d30f998b45a534e20d0f174574c58cd5))
+* **no-release:** bump actions/setup-node from 2.5.1 to 3.0.0 ([#65](https://github.com/ipld/js-car/issues/65)) ([9f3df06](https://github.com/ipld/js-car/commit/9f3df0640472aa36ccb2b8081a0fe5a7c75ca0de))
+
 ### [3.2.3](https://github.com/ipld/js-car/compare/v3.2.2...v3.2.3) (2021-12-13)
 
 
