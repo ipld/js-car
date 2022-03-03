@@ -5,3 +5,4 @@ coverage/
 build/
 dist/
 types/
+examples/node_modules/
