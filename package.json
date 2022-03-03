@@ -9,7 +9,7 @@
     "lint": "standard",
     "build": "npm run build:js && npm run build:types",
     "build:js": "ipjs build --tests --main && npm run build:copy",
-    "build:copy": "mkdir -p dist/examples/ && cp -a tsconfig.json *.js *.ts lib test dist/ && cp examples/*.* dist/examples/",
+    "build:copy": "mkdir -p dist/examples/ && cp -a tsconfig.json .npmignore *.js *.ts lib test dist/ && cp examples/*.* dist/examples/ && rm -rf dist/test/fixtures/",
     "build:types": "tsc --build && mv types dist",
     "test:cjs": "rm -rf dist && npm run build && cp test/go.car dist/cjs/node-test/ && mocha dist/cjs/node-test/test-*.js && mocha dist/cjs/node-test/node-test-*.js && npm run test:cjs:browser",
     "test:esm": "rm -rf dist && npm run build && cp test/go.car dist/esm/node-test/ && mocha dist/esm/node-test/test-*.js && mocha dist/esm/node-test/node-test-*.js && npm run test:esm:browser",

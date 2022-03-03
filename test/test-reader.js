@@ -2,9 +2,11 @@
 
 import { CarReader } from '@ipld/car/reader'
 import { CarWriter } from '@ipld/car/writer'
+import { bytesReader, readHeader } from '@ipld/car/decoder'
 import * as Block from 'multiformats/block'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
+import { base64 } from 'multiformats/bases/base64'
 import * as dagPb from '@ipld/dag-pb'
 import {
   carBytes,
@@ -22,6 +24,8 @@ import {
   verifyBlocks,
   verifyCids
 } from './verify-store-reader.js'
+import { data as fixtures } from './fixtures.js'
+import { expectations as fixtureExpectations } from './fixtures-expectations.js'
 
 describe('CarReader fromBytes()', () => {
   it('complete', async () => {
@@ -193,5 +197,49 @@ describe('CarReader fromIterable()', () => {
       name: 'Error',
       message: 'Unexpected end of data'
     })
+  })
+})
+
+describe('Shared fixtures', () => {
+  describe('Header', () => {
+    for (const [name, { version: expectedVersion, err: expectedError }] of Object.entries(fixtureExpectations)) {
+      it(name, async () => {
+        const data = base64.baseDecode(fixtures[name])
+        let header
+        try {
+          header = await readHeader(bytesReader(data))
+        } catch (err) {
+          if (expectedError != null) {
+            assert.equal(err.message, expectedError)
+            return
+          }
+          assert.ifError(err)
+        }
+        if (expectedError != null) {
+          assert.fail(`Expected error: ${expectedError}`)
+        }
+        assert.isDefined(header, 'did not decode header')
+        if (expectedVersion != null && header != null) {
+          assert.strictEqual(header.version, expectedVersion)
+        }
+      })
+    }
+  })
+
+  describe('Contents', () => {
+    for (const [name, { cids: expectedCids }] of Object.entries(fixtureExpectations)) {
+      if (expectedCids == null) {
+        continue
+      }
+      it(name, async () => {
+        const data = base64.baseDecode(fixtures[name])
+        const reader = await CarReader.fromBytes(data)
+        let i = 0
+        for await (const cid of reader.cids()) {
+          assert.strictEqual(cid.toString(), expectedCids[i++])
+        }
+        assert.strictEqual(i, expectedCids.length)
+      })
+    }
   })
 })

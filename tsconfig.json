@@ -34,7 +34,8 @@
       "@ipld/car/reader": [ "./lib/reader.js" ],
       "@ipld/car/indexed-reader": [ "./lib/indexed-reader.js" ],
       "@ipld/car/iterator": [ "./lib/iterator.js" ],
-      "@ipld/car/indexer": [ "./lib/indexer.js" ]
+      "@ipld/car/indexer": [ "./lib/indexer.js" ],
+      "@ipld/car/decoder": [ "./lib/decoder.js" ],
     }
   },
   "exclude": [
