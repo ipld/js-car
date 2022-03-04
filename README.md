@@ -240,6 +240,12 @@ be directly fed to a
  * [`async CarWriter.createAppender()`](#CarWriter__createAppender)
  * [`async CarWriter.updateRootsInBytes(bytes, roots)`](#CarWriter__updateRootsInBytes)
  * [`async CarWriter.updateRootsInFile(fd, roots)`](#CarWriter__updateRootsInFile)
+ * [`async decoder.readHeader(reader)`](#async__decoder__readHeader__reader__)
+ * [`async decoder.readBlockHead(reader)`](#async__decoder__readBlockHead__reader__)
+ * [`decoder.createDecoder(reader)`](#decoder__createDecoder__reader__)
+ * [`decoder.bytesReader(bytes)`](#decoder__bytesReader__bytes__)
+ * [`decoder.asyncIterableReader(asyncIterable)`](#decoder__asyncIterableReader__asyncIterable__)
+ * [`decoder.limitReader(reader, byteLimit)`](#decoder__limitReader__reader____byteLimit__)
 
 <a name="CarReader"></a>
 ### `class CarReader`
@@ -247,7 +253,7 @@ be directly fed to a
 Properties:
 
 * `version` `(number)`: The version number of the CAR referenced by this
-  reader (should be `1`).
+  reader (should be `1` or `2`).
 
 Provides blockstore-like access to a CAR.
 
@@ -748,7 +754,8 @@ upon successful modification.
 
 Update the list of roots in the header of an existing CAR file. The first
 argument must be a file descriptor for CAR file that is open in read and
-write mode (not append).
+write mode (not append), e.g. `fs.open` or `fs.promises.open` with `'r+'`
+mode.
 
 This operation is an _overwrite_, the total length of the CAR will not be
 modified. A rejection will occur if the new header will not be the same
@@ -758,6 +765,71 @@ replaced encode as the same length as the new roots.
 
 This function is **only available in Node.js** and not a browser
 environment.
+
+<a name="async__decoder__readHeader__reader__"></a>
+### `async decoder.readHeader(reader)`
+
+* `reader` `(BytesReader)`
+* `strictVersion` `(number, optional)`
+
+* Returns:  `Promise<(CarHeader|CarV2Header)>`
+
+Reads header data from a `BytesReader`. The header may either be in the form
+of a `CarHeader` or `CarV2Header` depending on the CAR being read.
+
+<a name="async__decoder__readBlockHead__reader__"></a>
+### `async decoder.readBlockHead(reader)`
+
+* `reader` `(BytesReader)`
+
+* Returns:  `Promise<BlockHeader>`
+
+Reads the leading data of an individual block from CAR data from a
+`BytesReader`. Returns a `BlockHeader` object which contains
+`{ cid, length, blockLength }` which can be used to either index the block
+or read the block binary data.
+
+<a name="decoder__createDecoder__reader__"></a>
+### `decoder.createDecoder(reader)`
+
+* `reader` `(BytesReader)`
+
+* Returns:  `CarDecoder`
+
+Creates a `CarDecoder` from a `BytesReader`. The `CarDecoder` is as async
+interface that will consume the bytes from the `BytesReader` to yield a
+`header()` and either `blocks()` or `blocksIndex()` data.
+
+<a name="decoder__bytesReader__bytes__"></a>
+### `decoder.bytesReader(bytes)`
+
+* `bytes` `(Uint8Array)`
+
+* Returns:  `BytesReader`
+
+Creates a `BytesReader` from a `Uint8Array`.
+
+<a name="decoder__asyncIterableReader__asyncIterable__"></a>
+### `decoder.asyncIterableReader(asyncIterable)`
+
+* `asyncIterable` `(AsyncIterable<Uint8Array>)`
+
+* Returns:  `BytesReader`
+
+Creates a `BytesReader` from an `AsyncIterable<Uint8Array>`, which allows for
+consumption of CAR data from a streaming source.
+
+<a name="decoder__limitReader__reader____byteLimit__"></a>
+### `decoder.limitReader(reader, byteLimit)`
+
+* `reader` `(BytesReader)`
+* `byteLimit` `(number)`
+
+* Returns:  `BytesReader`
+
+Wraps a `BytesReader` in a limiting `BytesReader` which limits maximum read
+to `byteLimit` bytes. It _does not_ update `pos` of the original
+`BytesReader`.
 
 ## License
 
