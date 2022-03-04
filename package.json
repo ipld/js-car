@@ -19,7 +19,7 @@
     "test": "npm run lint && npm run test:node && npm run test:cjs && npm run test --prefix examples/",
     "test:ci": "npm run lint && npm run test:node && npm run test:esm && npm run test:cjs && npm run test --prefix examples/",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
-    "docs": "jsdoc4readme --readme --description-only lib/reader*.js lib/indexed-reader.js lib/iterator.js lib/indexer.js lib/writer*.js"
+    "docs": "jsdoc4readme --readme --description-only lib/reader*.js lib/indexed-reader.js lib/iterator.js lib/indexer.js lib/writer*.js lib/decoder.js"
   },
   "keywords": [
     "car",
