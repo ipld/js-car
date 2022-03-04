@@ -1,3 +1,29 @@
+## [4.0.0](https://github.com/ipld/js-car/compare/v3.2.4...v4.0.0) (2022-03-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* add CARv2 read support (data only, ignoring index)
+
+### Features
+
+* add CARv2 read support (data only, ignoring index) ([99cd346](https://github.com/ipld/js-car/commit/99cd3467cb36eedc075b27ebe4cc7b46e05294e8))
+
+
+### Bug Fixes
+
+* deal with c8 Node.js v12 bug ([8f83849](https://github.com/ipld/js-car/commit/8f83849ea5e11461b743c3931b0155559c89e3ac))
+
+
+### Trivial Changes
+
+* add header validation via schema, allow for !=1 version ([d260597](https://github.com/ipld/js-car/commit/d260597d87404c6ca57c2c92424317209116cc1f))
+* allow access to full header in CarReader ([b95a6e2](https://github.com/ipld/js-car/commit/b95a6e2b0d8559d63e3c63c11694e67636c65e5d))
+* **carv2:** add fixtures and test expectations from go-car ([d563acf](https://github.com/ipld/js-car/commit/d563acfb1bd93c124e717767b1c4084a23ee09bb))
+* **docs:** update docs to include decoder.* functions. ([9200ffe](https://github.com/ipld/js-car/commit/9200ffe263de55264a1fc0418ddc2b09dbaa1d8c))
+* **no-release:** bump actions/checkout from 2.4.0 to 3 ([#67](https://github.com/ipld/js-car/issues/67)) ([ae56ce5](https://github.com/ipld/js-car/commit/ae56ce58c492d69340903d641545b84adc7b760f))
+* test for rejecting recursive carv2 header ([12480b5](https://github.com/ipld/js-car/commit/12480b5874c17b40a488f465c7c390bda458b20a))
+
 ### [3.2.4](https://github.com/ipld/js-car/compare/v3.2.3...v3.2.4) (2022-03-02)
 
 
