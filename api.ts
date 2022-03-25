@@ -1,17 +1,18 @@
-import { CID } from 'multiformats/cid'
+import { CID } from "multiformats/cid"
 
+export type { CID }
 /* Generic types for interfacing with block storage */
 
-export type Block = { cid: CID, bytes: Uint8Array }
+export type Block = { cid: CID; bytes: Uint8Array }
 
 export type BlockHeader = {
-  cid: CID,
-  length: number,
+  cid: CID
+  length: number
   blockLength: number
 }
 
 export type BlockIndex = BlockHeader & {
-  offset: number,
+  offset: number
   blockOffset: number
 }
 
@@ -34,6 +35,19 @@ export interface BlockReader {
 export interface BlockWriter {
   put(block: Block): Promise<void>
   close(): Promise<void>
+}
+
+export interface CarBufferWriter {
+  write(block: Block): void
+  close(): Uint8Array
+}
+
+export interface CarBufferWriterOptions {
+  roots?: CID[] // defaults to []
+  byteOffset?: number // defaults to 0
+  byteLength?: number // defaults to buffer.byteLength
+
+  headerCapacity?: number // defaults to size needed for provided roots
 }
 
 export interface WriterChannel {
