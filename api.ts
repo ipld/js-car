@@ -1,9 +1,12 @@
-import { CID } from "multiformats/cid"
+import { CID } from 'multiformats/cid'
 
 export type { CID }
 /* Generic types for interfacing with block storage */
 
-export type Block = { cid: CID; bytes: Uint8Array }
+export type Block = {
+  cid: CID
+  bytes: Uint8Array
+}
 
 export type BlockHeader = {
   cid: CID
