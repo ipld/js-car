@@ -41,8 +41,9 @@ export interface BlockWriter {
 }
 
 export interface CarBufferWriter {
-  write(block: Block): void
-  close(options?:{ align: boolean }): Uint8Array
+  addRoot(root:CID, options?:{ resize?: boolean }):CarBufferWriter
+  write(block: Block): CarBufferWriter
+  close(options?:{ resize?: boolean }): Uint8Array
 }
 
 export interface CarBufferWriterOptions {
@@ -50,7 +51,7 @@ export interface CarBufferWriterOptions {
   byteOffset?: number // defaults to 0
   byteLength?: number // defaults to buffer.byteLength
 
-  headerCapacity?: number // defaults to size needed for provided roots
+  headerSize?: number // defaults to size needed for provided roots
 }
 
 export interface WriterChannel {

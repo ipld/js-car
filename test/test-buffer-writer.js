@@ -1,18 +1,194 @@
 /* eslint-env mocha */
 
 import * as CarBufferWriter from '@ipld/car/buffer-writer'
+import { CarReader } from '@ipld/car/reader'
 import { createHeader } from '../lib/encoder.js'
 import { assert } from './common.js'
 import { CID } from 'multiformats'
+import * as CBOR from '@ipld/dag-cbor'
+import { sha256, sha512 } from 'multiformats/hashes/sha2'
+import * as Block from 'multiformats/block'
 
 describe('CarBufferWriter', () => {
   const cid = CID.parse('bafkreifuosuzujyf4i6psbneqtwg2fhplc2wxptc5euspa2gn3bwhnihfu')
-  describe('estimateHeader', async () => {
+  describe('estimateHeaderSize', async () => {
     for (const count of [0, 1, 10, 18, 24, 48, 124, 255, 258, 65536 - 1, 65536]) {
       it(`estimateHeaderCapacity(${count})`, () => {
         const roots = new Array(count).fill(cid)
         assert.deepEqual(CarBufferWriter.estimateHeaderSize(count), createHeader(roots).byteLength)
       })
     }
+  })
+
+  describe('writer', () => {
+    it('estimate header and write blocks', async () => {
+      const headerSize = CarBufferWriter.estimateHeaderSize(1)
+      const dataSize = 256
+      const buffer = new ArrayBuffer(headerSize + dataSize)
+      const writer = CarBufferWriter.createWriter(buffer, { headerSize })
+      const b1 = await Block.encode({
+        value: { hello: 'world' },
+        codec: CBOR,
+        hasher: sha256
+      })
+
+      writer.write(b1)
+
+      const b2 = await Block.encode({
+        value: { bye: 'world' },
+        codec: CBOR,
+        hasher: sha256
+      })
+      writer.write(b2)
+
+      writer.addRoot(b1.cid)
+      const bytes = writer.close()
+
+      const reader = await CarReader.fromBytes(bytes)
+      assert.deepEqual(await reader.getRoots(), [b1.cid])
+      assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }, { cid: b2.cid, bytes: b2.bytes }])
+    })
+
+    it('overestimate header', async () => {
+      const headerSize = CarBufferWriter.estimateHeaderSize(2)
+      const dataSize = 256
+      const buffer = new ArrayBuffer(headerSize + dataSize)
+      const writer = CarBufferWriter.createWriter(buffer, { headerSize })
+      const b1 = await Block.encode({
+        value: { hello: 'world' },
+        codec: CBOR,
+        hasher: sha256
+      })
+
+      writer.write(b1)
+
+      const b2 = await Block.encode({
+        value: { bye: 'world' },
+        codec: CBOR,
+        hasher: sha256
+      })
+      writer.write(b2)
+
+      writer.addRoot(b1.cid)
+      assert.throws(() => writer.close(), /Header size was overestimate/)
+      const bytes = writer.close({ resize: true })
+
+      const reader = await CarReader.fromBytes(bytes)
+      assert.deepEqual(await reader.getRoots(), [b1.cid])
+      assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }, { cid: b2.cid, bytes: b2.bytes }])
+    })
+
+    it('underestimate header', async () => {
+      const headerSize = CarBufferWriter.estimateHeaderSize(2)
+      const dataSize = 300
+      const buffer = new ArrayBuffer(headerSize + dataSize)
+      const writer = CarBufferWriter.createWriter(buffer, { headerSize })
+      const b1 = await Block.encode({
+        value: { hello: 'world' },
+        codec: CBOR,
+        hasher: sha256
+      })
+
+      writer.write(b1)
+      writer.addRoot(b1.cid)
+
+      const b2 = await Block.encode({
+        value: { bye: 'world' },
+        codec: CBOR,
+        hasher: sha512
+      })
+      writer.write(b2)
+      assert.throws(() => writer.addRoot(b2.cid), /has no capacity/)
+      writer.addRoot(b2.cid, { resize: true })
+
+      const bytes = writer.close()
+
+      const reader = await CarReader.fromBytes(bytes)
+      assert.deepEqual(await reader.getRoots(), [b1.cid, b2.cid])
+      assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }, { cid: b2.cid, bytes: b2.bytes }])
+    })
+  })
+
+  it('has no space for the root', async () => {
+    const headerSize = CarBufferWriter.estimateHeaderSize(1)
+    const dataSize = 100
+    const buffer = new ArrayBuffer(headerSize + dataSize)
+    const writer = CarBufferWriter.createWriter(buffer, { headerSize })
+    const b1 = await Block.encode({
+      value: { hello: 'world' },
+      codec: CBOR,
+      hasher: sha256
+    })
+
+    writer.write(b1)
+    writer.addRoot(b1.cid)
+
+    const b2 = await Block.encode({
+      value: { bye: 'world' },
+      codec: CBOR,
+      hasher: sha256
+    })
+    writer.write(b2)
+    assert.throws(() => writer.addRoot(b2.cid), /Buffer has no capacity/)
+    assert.throws(() => writer.addRoot(b2.cid, { resize: true }), /Buffer has no capacity/)
+
+    const bytes = writer.close()
+
+    const reader = await CarReader.fromBytes(bytes)
+    assert.deepEqual(await reader.getRoots(), [b1.cid])
+    assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }, { cid: b2.cid, bytes: b2.bytes }])
+  })
+
+  it('has no space for the block', async () => {
+    const headerSize = CarBufferWriter.estimateHeaderSize(1)
+    const dataSize = 58
+    const buffer = new ArrayBuffer(headerSize + dataSize)
+    const writer = CarBufferWriter.createWriter(buffer, { headerSize })
+    const b1 = await Block.encode({
+      value: { hello: 'world' },
+      codec: CBOR,
+      hasher: sha256
+    })
+
+    writer.write(b1)
+    writer.addRoot(b1.cid)
+
+    const b2 = await Block.encode({
+      value: { bye: 'world' },
+      codec: CBOR,
+      hasher: sha256
+    })
+    assert.throws(() => writer.write(b2), /Buffer has no capacity for this block/)
+
+    const bytes = writer.close()
+
+    const reader = await CarReader.fromBytes(bytes)
+    assert.deepEqual(await reader.getRoots(), [b1.cid])
+    assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }])
+  })
+
+  it('provide roots', async () => {
+    const b1 = await Block.encode({
+      value: { hello: 'world' },
+      codec: CBOR,
+      hasher: sha256
+    })
+    const b2 = await Block.encode({
+      value: { bye: 'world' },
+      codec: CBOR,
+      hasher: sha512
+    })
+
+    const buffer = new ArrayBuffer(300)
+    const writer = CarBufferWriter.createWriter(buffer, { roots: [b1.cid, b2.cid] })
+
+    writer.write(b1)
+    writer.write(b2)
+
+    const bytes = writer.close()
+
+    const reader = await CarReader.fromBytes(bytes)
+    assert.deepEqual(await reader.getRoots(), [b1.cid, b2.cid])
+    assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }, { cid: b2.cid, bytes: b2.bytes }])
   })
 })
