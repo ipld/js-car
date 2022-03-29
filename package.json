@@ -54,6 +54,9 @@
     "./writer": {
       "browser": "./lib/writer-browser.js",
       "import": "./lib/writer.js"
+    },
+    "./buffer-writer": {
+      "import": "./lib/buffer-writer.js"
     }
   },
   "dependencies": {

@@ -42,7 +42,7 @@ export interface BlockWriter {
 
 export interface CarBufferWriter {
   write(block: Block): void
-  close(): Uint8Array
+  close(options?:{ align: boolean }): Uint8Array
 }
 
 export interface CarBufferWriterOptions {
