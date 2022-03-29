@@ -4,9 +4,11 @@ import * as CarBufferWriter from '@ipld/car/buffer-writer'
 import { CarReader } from '@ipld/car/reader'
 import { createHeader } from '../lib/encoder.js'
 import { assert } from './common.js'
-import { CID } from 'multiformats'
+import { CID, varint } from 'multiformats'
 import * as CBOR from '@ipld/dag-cbor'
 import { sha256, sha512 } from 'multiformats/hashes/sha2'
+import { identity } from 'multiformats/hashes/identity'
+import * as Raw from 'multiformats/codecs/raw'
 import * as Block from 'multiformats/block'
 
 describe('CarBufferWriter', () => {
@@ -18,6 +20,16 @@ describe('CarBufferWriter', () => {
         assert.deepEqual(CarBufferWriter.estimateHeaderSize(count), createHeader(roots).byteLength)
       })
     }
+    it('estimate on large CIDs', () => {
+      const largeCID = CID.parse(`bafkqbbac${'a'.repeat(416)}`)
+      assert.ok(CarBufferWriter.estimateHeaderSize(2, cid.bytes.byteLength + largeCID.bytes.byteLength) >= createHeader([cid, largeCID]).byteLength)
+    })
+
+
+    it('estimate on large CIDs 2', () => {
+      const largeCID = CID.createV1(Raw.code, identity.digest(new Uint8Array(512).fill(1)))
+      assert.ok(CarBufferWriter.estimateHeaderSize(2, cid.bytes.byteLength + largeCID.bytes.byteLength) >= createHeader([cid, largeCID]).byteLength)
+    })
   })
 
   describe('writer', () => {
@@ -188,6 +200,34 @@ describe('CarBufferWriter', () => {
     const bytes = writer.close()
 
     const reader = await CarReader.fromBytes(bytes)
+    assert.deepEqual(await reader.getRoots(), [b1.cid, b2.cid])
+    assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }, { cid: b2.cid, bytes: b2.bytes }])
+  })
+
+  it('provide large CID root', async () => {
+    const bytes = new Uint8Array(512).fill(1)
+    const b1 = await Block.encode({
+      value: { hello: 'world' },
+      codec: CBOR,
+      hasher: sha256
+    })
+
+    const b2 = {
+      cid: CID.createV1(Raw.code, identity.digest(bytes)),
+      bytes
+    }
+
+    const headerSize = CBOR.encode({ version: 1, roots: [b1.cid, b2.cid] }).byteLength
+    const bodySize = CarBufferWriter.blockEncodeSize(b1) + CarBufferWriter.blockEncodeSize(b2)
+    const varintSize = varint.encodingLength(headerSize)
+
+     
+    const writer = CarBufferWriter.createWriter(new ArrayBuffer(varintSize + headerSize + bodySize), { roots: [b1.cid, b2.cid]})
+
+    writer.write(b1)
+    writer.write(b2)
+    const car = writer.close()
+    const reader = await CarReader.fromBytes(car)
     assert.deepEqual(await reader.getRoots(), [b1.cid, b2.cid])
     assert.deepEqual(reader._blocks, [{ cid: b1.cid, bytes: b1.bytes }, { cid: b2.cid, bytes: b2.bytes }])
   })
