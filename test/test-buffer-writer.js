@@ -25,7 +25,6 @@ describe('CarBufferWriter', () => {
       assert.ok(CarBufferWriter.estimateHeaderSize(2, cid.bytes.byteLength + largeCID.bytes.byteLength) >= createHeader([cid, largeCID]).byteLength)
     })
 
-
     it('estimate on large CIDs 2', () => {
       const largeCID = CID.createV1(Raw.code, identity.digest(new Uint8Array(512).fill(1)))
       assert.ok(CarBufferWriter.estimateHeaderSize(2, cid.bytes.byteLength + largeCID.bytes.byteLength) >= createHeader([cid, largeCID]).byteLength)
@@ -221,8 +220,7 @@ describe('CarBufferWriter', () => {
     const bodySize = CarBufferWriter.blockEncodeSize(b1) + CarBufferWriter.blockEncodeSize(b2)
     const varintSize = varint.encodingLength(headerSize)
 
-     
-    const writer = CarBufferWriter.createWriter(new ArrayBuffer(varintSize + headerSize + bodySize), { roots: [b1.cid, b2.cid]})
+    const writer = CarBufferWriter.createWriter(new ArrayBuffer(varintSize + headerSize + bodySize), { roots: [b1.cid, b2.cid] })
 
     writer.write(b1)
     writer.write(b2)
