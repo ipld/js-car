@@ -19,6 +19,11 @@ describe('CarBufferWriter', () => {
         const roots = new Array(count).fill(cid)
         assert.deepEqual(CarBufferWriter.estimateHeaderSize(count), createHeader(roots).byteLength)
       })
+      it(`calculateHeaderLength(${count})`, () => {
+        const roots = new Array(count).fill(cid)
+        const rootLengths = roots.map((c) => c.bytes.byteLength)
+        assert.deepEqual(CarBufferWriter.calculateHeaderLength(rootLengths), createHeader(roots).byteLength)
+      })
     }
     it('estimate on large CIDs', () => {
       const largeCID = CID.parse(`bafkqbbac${'a'.repeat(416)}`)
