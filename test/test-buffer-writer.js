@@ -13,13 +13,17 @@ import * as Block from 'multiformats/block'
 
 describe('CarBufferWriter', () => {
   const cid = CID.parse('bafkreifuosuzujyf4i6psbneqtwg2fhplc2wxptc5euspa2gn3bwhnihfu')
-  describe('estimateHeaderSize', async () => {
+  describe('calculateHeaderLength', async () => {
     for (const count of [0, 1, 10, 18, 24, 48, 124, 255, 258, 65536 - 1, 65536]) {
-      it(`estimateHeaderCapacity(${count})`, () => {
+      it(`calculateHeaderLength(new Array(${count}).fill(36))`, () => {
         const roots = new Array(count).fill(cid)
-        assert.deepEqual(CarBufferWriter.estimateHeaderSize(count), createHeader(roots).byteLength)
+        const sizes = new Array(count).fill(cid.bytes.byteLength)
+        assert.deepEqual(
+          CarBufferWriter.calculateHeaderLength(sizes),
+          createHeader(roots).byteLength
+        )
       })
-      it(`calculateHeaderLength(${count})`, () => {
+      it(`calculateHeaderLength(new Array(${count}).fill(36))`, () => {
         const roots = new Array(count).fill(cid)
         const rootLengths = roots.map((c) => c.bytes.byteLength)
         assert.deepEqual(CarBufferWriter.calculateHeaderLength(rootLengths), createHeader(roots).byteLength)
@@ -27,18 +31,33 @@ describe('CarBufferWriter', () => {
     }
     it('estimate on large CIDs', () => {
       const largeCID = CID.parse(`bafkqbbac${'a'.repeat(416)}`)
-      assert.ok(CarBufferWriter.estimateHeaderSize(2, cid.bytes.byteLength + largeCID.bytes.byteLength) >= createHeader([cid, largeCID]).byteLength)
+      assert.equal(
+        CarBufferWriter.calculateHeaderLength([
+          cid.bytes.byteLength,
+          largeCID.bytes.byteLength
+        ]),
+        createHeader([
+          cid,
+          largeCID
+        ]).byteLength
+      )
     })
 
     it('estimate on large CIDs 2', () => {
       const largeCID = CID.createV1(Raw.code, identity.digest(new Uint8Array(512).fill(1)))
-      assert.ok(CarBufferWriter.estimateHeaderSize(2, cid.bytes.byteLength + largeCID.bytes.byteLength) >= createHeader([cid, largeCID]).byteLength)
+      assert.equal(
+        CarBufferWriter.calculateHeaderLength([
+          cid.bytes.byteLength,
+          largeCID.bytes.byteLength
+        ]),
+        createHeader([cid, largeCID]).byteLength
+      )
     })
   })
 
   describe('writer', () => {
     it('estimate header and write blocks', async () => {
-      const headerSize = CarBufferWriter.estimateHeaderSize(1)
+      const headerSize = CarBufferWriter.estimateHeaderLength(1)
       const dataSize = 256
       const buffer = new ArrayBuffer(headerSize + dataSize)
       const writer = CarBufferWriter.createWriter(buffer, { headerSize })
@@ -66,7 +85,7 @@ describe('CarBufferWriter', () => {
     })
 
     it('overestimate header', async () => {
-      const headerSize = CarBufferWriter.estimateHeaderSize(2)
+      const headerSize = CarBufferWriter.estimateHeaderLength(2)
       const dataSize = 256
       const buffer = new ArrayBuffer(headerSize + dataSize)
       const writer = CarBufferWriter.createWriter(buffer, { headerSize })
@@ -95,7 +114,7 @@ describe('CarBufferWriter', () => {
     })
 
     it('underestimate header', async () => {
-      const headerSize = CarBufferWriter.estimateHeaderSize(2)
+      const headerSize = CarBufferWriter.estimateHeaderLength(2)
       const dataSize = 300
       const buffer = new ArrayBuffer(headerSize + dataSize)
       const writer = CarBufferWriter.createWriter(buffer, { headerSize })
@@ -126,7 +145,7 @@ describe('CarBufferWriter', () => {
   })
 
   it('has no space for the root', async () => {
-    const headerSize = CarBufferWriter.estimateHeaderSize(1)
+    const headerSize = CarBufferWriter.estimateHeaderLength(1)
     const dataSize = 100
     const buffer = new ArrayBuffer(headerSize + dataSize)
     const writer = CarBufferWriter.createWriter(buffer, { headerSize })
@@ -145,8 +164,8 @@ describe('CarBufferWriter', () => {
       hasher: sha256
     })
     writer.write(b2)
-    assert.throws(() => writer.addRoot(b2.cid), /Buffer has no capacity/)
-    assert.throws(() => writer.addRoot(b2.cid, { resize: true }), /Buffer has no capacity/)
+    assert.throws(() => writer.addRoot(b2.cid), /Buffer has no capacity for a new root/)
+    assert.throws(() => writer.addRoot(b2.cid, { resize: true }), /Buffer has no capacity for a new root/)
 
     const bytes = writer.close()
 
@@ -156,7 +175,7 @@ describe('CarBufferWriter', () => {
   })
 
   it('has no space for the block', async () => {
-    const headerSize = CarBufferWriter.estimateHeaderSize(1)
+    const headerSize = CarBufferWriter.estimateHeaderLength(1)
     const dataSize = 58
     const buffer = new ArrayBuffer(headerSize + dataSize)
     const writer = CarBufferWriter.createWriter(buffer, { headerSize })
