@@ -241,7 +241,7 @@ describe('CarBufferWriter', () => {
     }
 
     const headerSize = CBOR.encode({ version: 1, roots: [b1.cid, b2.cid] }).byteLength
-    const bodySize = CarBufferWriter.blockEncodeSize(b1) + CarBufferWriter.blockEncodeSize(b2)
+    const bodySize = CarBufferWriter.blockLength(b1) + CarBufferWriter.blockLength(b2)
     const varintSize = varint.encodingLength(headerSize)
 
     const writer = CarBufferWriter.createWriter(new ArrayBuffer(varintSize + headerSize + bodySize), { roots: [b1.cid, b2.cid] })
