@@ -244,6 +244,7 @@ be directly fed to a
  * [`CarBufferWriter#addRoot(root, options)`](#CarBufferWriter_addRoot)
  * [`CarBufferWriter#write(block)`](#CarBufferWriter_write)
  * [`CarBufferWriter#close([options])`](#CarBufferWriter_close)
+ * [`CarBufferWriter.blockLength(Block)`](#CarBufferWriter__blockLength__Block__)
  * [`CarBufferWriter.calculateHeaderLength(rootLengths)`](#CarBufferWriter__calculateHeaderLength__rootLengths__)
  * [`CarBufferWriter.headerLength({ roots })`](#CarBufferWriter__headerLength______roots______)
  * [`CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`](#CarBufferWriter__estimateHeaderLength__rootCount______rootByteLength____)
@@ -810,6 +811,16 @@ Throws if there is not enough capacity.
 
 Finalize the CAR and return it as a `Uint8Array`.
 
+<a name="CarBufferWriter__blockLength__Block__"></a>
+### `CarBufferWriter.blockLength(Block)`
+
+* `block` `(Block)`
+
+* Returns:  `number`
+
+Calculates number of bytes required for storing given block in CAR. Useful in
+estimating size of an `ArrayBuffer` for the `CarBufferWriter`.
+
 <a name="CarBufferWriter__calculateHeaderLength__rootLengths__"></a>
 ### `CarBufferWriter.calculateHeaderLength(rootLengths)`
 
@@ -822,8 +833,8 @@ Calculates header size given the array of byteLength for roots.
 <a name="CarBufferWriter__headerLength______roots______"></a>
 ### `CarBufferWriter.headerLength({ roots })`
 
-* `options` `(Object)`
-  * `options.roots` `(CID[], optional)`
+* `options` `(object)`
+  * `options.roots` `(CID[])`
 
 * Returns:  `number`
 
@@ -845,7 +856,7 @@ single-byte multihash code, such as SHA2-256 (i.e. the most common CIDv1).
 ### `CarBufferWriter.createWriter(buffer[, options])`
 
 * `buffer` `(ArrayBuffer)`
-* `options` `(Options, optional)`
+* `options` `(object, optional)`
   * `options.roots` `(CID[], optional)`
   * `options.byteOffset` `(number, optional)`
   * `options.byteLength` `(number, optional)`
