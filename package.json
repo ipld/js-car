@@ -19,7 +19,7 @@
     "test": "npm run lint && npm run test:node && npm run test:cjs && npm run test --prefix examples/",
     "test:ci": "npm run lint && npm run test:node && npm run test:esm && npm run test:cjs && npm run test --prefix examples/",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
-    "docs": "jsdoc4readme --readme --description-only lib/reader*.js lib/indexed-reader.js lib/iterator.js lib/indexer.js lib/writer*.js lib/decoder.js"
+    "docs": "jsdoc4readme --readme --description-only lib/reader*.js lib/indexed-reader.js lib/iterator.js lib/indexer.js lib/writer*.js lib/buffer-writer.js lib/decoder.js"
   },
   "keywords": [
     "car",
@@ -54,10 +54,14 @@
     "./writer": {
       "browser": "./lib/writer-browser.js",
       "import": "./lib/writer.js"
+    },
+    "./buffer-writer": {
+      "import": "./lib/buffer-writer.js"
     }
   },
   "dependencies": {
     "@ipld/dag-cbor": "^7.0.0",
+    "cborg": "^1.9.0",
     "multiformats": "^9.5.4",
     "varint": "^6.0.0"
   },
@@ -116,6 +120,9 @@
       ],
       "writer": [
         "types/lib/writer.d.ts"
+      ],
+      "buffer-writer": [
+        "types/lib/buffer-writer.d.ts"
       ],
       "*": [
         "types/*"

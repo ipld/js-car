@@ -240,6 +240,15 @@ be directly fed to a
  * [`async CarWriter.createAppender()`](#CarWriter__createAppender)
  * [`async CarWriter.updateRootsInBytes(bytes, roots)`](#CarWriter__updateRootsInBytes)
  * [`async CarWriter.updateRootsInFile(fd, roots)`](#CarWriter__updateRootsInFile)
+ * [`class CarBufferWriter`](#CarBufferWriter)
+ * [`CarBufferWriter#addRoot(root, options)`](#CarBufferWriter_addRoot)
+ * [`CarBufferWriter#write(block)`](#CarBufferWriter_write)
+ * [`CarBufferWriter#close([options])`](#CarBufferWriter_close)
+ * [`CarBufferWriter.blockLength(Block)`](#CarBufferWriter__blockLength__Block__)
+ * [`CarBufferWriter.calculateHeaderLength(rootLengths)`](#CarBufferWriter__calculateHeaderLength__rootLengths__)
+ * [`CarBufferWriter.headerLength({ roots })`](#CarBufferWriter__headerLength______roots______)
+ * [`CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`](#CarBufferWriter__estimateHeaderLength__rootCount______rootByteLength____)
+ * [`CarBufferWriter.createWriter(buffer[, options])`](#CarBufferWriter__createWriter__buffer______options____)
  * [`async decoder.readHeader(reader)`](#async__decoder__readHeader__reader__)
  * [`async decoder.readBlockHead(reader)`](#async__decoder__readBlockHead__reader__)
  * [`decoder.createDecoder(reader)`](#decoder__createDecoder__reader__)
@@ -765,6 +774,106 @@ replaced encode as the same length as the new roots.
 
 This function is **only available in Node.js** and not a browser
 environment.
+
+<a name="CarBufferWriter"></a>
+### `class CarBufferWriter`
+
+A simple CAR writer that writes to a pre-allocated buffer.
+
+<a name="CarBufferWriter_addRoot"></a>
+### `CarBufferWriter#addRoot(root, options)`
+
+* `root` `(CID)`
+* `options`
+
+* Returns:  `CarBufferWriter`
+
+Add a root to this writer, to be used to create a header when the CAR is
+finalized with [`close()`](#CarBufferWriter__close)
+
+<a name="CarBufferWriter_write"></a>
+### `CarBufferWriter#write(block)`
+
+* `block` `(Block)`: A `{ cid:CID, bytes:Uint8Array }` pair.
+
+* Returns:  `CarBufferWriter`
+
+Write a `Block` (a `{ cid:CID, bytes:Uint8Array }` pair) to the archive.
+Throws if there is not enough capacity.
+
+<a name="CarBufferWriter_close"></a>
+### `CarBufferWriter#close([options])`
+
+* `options` `(object, optional)`
+  * `options.resize` `(boolean, optional)`
+
+* Returns:  `Uint8Array`
+
+Finalize the CAR and return it as a `Uint8Array`.
+
+<a name="CarBufferWriter__blockLength__Block__"></a>
+### `CarBufferWriter.blockLength(Block)`
+
+* `block` `(Block)`
+
+* Returns:  `number`
+
+Calculates number of bytes required for storing given block in CAR. Useful in
+estimating size of an `ArrayBuffer` for the `CarBufferWriter`.
+
+<a name="CarBufferWriter__calculateHeaderLength__rootLengths__"></a>
+### `CarBufferWriter.calculateHeaderLength(rootLengths)`
+
+* `rootLengths` `(number[])`
+
+* Returns:  `number`
+
+Calculates header size given the array of byteLength for roots.
+
+<a name="CarBufferWriter__headerLength______roots______"></a>
+### `CarBufferWriter.headerLength({ roots })`
+
+* `options` `(object)`
+  * `options.roots` `(CID[])`
+
+* Returns:  `number`
+
+Calculates header size given the array of roots.
+
+<a name="CarBufferWriter__estimateHeaderLength__rootCount______rootByteLength____"></a>
+### `CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`
+
+* `rootCount` `(number)`
+* `rootByteLength` `(number, optional)`
+
+* Returns:  `number`
+
+Estimates header size given a count of the roots and the expected byte length
+of the root CIDs. The default length works for a standard CIDv1 with a
+single-byte multihash code, such as SHA2-256 (i.e. the most common CIDv1).
+
+<a name="CarBufferWriter__createWriter__buffer______options____"></a>
+### `CarBufferWriter.createWriter(buffer[, options])`
+
+* `buffer` `(ArrayBuffer)`
+* `options` `(object, optional)`
+  * `options.roots` `(CID[], optional)`
+  * `options.byteOffset` `(number, optional)`
+  * `options.byteLength` `(number, optional)`
+  * `options.headerSize` `(number, optional)`
+
+* Returns:  `CarBufferWriter`
+
+Creates synchronous CAR writer that can be used to encode blocks into a given
+buffer. Optionally you could pass `byteOffset` and `byteLength` to specify a
+range inside buffer to write into. If car file is going to have `roots` you
+need to either pass them under `options.roots` (from which header size will
+be calculated) or provide `options.headerSize` to allocate required space
+in the buffer. You may also provide known `roots` and `headerSize` to
+allocate space for the roots that may not be known ahead of time.
+
+Note: Incorrect `headerSize` may lead to copying bytes inside a buffer
+which will have a negative impact on performance.
 
 <a name="async__decoder__readHeader__reader__"></a>
 ### `async decoder.readHeader(reader)`
