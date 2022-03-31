@@ -121,6 +121,9 @@
       "writer": [
         "types/lib/writer.d.ts"
       ],
+      "buffer-writer": [
+        "types/lib/buffer-writer.d.ts"
+      ],
       "*": [
         "types/*"
       ],
