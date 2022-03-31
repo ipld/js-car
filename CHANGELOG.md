@@ -1,3 +1,10 @@
+## [4.1.0](https://github.com/ipld/js-car/compare/v4.0.0...v4.1.0) (2022-03-31)
+
+
+### Features
+
+* buffered writer ([#70](https://github.com/ipld/js-car/issues/70)) ([b1dd34b](https://github.com/ipld/js-car/commit/b1dd34ba2af5d000f81b615a0bcd8793dcbbd2d1))
+
 ## [4.0.0](https://github.com/ipld/js-car/compare/v3.2.4...v4.0.0) (2022-03-04)
 
 
