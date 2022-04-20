@@ -30,7 +30,7 @@ describe('CarIndexer fromBytes()', () => {
     const indexer = await CarIndexer.fromBytes(goCarV2Bytes)
     const roots = await indexer.getRoots()
     assert.strictEqual(roots.length, 1)
-    assert(goCarV2Roots[0].equals(roots[0]))
+    assert.ok(goCarV2Roots[0].equals(roots[0]))
     assert.strictEqual(indexer.version, 2)
 
     const indexData = []

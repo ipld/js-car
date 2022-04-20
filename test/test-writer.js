@@ -265,9 +265,9 @@ describe('CarWriter', () => {
     const pbBytes = await append(1)
     const cborBytes = await append(2)
 
-    assert(rawBytes.length > 0)
-    assert(pbBytes.length > 0)
-    assert(cborBytes.length > 0)
+    assert.ok(rawBytes.length > 0)
+    assert.ok(pbBytes.length > 0)
+    assert.ok(cborBytes.length > 0)
 
     const reassembled = concatBytes([headerBytes, rawBytes, pbBytes, cborBytes])
 

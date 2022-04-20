@@ -65,13 +65,13 @@ describe('CarReader fromBytes()', () => {
     const reader = await CarReader.fromBytes(goCarV2Bytes)
     const roots = await reader.getRoots()
     assert.strictEqual(roots.length, 1)
-    assert(goCarV2Roots[0].equals(roots[0]))
+    assert.ok(goCarV2Roots[0].equals(roots[0]))
     assert.strictEqual(reader.version, 2)
     for (const { cid } of goCarV2Index) {
       const block = await reader.get(cid)
       assert.isDefined(block)
       if (block) {
-        assert(cid.equals(block.cid))
+        assert.ok(cid.equals(block.cid))
         let content
         if (cid.code === dagPb.code) {
           content = dagPb.decode(block.bytes)
