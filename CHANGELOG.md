@@ -1,3 +1,17 @@
+### [4.1.1](https://github.com/ipld/js-car/compare/v4.1.0...v4.1.1) (2022-04-20)
+
+
+### Bug Fixes
+
+* ts not happy with bare assert() anymore ([7a61bdf](https://github.com/ipld/js-car/commit/7a61bdf87494cbf796b4ba1632b48c878fd80953))
+
+
+### Trivial Changes
+
+* **deps-dev:** bump standard from 16.0.4 to 17.0.0 ([216954d](https://github.com/ipld/js-car/commit/216954d8182c2ead0f60b94c70b128332f86e1fc))
+* **no-release:** bump actions/setup-node from 3.0.0 to 3.1.0 ([#72](https://github.com/ipld/js-car/issues/72)) ([8ac6f47](https://github.com/ipld/js-car/commit/8ac6f47ceafe1f66117b4b535861c9b2196dfe47))
+* **no-release:** bump actions/setup-node from 3.1.0 to 3.1.1 ([#73](https://github.com/ipld/js-car/issues/73)) ([2b1fd8c](https://github.com/ipld/js-car/commit/2b1fd8c4b8cad91ffbae7b3b9cc505282e62ab13))
+
 ## [4.1.0](https://github.com/ipld/js-car/compare/v4.0.0...v4.1.0) (2022-03-31)
 
 
