@@ -1,3 +1,10 @@
+### [4.1.2](https://github.com/ipld/js-car/compare/v4.1.1...v4.1.2) (2022-04-26)
+
+
+### Bug Fixes
+
+* don't return promise in async function ([6099c4b](https://github.com/ipld/js-car/commit/6099c4b921a0ce36f07c25e74310f103f9277e97))
+
 ### [4.1.1](https://github.com/ipld/js-car/compare/v4.1.0...v4.1.1) (2022-04-20)
 
 
