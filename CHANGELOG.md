@@ -1,3 +1,14 @@
+### [4.1.3](https://github.com/ipld/js-car/compare/v4.1.2...v4.1.3) (2022-05-26)
+
+
+### Trivial Changes
+
+* **deps-dev:** bump typescript from 4.6.4 to 4.7.2 ([#82](https://github.com/ipld/js-car/issues/82)) ([e6165b4](https://github.com/ipld/js-car/commit/e6165b47622333a49c0d842e4deaa3dd7ced1239))
+* **no-release:** bump actions/setup-node from 3.1.1 to 3.2.0 ([#81](https://github.com/ipld/js-car/issues/81)) ([53dfdd6](https://github.com/ipld/js-car/commit/53dfdd6ca7e7f239efc1a23307eb45a0ced89695))
+* **no-release:** bump mocha from 9.2.2 to 10.0.0 ([#79](https://github.com/ipld/js-car/issues/79)) ([7828a1f](https://github.com/ipld/js-car/commit/7828a1f5c197f04a2a53cda9b3977b17311983e6))
+* **no-release:** bump polendina from 2.0.15 to 3.0.0 ([#78](https://github.com/ipld/js-car/issues/78)) ([9fe614e](https://github.com/ipld/js-car/commit/9fe614ea8ff3b5665a52e6eb0b3a1bc0aaf60442))
+* **no-release:** bump polendina from 3.0.0 to 3.1.0 ([#80](https://github.com/ipld/js-car/issues/80)) ([6502627](https://github.com/ipld/js-car/commit/65026279340872d21f4be86e031ff897f5bc2b2f))
+
 ### [4.1.2](https://github.com/ipld/js-car/compare/v4.1.1...v4.1.2) (2022-04-26)
 
 
