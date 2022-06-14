@@ -78,7 +78,7 @@
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "ipjs": "^5.2.0",
-    "ipld-garbage": "^4.0.10",
+    "ipld-garbage": "^5.0.0",
     "jsdoc4readme": "^1.4.0",
     "mocha": "^10.0.0",
     "polendina": "~3.1.0",
