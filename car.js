@@ -3,6 +3,7 @@ import { CarIndexer } from './lib/indexer.js'
 import { CarBlockIterator, CarCIDIterator } from './lib/iterator.js'
 import { CarWriter } from './lib/writer.js'
 import { CarIndexedReader } from './lib/indexed-reader.js'
+import { CarBufferWriter } from './lib/buffer-writer.js'
 
 export {
   CarReader,
@@ -10,5 +11,6 @@ export {
   CarBlockIterator,
   CarCIDIterator,
   CarWriter,
-  CarIndexedReader
+  CarIndexedReader,
+  CarBufferWriter
 }
