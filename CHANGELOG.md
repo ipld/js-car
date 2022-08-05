@@ -1,3 +1,20 @@
+## [4.1.4](https://github.com/ipld/js-car/compare/v4.1.3...v4.1.4) (2022-08-05)
+
+
+### Bug Fixes
+
+* expose CarBufferWriter ([77bedcb](https://github.com/ipld/js-car/commit/77bedcb309fbf4249cfe4d02fdd097f43baf5612))
+* properly export CarBufferWriter from car.js ([003e7f2](https://github.com/ipld/js-car/commit/003e7f218fbb84dc2a405f180776e09d0827dde0))
+
+
+### Trivial Changes
+
+* **no-release:** bump @types/node from 17.0.45 to 18.0.0 ([#86](https://github.com/ipld/js-car/issues/86)) ([2195e30](https://github.com/ipld/js-car/commit/2195e30347cda14a004f4cfd3bddb7bdcc7a0f03))
+* **no-release:** bump actions/setup-node from 3.2.0 to 3.3.0 ([#83](https://github.com/ipld/js-car/issues/83)) ([5ebca03](https://github.com/ipld/js-car/commit/5ebca03c0116b4d2b1cb914b1589b80134f630cf))
+* **no-release:** bump actions/setup-node from 3.3.0 to 3.4.0 ([#88](https://github.com/ipld/js-car/issues/88)) ([784f9a8](https://github.com/ipld/js-car/commit/784f9a832f7baf45dd0519f8f17b6c394ead627d))
+* **no-release:** bump actions/setup-node from 3.4.0 to 3.4.1 ([#90](https://github.com/ipld/js-car/issues/90)) ([4dcf34f](https://github.com/ipld/js-car/commit/4dcf34f96920a402b3fb6307817d968fed0644da))
+* **no-release:** bump ipld-garbage from 4.0.10 to 5.0.0 ([#85](https://github.com/ipld/js-car/issues/85)) ([33697ad](https://github.com/ipld/js-car/commit/33697ad2c1c724ea8b9b3b5d6bafe9a3cf2cb603))
+
 ### [4.1.3](https://github.com/ipld/js-car/compare/v4.1.2...v4.1.3) (2022-05-26)
 
 
