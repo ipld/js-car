@@ -1,3 +1,15 @@
+## [4.1.5](https://github.com/ipld/js-car/compare/v4.1.4...v4.1.5) (2022-08-29)
+
+
+### Bug Fixes
+
+* address TS2463 by layering optional param destructuring ([af3a16c](https://github.com/ipld/js-car/commit/af3a16c010b44c39d3589322c5537c8ee34560fd))
+
+
+### Trivial Changes
+
+* **deps-dev:** bump typescript from 4.7.4 to 4.8.2 ([8897781](https://github.com/ipld/js-car/commit/88977814cfa4ff2c46575b5abf9c1204d00c4003))
+
 ## [4.1.4](https://github.com/ipld/js-car/compare/v4.1.3...v4.1.4) (2022-08-05)
 
 
