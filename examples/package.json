@@ -21,7 +21,7 @@
     "@ipld/dag-pb": "^2.0.2",
     "@multiformats/blake2": "^1.0.1",
     "@types/varint": "^6.0.0",
-    "multiformats": "^9.0.4",
+    "multiformats": "^10.0.0",
     "varint": "^6.0.0"
   }
 }
