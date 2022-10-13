@@ -1,3 +1,12 @@
+## [4.1.6](https://github.com/ipld/js-car/compare/v4.1.5...v4.1.6) (2022-10-13)
+
+
+### Trivial Changes
+
+* **deps:** bump multiformats from 9.9.0 to 10.0.0 in /examples ([#96](https://github.com/ipld/js-car/issues/96)) ([4ccd8f7](https://github.com/ipld/js-car/commit/4ccd8f76dafcecc110af07c57a2f12b9ca9b472b))
+* **no-release:** bump @types/mocha from 9.1.1 to 10.0.0 ([#95](https://github.com/ipld/js-car/issues/95)) ([86bef98](https://github.com/ipld/js-car/commit/86bef989a81c811218f1815fa0c0bd1a6820521b))
+* **no-release:** bump actions/setup-node from 3.4.1 to 3.5.0 ([#94](https://github.com/ipld/js-car/issues/94)) ([9cc8011](https://github.com/ipld/js-car/commit/9cc8011d0d008f389ed2f6ddf485c2f9db8c1655))
+
 ## [4.1.5](https://github.com/ipld/js-car/compare/v4.1.4...v4.1.5) (2022-08-29)
 
 
