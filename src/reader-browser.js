@@ -2,8 +2,8 @@ import { asyncIterableReader, bytesReader, createDecoder } from './decoder.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').CarReader} CarReaderIface
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').CarReader} CarReaderIface
  * @typedef {import('./coding').BytesReader} BytesReader
  * @typedef {import('./coding').CarHeader} CarHeader
  * @typedef {import('./coding').CarV2Header} CarV2Header
@@ -55,7 +55,7 @@ export class CarReader {
    * Get the list of roots defined by the CAR referenced by this reader. May be
    * zero or more `CID`s.
    *
-   * @method
+   * @function
    * @memberof CarReader
    * @instance
    * @async
@@ -71,7 +71,7 @@ export class CarReader {
    * Check whether a given `CID` exists within the CAR referenced by this
    * reader.
    *
-   * @method
+   * @function
    * @memberof CarReader
    * @instance
    * @async
@@ -90,7 +90,7 @@ export class CarReader {
    * the provided `CID` doesn't exist within the CAR, `undefined` will be
    * returned.
    *
-   * @method
+   * @function
    * @memberof CarReader
    * @instance
    * @async
@@ -109,7 +109,7 @@ export class CarReader {
    * of the `Block`s (`{ cid:CID, bytes:Uint8Array }` pairs) contained within
    * the CAR referenced by this reader.
    *
-   * @method
+   * @function
    * @memberof CarReader
    * @instance
    * @async
@@ -126,7 +126,7 @@ export class CarReader {
    * Returns a `CIDIterator` (`AsyncIterable<CID>`) that iterates over all of
    * the `CID`s contained within the CAR referenced by this reader.
    *
-   * @method
+   * @function
    * @memberof CarReader
    * @instance
    * @async

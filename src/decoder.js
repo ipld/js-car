@@ -5,9 +5,9 @@ import { decode as decodeDagCbor } from '@ipld/dag-cbor'
 import { CarHeader as headerValidator } from './header-validator.js'
 
 /**
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').BlockHeader} BlockHeader
- * @typedef {import('../api').BlockIndex} BlockIndex
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').BlockHeader} BlockHeader
+ * @typedef {import('./api').BlockIndex} BlockIndex
  * @typedef {import('./coding').BytesReader} BytesReader
  * @typedef {import('./coding').CarHeader} CarHeader
  * @typedef {import('./coding').CarV2Header} CarV2Header
@@ -183,7 +183,7 @@ export async function readBlockHead (reader) {
 
 /**
  * @param {BytesReader} reader
- * @return {Promise<Block>}
+ * @returns {Promise<Block>}
  */
 async function readBlock (reader) {
   const { cid, blockLength } = await readBlockHead(reader)

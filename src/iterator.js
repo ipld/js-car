@@ -6,8 +6,8 @@ import {
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').RootsReader} RootsReader
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').RootsReader} RootsReader
  * @typedef {import('./coding').BytesReader} BytesReader
  */
 
@@ -77,7 +77,7 @@ export class CarBlockIterator extends CarIteratorBase {
    * Get the list of roots defined by the CAR referenced by this iterator. May be
    * zero or more `CID`s.
    *
-   * @method getRoots
+   * @function getRoots
    * @memberof CarBlockIterator
    * @instance
    * @async
@@ -172,7 +172,7 @@ export class CarCIDIterator extends CarIteratorBase {
    * Get the list of roots defined by the CAR referenced by this iterator. May be
    * zero or more `CID`s.
    *
-   * @method getRoots
+   * @function getRoots
    * @memberof CarCIDIterator
    * @instance
    * @async

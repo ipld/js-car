@@ -9,7 +9,7 @@ const fswrite = promisify(fs.write)
 
 /**
  * @typedef {import('multiformats/cid').CID} CID
- * @typedef {import('../api').BlockWriter} BlockWriter
+ * @typedef {import('./api').BlockWriter} BlockWriter
  */
 
 /**
@@ -35,10 +35,10 @@ export class CarWriter extends BrowserCarWriter {
    * @async
    * @static
    * @memberof CarWriter
-   * @param {fs.promises.FileHandle | number} fd A file descriptor from the
+   * @param {fs.promises.FileHandle | number} fd - A file descriptor from the
    * Node.js `fs` module. Either an integer, from `fs.open()` or a `FileHandle`
    * from `fs.promises.open()`.
-   * @param {CID[]} roots A new list of roots to replace the existing list in
+   * @param {CID[]} roots - A new list of roots to replace the existing list in
    * the CAR header. The new header must take up the same number of bytes as the
    * existing header, so the roots should collectively be the same byte length
    * as the existing roots.

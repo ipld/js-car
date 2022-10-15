@@ -7,10 +7,10 @@ import fs from 'fs'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
 import { bytes } from 'multiformats'
-import { CarReader } from '@ipld/car'
+import { CarReader } from '../src/index.js'
 import { assert, makeData, goCarIndex } from './common.js'
 
-/** @typedef {import('../api').Block} Block */
+/** @typedef {import('../src/api').Block} Block */
 
 const fsopen = promisify(fs.open)
 const fsclose = promisify(fs.close)

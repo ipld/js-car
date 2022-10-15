@@ -6,9 +6,9 @@ import { CarReader as NodeCarReader } from './reader.js'
 
 /**
  * @typedef {import('fs').promises.FileHandle} FileHandle
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').BlockIndex} BlockIndex
- * @typedef {import('../api').CarReader} CarReaderIface
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').BlockIndex} BlockIndex
+ * @typedef {import('./api').CarReader} CarReaderIface
  * @typedef {import('./reader-browser').CarReader} CarReader
  * @typedef {{ blockLength:number, blockOffset:number }} RawLocation
  */
@@ -68,7 +68,7 @@ export class CarIndexedReader {
   /**
    * See {@link CarReader#getRoots}
    *
-   * @method
+   * @function
    * @memberof CarIndexedReader
    * @instance
    * @async
@@ -83,7 +83,7 @@ export class CarIndexedReader {
   /**
    * See {@link CarReader#has}
    *
-   * @method
+   * @function
    * @memberof CarIndexedReader
    * @instance
    * @async
@@ -99,7 +99,7 @@ export class CarIndexedReader {
   /**
    * See {@link CarReader#get}
    *
-   * @method
+   * @function
    * @memberof CarIndexedReader
    * @instance
    * @async
@@ -129,7 +129,7 @@ export class CarIndexedReader {
   /**
    * See {@link CarReader#blocks}
    *
-   * @method
+   * @function
    * @memberof CarIndexedReader
    * @instance
    * @async
@@ -150,7 +150,7 @@ export class CarIndexedReader {
   /**
    * See {@link CarReader#cids}
    *
-   * @method
+   * @function
    * @memberof CarIndexedReader
    * @instance
    * @async
@@ -167,7 +167,7 @@ export class CarIndexedReader {
    * Close the underlying file descriptor maintained by this `CarIndexedReader`.
    * This must be called for proper resource clean-up to occur.
    *
-   * @method
+   * @function
    * @memberof CarIndexedReader
    * @instance
    * @async

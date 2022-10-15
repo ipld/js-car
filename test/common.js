@@ -3,12 +3,10 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
-
-import chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
+import { assert } from 'aegir/chai'
 
 /**
- * @typedef {import('../api').Block} Block
+ * @typedef {import('../src/api').Block} Block
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
@@ -27,9 +25,6 @@ class TestBlock {
     this.object = object
   }
 }
-
-chai.use(chaiAsPromised)
-const { assert } = chai
 
 /** @type {TestBlock[]} */
 let rawBlocks

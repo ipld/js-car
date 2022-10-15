@@ -3,7 +3,7 @@ import { encode as dagCborEncode } from '@ipld/dag-cbor'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('../api').Block} Block
+ * @typedef {import('./api').Block} Block
  * @typedef {import('./coding').CarEncoder} CarEncoder
  * @typedef {import('./coding').IteratorChannel_Writer<Uint8Array>} IteratorChannel_Writer
  */

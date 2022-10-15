@@ -3,9 +3,9 @@ import { promisify } from 'util'
 import { CarReader as BrowserCarReader } from './reader-browser.js'
 
 /**
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').BlockIndex} BlockIndex
- * @typedef {import('../api').CarReader} CarReaderIface
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').BlockIndex} BlockIndex
+ * @typedef {import('./api').CarReader} CarReaderIface
  */
 
 const fsread = promisify(fs.read)
@@ -27,10 +27,10 @@ export class CarReader extends BrowserCarReader {
    * @async
    * @static
    * @memberof CarReader
-   * @param {fs.promises.FileHandle | number} fd A file descriptor from the
+   * @param {fs.promises.FileHandle | number} fd - A file descriptor from the
    * Node.js `fs` module. Either an integer, from `fs.open()` or a `FileHandle`
    * from `fs.promises.open()`.
-   * @param {BlockIndex} blockIndex An index pointing to the location of the
+   * @param {BlockIndex} blockIndex - An index pointing to the location of the
    * Block required. This `BlockIndex` should take the form:
    * `{cid:CID, blockLength:number, blockOffset:number}`.
    * @returns {Promise<Block>} A `{ cid:CID, bytes:Uint8Array }` pair.

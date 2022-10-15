@@ -6,9 +6,9 @@ import {
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').RootsReader} RootsReader
- * @typedef {import('../api').BlockIndex} BlockIndex
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').RootsReader} RootsReader
+ * @typedef {import('./api').BlockIndex} BlockIndex
  * @typedef {import('./coding').BytesReader} BytesReader
  */
 
@@ -62,7 +62,7 @@ export class CarIndexer {
    * Get the list of roots defined by the CAR referenced by this indexer. May be
    * zero or more `CID`s.
    *
-   * @method
+   * @function
    * @memberof CarIndexer
    * @instance
    * @async

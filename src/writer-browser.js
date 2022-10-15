@@ -4,9 +4,9 @@ import { create as iteratorChannel } from './iterator-channel.js'
 import { bytesReader, readHeader } from './decoder.js'
 
 /**
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').BlockWriter} BlockWriter
- * @typedef {import('../api').WriterChannel} WriterChannel
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').BlockWriter} BlockWriter
+ * @typedef {import('./api').WriterChannel} WriterChannel
  * @typedef {import('./coding').CarEncoder} CarEncoder
  * @typedef {import('./coding').IteratorChannel<Uint8Array>} IteratorChannel
  */
@@ -62,11 +62,11 @@ export class CarWriter {
   /**
    * Write a `Block` (a `{ cid:CID, bytes:Uint8Array }` pair) to the archive.
    *
-   * @method
+   * @function
    * @memberof CarWriter
    * @instance
    * @async
-   * @param {Block} block A `{ cid:CID, bytes:Uint8Array }` pair.
+   * @param {Block} block - A `{ cid:CID, bytes:Uint8Array }` pair.
    * @returns {Promise<void>} The returned promise will only resolve once the
    * bytes this block generates are written to the `out` iterable.
    */
@@ -91,7 +91,7 @@ export class CarWriter {
    * Finalise the CAR archive and signal that the `out` iterable should end once
    * any remaining bytes are written.
    *
-   * @method
+   * @function
    * @memberof CarWriter
    * @instance
    * @async
@@ -166,7 +166,7 @@ export class CarWriter {
    * @static
    * @memberof CarWriter
    * @param {Uint8Array} bytes
-   * @param {CID[]} roots A new list of roots to replace the existing list in
+   * @param {CID[]} roots - A new list of roots to replace the existing list in
    * the CAR header. The new header must take up the same number of bytes as the
    * existing header, so the roots should collectively be the same byte length
    * as the existing roots.
