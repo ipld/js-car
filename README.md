@@ -13,16 +13,16 @@ $ npm i @ipld/car
 
 See also:
 
-- Original [Go implementation](https://github.com/ipfs/go-car)
-- [CAR specification](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md)
-- [IPLD](https://ipld.io)
+ * Original [Go implementation](https://github.com/ipfs/go-car)
+ * [CAR specification](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md)
+ * [IPLD](https://ipld.io)
 
 ## Contents
 
-- [Example](#example)
-- [Usage](#usage)
-- [API](#api)
-- [License](#license)
+ * [Example](#example)
+ * [Usage](#usage)
+ * [API](#api)
+ * [License](#license)
 
 ## Example
 
@@ -74,7 +74,9 @@ example().catch((err) => {
 
 Will output:
 
-    Retrieved [random meaningless bytes] from example.car with CID [bafkreihwkf6mtnjobdqrkiksr7qhp6tiiqywux64aylunbvmfhzeql2coa]
+```
+Retrieved [random meaningless bytes] from example.car with CID [bafkreihwkf6mtnjobdqrkiksr7qhp6tiiqywux64aylunbvmfhzeql2coa]
+```
 
 See the [examples](./examples) directory for more.
 
@@ -950,9 +952,9 @@ to `byteLimit` bytes. It _does not_ update `pos` of the original
 
 Licensed under either of
 
-- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
-- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+ * Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+ * MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
 
-## Contribute
+### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
