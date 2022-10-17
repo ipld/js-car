@@ -1,76 +1,9 @@
-# @ipld/car <!-- omit in toc -->
+# @ipld/car
 
 [![codecov](https://img.shields.io/codecov/c/github/ipld/js-car.svg?style=flat-square)](https://codecov.io/gh/ipld/js-car)
 [![CI](https://img.shields.io/github/workflow/status/ipld/js-car/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipld/js-car/actions/workflows/js-test-and-release.yml)
 
 > Content Addressable aRchive format reader and writer
-
-## Table of contents <!-- omit in toc -->
-
-- [Install](#install)
-- [Contents](#contents)
-- [Example](#example)
-- [Usage](#usage)
-  - [`CarReader`](#carreader)
-  - [`CarIndexedReader`](#carindexedreader)
-  - [`CarBlockIterator` and `CarCIDIterator`](#carblockiterator-and-carciditerator)
-  - [`CarIndexer`](#carindexer)
-  - [`CarWriter`](#carwriter)
-- [API](#api)
-  - [Contents](#contents-1)
-  - [`class CarReader`](#class-carreader)
-  - [`async CarReader#getRoots()`](#async-carreadergetroots)
-  - [`async CarReader#has(key)`](#async-carreaderhaskey)
-  - [`async CarReader#get(key)`](#async-carreadergetkey)
-  - [`async * CarReader#blocks()`](#async--carreaderblocks)
-  - [`async * CarReader#cids()`](#async--carreadercids)
-  - [`async CarReader.fromBytes(bytes)`](#async-carreaderfrombytesbytes)
-  - [`async CarReader.fromIterable(asyncIterable)`](#async-carreaderfromiterableasynciterable)
-  - [`async CarReader.readRaw(fd, blockIndex)`](#async-carreaderreadrawfd-blockindex)
-  - [`class CarIndexedReader`](#class-carindexedreader)
-  - [`async CarIndexedReader#getRoots()`](#async-carindexedreadergetroots)
-  - [`async CarIndexedReader#has(key)`](#async-carindexedreaderhaskey)
-  - [`async CarIndexedReader#get(key)`](#async-carindexedreadergetkey)
-  - [`async * CarIndexedReader#blocks()`](#async--carindexedreaderblocks)
-  - [`async * CarIndexedReader#cids()`](#async--carindexedreadercids)
-  - [`async CarIndexedReader#close()`](#async-carindexedreaderclose)
-  - [`async CarIndexedReader.fromFile(path)`](#async-carindexedreaderfromfilepath)
-  - [`class CarBlockIterator`](#class-carblockiterator)
-  - [`async CarBlockIterator#getRoots()`](#async-carblockiteratorgetroots)
-  - [`async CarBlockIterator.fromBytes(bytes)`](#async-carblockiteratorfrombytesbytes)
-  - [`async CarBlockIterator.fromIterable(asyncIterable)`](#async-carblockiteratorfromiterableasynciterable)
-  - [`class CarCIDIterator`](#class-carciditerator)
-  - [`async CarCIDIterator#getRoots()`](#async-carciditeratorgetroots)
-  - [`async CarCIDIterator.fromBytes(bytes)`](#async-carciditeratorfrombytesbytes)
-  - [`async CarCIDIterator.fromIterable(asyncIterable)`](#async-carciditeratorfromiterableasynciterable)
-  - [`class CarIndexer`](#class-carindexer)
-  - [`async CarIndexer#getRoots()`](#async-carindexergetroots)
-  - [`async CarIndexer.fromBytes(bytes)`](#async-carindexerfrombytesbytes)
-  - [`async CarIndexer.fromIterable(asyncIterable)`](#async-carindexerfromiterableasynciterable)
-  - [`class CarWriter`](#class-carwriter)
-  - [`async CarWriter#put(block)`](#async-carwriterputblock)
-  - [`async CarWriter#close()`](#async-carwriterclose)
-  - [`async CarWriter.create(roots)`](#async-carwritercreateroots)
-  - [`async CarWriter.createAppender()`](#async-carwritercreateappender)
-  - [`async CarWriter.updateRootsInBytes(bytes, roots)`](#async-carwriterupdaterootsinbytesbytes-roots)
-  - [`async CarWriter.updateRootsInFile(fd, roots)`](#async-carwriterupdaterootsinfilefd-roots)
-  - [`class CarBufferWriter`](#class-carbufferwriter)
-  - [`CarBufferWriter#addRoot(root, options)`](#carbufferwriteraddrootroot-options)
-  - [`CarBufferWriter#write(block)`](#carbufferwriterwriteblock)
-  - [`CarBufferWriter#close([options])`](#carbufferwritercloseoptions)
-  - [`CarBufferWriter.blockLength(Block)`](#carbufferwriterblocklengthblock)
-  - [`CarBufferWriter.calculateHeaderLength(rootLengths)`](#carbufferwritercalculateheaderlengthrootlengths)
-  - [`CarBufferWriter.headerLength({ roots })`](#carbufferwriterheaderlength-roots-)
-  - [`CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`](#carbufferwriterestimateheaderlengthrootcount-rootbytelength)
-  - [`CarBufferWriter.createWriter(buffer[, options])`](#carbufferwritercreatewriterbuffer-options)
-  - [`async decoder.readHeader(reader)`](#async-decoderreadheaderreader)
-  - [`async decoder.readBlockHead(reader)`](#async-decoderreadblockheadreader)
-  - [`decoder.createDecoder(reader)`](#decodercreatedecoderreader)
-  - [`decoder.bytesReader(bytes)`](#decoderbytesreaderbytes)
-  - [`decoder.asyncIterableReader(asyncIterable)`](#decoderasynciterablereaderasynciterable)
-  - [`decoder.limitReader(reader, byteLimit)`](#decoderlimitreaderreader-bytelimit)
-- [License](#license)
-- [Contribute](#contribute)
 
 ## Install
 
@@ -277,65 +210,64 @@ be directly fed to a
 
 ### Contents
 
-- [`class CarReader`](#CarReader)
-- [`async CarReader#getRoots()`](#CarReader_getRoots)
-- [`async CarReader#has(key)`](#CarReader_has)
-- [`async CarReader#get(key)`](#CarReader_get)
-- [`async * CarReader#blocks()`](#CarReader_blocks)
-- [`async * CarReader#cids()`](#CarReader_cids)
-- [`async CarReader.fromBytes(bytes)`](#CarReader__fromBytes)
-- [`async CarReader.fromIterable(asyncIterable)`](#CarReader__fromIterable)
-- [`async CarReader.readRaw(fd, blockIndex)`](#CarReader__readRaw)
-- [`class CarIndexedReader`](#CarIndexedReader)
-- [`async CarIndexedReader#getRoots()`](#CarIndexedReader_getRoots)
-- [`async CarIndexedReader#has(key)`](#CarIndexedReader_has)
-- [`async CarIndexedReader#get(key)`](#CarIndexedReader_get)
-- [`async * CarIndexedReader#blocks()`](#CarIndexedReader_blocks)
-- [`async * CarIndexedReader#cids()`](#CarIndexedReader_cids)
-- [`async CarIndexedReader#close()`](#CarIndexedReader_close)
-- [`async CarIndexedReader.fromFile(path)`](#CarIndexedReader__fromFile)
-- [`class CarBlockIterator`](#CarBlockIterator)
-- [`async CarBlockIterator#getRoots()`](#CarBlockIterator_getRoots)
-- [`async CarBlockIterator.fromBytes(bytes)`](#CarBlockIterator__fromBytes)
-- [`async CarBlockIterator.fromIterable(asyncIterable)`](#CarBlockIterator__fromIterable)
-- [`class CarCIDIterator`](#CarCIDIterator)
-- [`async CarCIDIterator#getRoots()`](#CarCIDIterator_getRoots)
-- [`async CarCIDIterator.fromBytes(bytes)`](#CarCIDIterator__fromBytes)
-- [`async CarCIDIterator.fromIterable(asyncIterable)`](#CarCIDIterator__fromIterable)
-- [`class CarIndexer`](#CarIndexer)
-- [`async CarIndexer#getRoots()`](#CarIndexer_getRoots)
-- [`async CarIndexer.fromBytes(bytes)`](#CarIndexer__fromBytes)
-- [`async CarIndexer.fromIterable(asyncIterable)`](#CarIndexer__fromIterable)
-- [`class CarWriter`](#CarWriter)
-- [`async CarWriter#put(block)`](#CarWriter_put)
-- [`async CarWriter#close()`](#CarWriter_close)
-- [`async CarWriter.create(roots)`](#CarWriter__create)
-- [`async CarWriter.createAppender()`](#CarWriter__createAppender)
-- [`async CarWriter.updateRootsInBytes(bytes, roots)`](#CarWriter__updateRootsInBytes)
-- [`async CarWriter.updateRootsInFile(fd, roots)`](#CarWriter__updateRootsInFile)
-- [`class CarBufferWriter`](#CarBufferWriter)
-- [`CarBufferWriter#addRoot(root, options)`](#CarBufferWriter_addRoot)
-- [`CarBufferWriter#write(block)`](#CarBufferWriter_write)
-- [`CarBufferWriter#close([options])`](#CarBufferWriter_close)
-- [`CarBufferWriter.blockLength(Block)`](#CarBufferWriter__blockLength__Block__)
-- [`CarBufferWriter.calculateHeaderLength(rootLengths)`](#CarBufferWriter__calculateHeaderLength__rootLengths__)
-- [`CarBufferWriter.headerLength({ roots })`](#CarBufferWriter__headerLength______roots______)
-- [`CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`](#CarBufferWriter__estimateHeaderLength__rootCount______rootByteLength____)
-- [`CarBufferWriter.createWriter(buffer[, options])`](#CarBufferWriter__createWriter__buffer______options____)
-- [`async decoder.readHeader(reader)`](#async__decoder__readHeader__reader__)
-- [`async decoder.readBlockHead(reader)`](#async__decoder__readBlockHead__reader__)
-- [`decoder.createDecoder(reader)`](#decoder__createDecoder__reader__)
-- [`decoder.bytesReader(bytes)`](#decoder__bytesReader__bytes__)
-- [`decoder.asyncIterableReader(asyncIterable)`](#decoder__asyncIterableReader__asyncIterable__)
-- [`decoder.limitReader(reader, byteLimit)`](#decoder__limitReader__reader____byteLimit__)
+ * [`class CarReader`](#CarReader)
+ * [`async CarReader#getRoots()`](#CarReader_getRoots)
+ * [`async CarReader#has(key)`](#CarReader_has)
+ * [`async CarReader#get(key)`](#CarReader_get)
+ * [`async * CarReader#blocks()`](#CarReader_blocks)
+ * [`async * CarReader#cids()`](#CarReader_cids)
+ * [`async CarReader.fromBytes(bytes)`](#CarReader__fromBytes)
+ * [`async CarReader.fromIterable(asyncIterable)`](#CarReader__fromIterable)
+ * [`async CarReader.readRaw(fd, blockIndex)`](#CarReader__readRaw)
+ * [`class CarIndexedReader`](#CarIndexedReader)
+ * [`async CarIndexedReader#getRoots()`](#CarIndexedReader_getRoots)
+ * [`async CarIndexedReader#has(key)`](#CarIndexedReader_has)
+ * [`async CarIndexedReader#get(key)`](#CarIndexedReader_get)
+ * [`async * CarIndexedReader#blocks()`](#CarIndexedReader_blocks)
+ * [`async * CarIndexedReader#cids()`](#CarIndexedReader_cids)
+ * [`async CarIndexedReader#close()`](#CarIndexedReader_close)
+ * [`async CarIndexedReader.fromFile(path)`](#CarIndexedReader__fromFile)
+ * [`class CarBlockIterator`](#CarBlockIterator)
+ * [`async CarBlockIterator#getRoots()`](#CarBlockIterator_getRoots)
+ * [`async CarBlockIterator.fromBytes(bytes)`](#CarBlockIterator__fromBytes)
+ * [`async CarBlockIterator.fromIterable(asyncIterable)`](#CarBlockIterator__fromIterable)
+ * [`class CarCIDIterator`](#CarCIDIterator)
+ * [`async CarCIDIterator#getRoots()`](#CarCIDIterator_getRoots)
+ * [`async CarCIDIterator.fromBytes(bytes)`](#CarCIDIterator__fromBytes)
+ * [`async CarCIDIterator.fromIterable(asyncIterable)`](#CarCIDIterator__fromIterable)
+ * [`class CarIndexer`](#CarIndexer)
+ * [`async CarIndexer#getRoots()`](#CarIndexer_getRoots)
+ * [`async CarIndexer.fromBytes(bytes)`](#CarIndexer__fromBytes)
+ * [`async CarIndexer.fromIterable(asyncIterable)`](#CarIndexer__fromIterable)
+ * [`class CarWriter`](#CarWriter)
+ * [`async CarWriter#put(block)`](#CarWriter_put)
+ * [`async CarWriter#close()`](#CarWriter_close)
+ * [`async CarWriter.create(roots)`](#CarWriter__create)
+ * [`async CarWriter.createAppender()`](#CarWriter__createAppender)
+ * [`async CarWriter.updateRootsInBytes(bytes, roots)`](#CarWriter__updateRootsInBytes)
+ * [`async CarWriter.updateRootsInFile(fd, roots)`](#CarWriter__updateRootsInFile)
+ * [`class CarBufferWriter`](#CarBufferWriter)
+ * [`CarBufferWriter#addRoot(root, options)`](#CarBufferWriter_addRoot)
+ * [`CarBufferWriter#write(block)`](#CarBufferWriter_write)
+ * [`CarBufferWriter#close([options])`](#CarBufferWriter_close)
+ * [`CarBufferWriter.blockLength(Block)`](#CarBufferWriter__blockLength__Block__)
+ * [`CarBufferWriter.calculateHeaderLength(rootLengths)`](#CarBufferWriter__calculateHeaderLength__rootLengths__)
+ * [`CarBufferWriter.headerLength({ roots })`](#CarBufferWriter__headerLength______roots______)
+ * [`CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`](#CarBufferWriter__estimateHeaderLength__rootCount______rootByteLength____)
+ * [`CarBufferWriter.createWriter(buffer[, options])`](#CarBufferWriter__createWriter__buffer______options____)
+ * [`async decoder.readHeader(reader)`](#async__decoder__readHeader__reader__)
+ * [`async decoder.readBlockHead(reader)`](#async__decoder__readBlockHead__reader__)
+ * [`decoder.createDecoder(reader)`](#decoder__createDecoder__reader__)
+ * [`decoder.bytesReader(bytes)`](#decoder__bytesReader__bytes__)
+ * [`decoder.asyncIterableReader(asyncIterable)`](#decoder__asyncIterableReader__asyncIterable__)
+ * [`decoder.limitReader(reader, byteLimit)`](#decoder__limitReader__reader____byteLimit__)
 
 <a name="CarReader"></a>
-
 ### `class CarReader`
 
 Properties:
 
-- `version` `(number)`: The version number of the CAR referenced by this
+* `version` `(number)`: The version number of the CAR referenced by this
   reader (should be `1` or `2`).
 
 Provides blockstore-like access to a CAR.
@@ -353,32 +285,29 @@ The former will likely result in smaller bundle sizes where this is
 important.
 
 <a name="CarReader_getRoots"></a>
-
 ### `async CarReader#getRoots()`
 
-- Returns:  `Promise<CID[]>`
+* Returns:  `Promise<CID[]>`
 
 Get the list of roots defined by the CAR referenced by this reader. May be
 zero or more `CID`s.
 
 <a name="CarReader_has"></a>
-
 ### `async CarReader#has(key)`
 
-- `key` `(CID)`
+* `key` `(CID)`
 
-- Returns:  `Promise<boolean>`
+* Returns:  `Promise<boolean>`
 
 Check whether a given `CID` exists within the CAR referenced by this
 reader.
 
 <a name="CarReader_get"></a>
-
 ### `async CarReader#get(key)`
 
-- `key` `(CID)`
+* `key` `(CID)`
 
-- Returns:  `Promise<(Block|undefined)>`
+* Returns:  `Promise<(Block|undefined)>`
 
 Fetch a `Block` (a `{ cid:CID, bytes:Uint8Array }` pair) from the CAR
 referenced by this reader matching the provided `CID`. In the case where
@@ -386,43 +315,39 @@ the provided `CID` doesn't exist within the CAR, `undefined` will be
 returned.
 
 <a name="CarReader_blocks"></a>
-
 ### `async * CarReader#blocks()`
 
-- Returns:  `AsyncGenerator<Block>`
+* Returns:  `AsyncGenerator<Block>`
 
 Returns a `BlockIterator` (`AsyncIterable<Block>`) that iterates over all
 of the `Block`s (`{ cid:CID, bytes:Uint8Array }` pairs) contained within
 the CAR referenced by this reader.
 
 <a name="CarReader_cids"></a>
-
 ### `async * CarReader#cids()`
 
-- Returns:  `AsyncGenerator<CID>`
+* Returns:  `AsyncGenerator<CID>`
 
 Returns a `CIDIterator` (`AsyncIterable<CID>`) that iterates over all of
 the `CID`s contained within the CAR referenced by this reader.
 
 <a name="CarReader__fromBytes"></a>
-
 ### `async CarReader.fromBytes(bytes)`
 
-- `bytes` `(Uint8Array)`
+* `bytes` `(Uint8Array)`
 
-- Returns:  `Promise<CarReader>`: blip blop
+* Returns:  `Promise<CarReader>`: blip blop
 
 Instantiate a [`CarReader`](#CarReader) from a `Uint8Array` blob. This performs a
 decode fully in memory and maintains the decoded state in memory for full
 access to the data via the `CarReader` API.
 
 <a name="CarReader__fromIterable"></a>
-
 ### `async CarReader.fromIterable(asyncIterable)`
 
-- `asyncIterable` `(AsyncIterable<Uint8Array>)`
+* `asyncIterable` `(AsyncIterable<Uint8Array>)`
 
-- Returns:  `Promise<CarReader>`
+* Returns:  `Promise<CarReader>`
 
 Instantiate a [`CarReader`](#CarReader) from a `AsyncIterable<Uint8Array>`, such as
 a [modern Node.js stream](https://nodejs.org/api/stream.html#stream_streams_compatibility_with_async_generators_and_async_iterators).
@@ -434,18 +359,16 @@ where memory is a concern or the archive is potentially larger than the
 amount of memory that the runtime can handle.
 
 <a name="CarReader__readRaw"></a>
-
 ### `async CarReader.readRaw(fd, blockIndex)`
 
-- `fd` `(fs.promises.FileHandle|number)`: A file descriptor from the
+* `fd` `(fs.promises.FileHandle|number)`: A file descriptor from the
   Node.js `fs` module. Either an integer, from `fs.open()` or a `FileHandle`
   from `fs.promises.open()`.
-
-- `blockIndex` `(BlockIndex)`: An index pointing to the location of the
+* `blockIndex` `(BlockIndex)`: An index pointing to the location of the
   Block required. This `BlockIndex` should take the form:
   `{cid:CID, blockLength:number, blockOffset:number}`.
 
-- Returns:  `Promise<Block>`: A `{ cid:CID, bytes:Uint8Array }` pair.
+* Returns:  `Promise<Block>`: A `{ cid:CID, bytes:Uint8Array }` pair.
 
 Reads a block directly from a file descriptor for an open CAR file. This
 function is **only available in Node.js** and not a browser environment.
@@ -456,12 +379,11 @@ the `BlockIndex` objects that are required by this function.
 The user is responsible for opening and closing the file used in this call.
 
 <a name="CarIndexedReader"></a>
-
 ### `class CarIndexedReader`
 
 Properties:
 
-- `version` `(number)`: The version number of the CAR referenced by this
+* `version` `(number)`: The version number of the CAR referenced by this
   reader (should be `1`).
 
 A form of [`CarReader`](#CarReader) that pre-indexes a CAR archive from a file and
@@ -478,7 +400,7 @@ to allow this index to fit. (e.g. by running with
 
 As an `CarIndexedReader` instance maintains an open file descriptor for its
 CAR file, an additional [`CarReader#close`](#CarReader_close) method is attached. This
-*must* be called to have full clean-up of resources after use.
+_must_ be called to have full clean-up of resources after use.
 
 Load this class with either
 `import { CarIndexedReader } from '@ipld/car/indexed-reader'`
@@ -488,65 +410,58 @@ Load this class with either
 result in smaller bundle sizes where this is important.
 
 <a name="CarIndexedReader_getRoots"></a>
-
 ### `async CarIndexedReader#getRoots()`
 
-- Returns:  `Promise<CID[]>`
+* Returns:  `Promise<CID[]>`
 
 See [`CarReader#getRoots`](#CarReader_getRoots)
 
 <a name="CarIndexedReader_has"></a>
-
 ### `async CarIndexedReader#has(key)`
 
-- `key` `(CID)`
+* `key` `(CID)`
 
-- Returns:  `Promise<boolean>`
+* Returns:  `Promise<boolean>`
 
 See [`CarReader#has`](#CarReader_has)
 
 <a name="CarIndexedReader_get"></a>
-
 ### `async CarIndexedReader#get(key)`
 
-- `key` `(CID)`
+* `key` `(CID)`
 
-- Returns:  `Promise<(Block|undefined)>`
+* Returns:  `Promise<(Block|undefined)>`
 
 See [`CarReader#get`](#CarReader_get)
 
 <a name="CarIndexedReader_blocks"></a>
-
 ### `async * CarIndexedReader#blocks()`
 
-- Returns:  `AsyncGenerator<Block>`
+* Returns:  `AsyncGenerator<Block>`
 
 See [`CarReader#blocks`](#CarReader_blocks)
 
 <a name="CarIndexedReader_cids"></a>
-
 ### `async * CarIndexedReader#cids()`
 
-- Returns:  `AsyncGenerator<CID>`
+* Returns:  `AsyncGenerator<CID>`
 
 See [`CarReader#cids`](#CarReader_cids)
 
 <a name="CarIndexedReader_close"></a>
-
 ### `async CarIndexedReader#close()`
 
-- Returns:  `Promise<void>`
+* Returns:  `Promise<void>`
 
 Close the underlying file descriptor maintained by this `CarIndexedReader`.
 This must be called for proper resource clean-up to occur.
 
 <a name="CarIndexedReader__fromFile"></a>
-
 ### `async CarIndexedReader.fromFile(path)`
 
-- `path` `(string)`
+* `path` `(string)`
 
-- Returns:  `Promise<CarIndexedReader>`
+* Returns:  `Promise<CarIndexedReader>`
 
 Instantiate an [`CarIndexedReader`](#CarIndexedReader) from a file with the provided
 `path`. The CAR file is first indexed with a full path that collects `CID`s
@@ -558,12 +473,11 @@ For large archives, the initial indexing may take some time. The returned
 `Promise` will resolve only after this is complete.
 
 <a name="CarBlockIterator"></a>
-
 ### `class CarBlockIterator`
 
 Properties:
 
-- `version` `(number)`: The version number of the CAR referenced by this
+* `version` `(number)`: The version number of the CAR referenced by this
   iterator (should be `1`).
 
 Provides an iterator over all of the `Block`s in a CAR. Implements a
@@ -575,7 +489,7 @@ As an implementer of `AsyncIterable`, this class can be used directly in a
 constructed using [`CarBlockiterator.fromBytes`](#CarBlockiterator__fromBytes) or
 [`CarBlockiterator.fromIterable`](#CarBlockiterator__fromIterable).
 
-An iteration can only be performce *once* per instantiation.
+An iteration can only be performce _once_ per instantiation.
 
 `CarBlockIterator` also implements the `RootsReader` interface and provides
 the [`getRoots()`](#CarBlockiterator__getRoots) method.
@@ -587,21 +501,19 @@ Load this class with either
 (`const { CarBlockIterator } = require('@ipld/car')`).
 
 <a name="CarBlockIterator_getRoots"></a>
-
 ### `async CarBlockIterator#getRoots()`
 
-- Returns:  `Promise<CID[]>`
+* Returns:  `Promise<CID[]>`
 
 Get the list of roots defined by the CAR referenced by this iterator. May be
 zero or more `CID`s.
 
 <a name="CarBlockIterator__fromBytes"></a>
-
 ### `async CarBlockIterator.fromBytes(bytes)`
 
-- `bytes` `(Uint8Array)`
+* `bytes` `(Uint8Array)`
 
-- Returns:  `Promise<CarBlockIterator>`
+* Returns:  `Promise<CarBlockIterator>`
 
 Instantiate a [`CarBlockIterator`](#CarBlockIterator) from a `Uint8Array` blob. Rather
 than decoding the entire byte array prior to returning the iterator, as in
@@ -609,12 +521,11 @@ than decoding the entire byte array prior to returning the iterator, as in
 of the CAR is parsed as the `Block`s as yielded.
 
 <a name="CarBlockIterator__fromIterable"></a>
-
 ### `async CarBlockIterator.fromIterable(asyncIterable)`
 
-- `asyncIterable` `(AsyncIterable<Uint8Array>)`
+* `asyncIterable` `(AsyncIterable<Uint8Array>)`
 
-- Returns:  `Promise<CarBlockIterator>`
+* Returns:  `Promise<CarBlockIterator>`
 
 Instantiate a [`CarBlockIterator`](#CarBlockIterator) from a `AsyncIterable<Uint8Array>`,
 such as a [modern Node.js stream](https://nodejs.org/api/stream.html#stream_streams_compatibility_with_async_generators_and_async_iterators).
@@ -623,12 +534,11 @@ as in [`CarReader.fromIterable`](#CarReader__fromIterable), only the header is d
 remainder of the CAR is parsed as the `Block`s as yielded.
 
 <a name="CarCIDIterator"></a>
-
 ### `class CarCIDIterator`
 
 Properties:
 
-- `version` `(number)`: The version number of the CAR referenced by this
+* `version` `(number)`: The version number of the CAR referenced by this
   iterator (should be `1`).
 
 Provides an iterator over all of the `CID`s in a CAR. Implements a
@@ -640,7 +550,7 @@ As an implementer of `AsyncIterable`, this class can be used directly in a
 constructed using [`CarCIDiterator.fromBytes`](#CarCIDiterator__fromBytes) or
 [`CarCIDiterator.fromIterable`](#CarCIDiterator__fromIterable).
 
-An iteration can only be performce *once* per instantiation.
+An iteration can only be performce _once_ per instantiation.
 
 `CarCIDIterator` also implements the `RootsReader` interface and provides
 the [`getRoots()`](#CarCIDiterator__getRoots) method.
@@ -652,21 +562,19 @@ Load this class with either
 (`const { CarCIDIterator } = require('@ipld/car')`).
 
 <a name="CarCIDIterator_getRoots"></a>
-
 ### `async CarCIDIterator#getRoots()`
 
-- Returns:  `Promise<CID[]>`
+* Returns:  `Promise<CID[]>`
 
 Get the list of roots defined by the CAR referenced by this iterator. May be
 zero or more `CID`s.
 
 <a name="CarCIDIterator__fromBytes"></a>
-
 ### `async CarCIDIterator.fromBytes(bytes)`
 
-- `bytes` `(Uint8Array)`
+* `bytes` `(Uint8Array)`
 
-- Returns:  `Promise<CarCIDIterator>`
+* Returns:  `Promise<CarCIDIterator>`
 
 Instantiate a [`CarCIDIterator`](#CarCIDIterator) from a `Uint8Array` blob. Rather
 than decoding the entire byte array prior to returning the iterator, as in
@@ -674,12 +582,11 @@ than decoding the entire byte array prior to returning the iterator, as in
 of the CAR is parsed as the `CID`s as yielded.
 
 <a name="CarCIDIterator__fromIterable"></a>
-
 ### `async CarCIDIterator.fromIterable(asyncIterable)`
 
-- `asyncIterable` `(AsyncIterable<Uint8Array>)`
+* `asyncIterable` `(AsyncIterable<Uint8Array>)`
 
-- Returns:  `Promise<CarCIDIterator>`
+* Returns:  `Promise<CarCIDIterator>`
 
 Instantiate a [`CarCIDIterator`](#CarCIDIterator) from a `AsyncIterable<Uint8Array>`,
 such as a [modern Node.js stream](https://nodejs.org/api/stream.html#stream_streams_compatibility_with_async_generators_and_async_iterators).
@@ -688,12 +595,11 @@ as in [`CarReader.fromIterable`](#CarReader__fromIterable), only the header is d
 remainder of the CAR is parsed as the `CID`s as yielded.
 
 <a name="CarIndexer"></a>
-
 ### `class CarIndexer`
 
 Properties:
 
-- `version` `(number)`: The version number of the CAR referenced by this
+* `version` `(number)`: The version number of the CAR referenced by this
   reader (should be `1`).
 
 Provides an iterator over all of the `Block`s in a CAR, returning their CIDs
@@ -706,7 +612,7 @@ As an implementer of `AsyncIterable`, this class can be used directly in a
 constructed using [`CarIndexer.fromBytes`](#CarIndexer__fromBytes) or
 [`CarIndexer.fromIterable`](#CarIndexer__fromIterable).
 
-An iteration can only be performce *once* per instantiation.
+An iteration can only be performce _once_ per instantiation.
 
 `CarIndexer` also implements the `RootsReader` interface and provides
 the [`getRoots()`](#CarIndexer__getRoots) method.
@@ -719,33 +625,30 @@ Load this class with either
 result in smaller bundle sizes where this is important.
 
 <a name="CarIndexer_getRoots"></a>
-
 ### `async CarIndexer#getRoots()`
 
-- Returns:  `Promise<CID[]>`
+* Returns:  `Promise<CID[]>`
 
 Get the list of roots defined by the CAR referenced by this indexer. May be
 zero or more `CID`s.
 
 <a name="CarIndexer__fromBytes"></a>
-
 ### `async CarIndexer.fromBytes(bytes)`
 
-- `bytes` `(Uint8Array)`
+* `bytes` `(Uint8Array)`
 
-- Returns:  `Promise<CarIndexer>`
+* Returns:  `Promise<CarIndexer>`
 
 Instantiate a [`CarIndexer`](#CarIndexer) from a `Uint8Array` blob. Only the header
 is decoded initially, the remainder is processed and emitted via the
 iterator as it is consumed.
 
 <a name="CarIndexer__fromIterable"></a>
-
 ### `async CarIndexer.fromIterable(asyncIterable)`
 
-- `asyncIterable` `(AsyncIterable<Uint8Array>)`
+* `asyncIterable` `(AsyncIterable<Uint8Array>)`
 
-- Returns:  `Promise<CarIndexer>`
+* Returns:  `Promise<CarIndexer>`
 
 Instantiate a [`CarIndexer`](#CarIndexer) from a `AsyncIterable<Uint8Array>`,
 such as a [modern Node.js stream](https://nodejs.org/api/stream.html#stream_streams_compatibility_with_async_generators_and_async_iterators).
@@ -753,7 +656,6 @@ is decoded initially, the remainder is processed and emitted via the
 iterator as it is consumed.
 
 <a name="CarWriter"></a>
-
 ### `class CarWriter`
 
 Provides a writer interface for the creation of CAR files.
@@ -788,68 +690,62 @@ Load this class with either
 result in smaller bundle sizes where this is important.
 
 <a name="CarWriter_put"></a>
-
 ### `async CarWriter#put(block)`
 
-- `block` `(Block)`: A `{ cid:CID, bytes:Uint8Array }` pair.
+* `block` `(Block)`: A `{ cid:CID, bytes:Uint8Array }` pair.
 
-- Returns:  `Promise<void>`: The returned promise will only resolve once the
+* Returns:  `Promise<void>`: The returned promise will only resolve once the
   bytes this block generates are written to the `out` iterable.
 
 Write a `Block` (a `{ cid:CID, bytes:Uint8Array }` pair) to the archive.
 
 <a name="CarWriter_close"></a>
-
 ### `async CarWriter#close()`
 
-- Returns:  `Promise<void>`
+* Returns:  `Promise<void>`
 
 Finalise the CAR archive and signal that the `out` iterable should end once
 any remaining bytes are written.
 
 <a name="CarWriter__create"></a>
-
 ### `async CarWriter.create(roots)`
 
-- `roots` `(CID[]|CID|void)`
+* `roots` `(CID[]|CID|void)`
 
-- Returns:  `WriterChannel`: The channel takes the form of
+* Returns:  `WriterChannel`: The channel takes the form of
   `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
 
 Create a new CAR writer "channel" which consists of a
 `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }` pair.
 
 <a name="CarWriter__createAppender"></a>
-
 ### `async CarWriter.createAppender()`
 
-- Returns:  `WriterChannel`: The channel takes the form of
+* Returns:  `WriterChannel`: The channel takes the form of
   `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
 
 Create a new CAR appender "channel" which consists of a
 `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }` pair.
 This appender does not consider roots and does not produce a CAR header.
-It is designed to append blocks to an *existing* CAR archive. It is
+It is designed to append blocks to an _existing_ CAR archive. It is
 expected that `out` will be concatenated onto the end of an existing
 archive that already has a properly formatted header.
 
 <a name="CarWriter__updateRootsInBytes"></a>
-
 ### `async CarWriter.updateRootsInBytes(bytes, roots)`
 
-- `bytes` `(Uint8Array)`
-
-- `roots` `(CID[])`: A new list of roots to replace the existing list in
+* `bytes` `(Uint8Array)`
+* `roots` `(CID[])`: A new list of roots to replace the existing list in
   the CAR header. The new header must take up the same number of bytes as the
   existing header, so the roots should collectively be the same byte length
   as the existing roots.
 
-- Returns:  `Promise<Uint8Array>`
+* Returns:  `Promise<Uint8Array>`
 
 Update the list of roots in the header of an existing CAR as represented
 in a Uint8Array.
 
-This operation is an *overwrite*, the total length of the CAR will not be
+This operation is an _overwrite_, the total length of the CAR will not be
 modified. A rejection will occur if the new header will not be the same
 length as the existing header, in which case the CAR will not be modified.
 It is the responsibility of the user to ensure that the roots being
@@ -859,26 +755,24 @@ The byte array passed in an argument will be modified and also returned
 upon successful modification.
 
 <a name="CarWriter__updateRootsInFile"></a>
-
 ### `async CarWriter.updateRootsInFile(fd, roots)`
 
-- `fd` `(fs.promises.FileHandle|number)`: A file descriptor from the
+* `fd` `(fs.promises.FileHandle|number)`: A file descriptor from the
   Node.js `fs` module. Either an integer, from `fs.open()` or a `FileHandle`
   from `fs.promises.open()`.
-
-- `roots` `(CID[])`: A new list of roots to replace the existing list in
+* `roots` `(CID[])`: A new list of roots to replace the existing list in
   the CAR header. The new header must take up the same number of bytes as the
   existing header, so the roots should collectively be the same byte length
   as the existing roots.
 
-- Returns:  `Promise<void>`
+* Returns:  `Promise<void>`
 
 Update the list of roots in the header of an existing CAR file. The first
 argument must be a file descriptor for CAR file that is open in read and
 write mode (not append), e.g. `fs.open` or `fs.promises.open` with `'r+'`
 mode.
 
-This operation is an *overwrite*, the total length of the CAR will not be
+This operation is an _overwrite_, the total length of the CAR will not be
 modified. A rejection will occur if the new header will not be the same
 length as the existing header, in which case the CAR will not be modified.
 It is the responsibility of the user to ensure that the roots being
@@ -888,105 +782,93 @@ This function is **only available in Node.js** and not a browser
 environment.
 
 <a name="CarBufferWriter"></a>
-
 ### `class CarBufferWriter`
 
 A simple CAR writer that writes to a pre-allocated buffer.
 
 <a name="CarBufferWriter_addRoot"></a>
-
 ### `CarBufferWriter#addRoot(root, options)`
 
-- `root` `(CID)`
+* `root` `(CID)`
+* `options`
 
-- `options`
-
-- Returns:  `CarBufferWriter`
+* Returns:  `CarBufferWriter`
 
 Add a root to this writer, to be used to create a header when the CAR is
 finalized with [`close()`](#CarBufferWriter__close)
 
 <a name="CarBufferWriter_write"></a>
-
 ### `CarBufferWriter#write(block)`
 
-- `block` `(Block)`: A `{ cid:CID, bytes:Uint8Array }` pair.
+* `block` `(Block)`: A `{ cid:CID, bytes:Uint8Array }` pair.
 
-- Returns:  `CarBufferWriter`
+* Returns:  `CarBufferWriter`
 
 Write a `Block` (a `{ cid:CID, bytes:Uint8Array }` pair) to the archive.
 Throws if there is not enough capacity.
 
 <a name="CarBufferWriter_close"></a>
-
 ### `CarBufferWriter#close([options])`
 
-- `options` `(object, optional)`
-  - `options.resize` `(boolean, optional)`
+* `options` `(object, optional)`
+  * `options.resize` `(boolean, optional)`
 
-- Returns:  `Uint8Array`
+* Returns:  `Uint8Array`
 
 Finalize the CAR and return it as a `Uint8Array`.
 
 <a name="CarBufferWriter__blockLength__Block__"></a>
-
 ### `CarBufferWriter.blockLength(Block)`
 
-- `block` `(Block)`
+* `block` `(Block)`
 
-- Returns:  `number`
+* Returns:  `number`
 
 Calculates number of bytes required for storing given block in CAR. Useful in
 estimating size of an `ArrayBuffer` for the `CarBufferWriter`.
 
 <a name="CarBufferWriter__calculateHeaderLength__rootLengths__"></a>
-
 ### `CarBufferWriter.calculateHeaderLength(rootLengths)`
 
-- `rootLengths` `(number[])`
+* `rootLengths` `(number[])`
 
-- Returns:  `number`
+* Returns:  `number`
 
 Calculates header size given the array of byteLength for roots.
 
 <a name="CarBufferWriter__headerLength______roots______"></a>
-
 ### `CarBufferWriter.headerLength({ roots })`
 
-- `options` `(object)`
-  - `options.roots` `(CID[])`
+* `options` `(object)`
+  * `options.roots` `(CID[])`
 
-- Returns:  `number`
+* Returns:  `number`
 
 Calculates header size given the array of roots.
 
 <a name="CarBufferWriter__estimateHeaderLength__rootCount______rootByteLength____"></a>
-
 ### `CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`
 
-- `rootCount` `(number)`
+* `rootCount` `(number)`
+* `rootByteLength` `(number, optional)`
 
-- `rootByteLength` `(number, optional)`
-
-- Returns:  `number`
+* Returns:  `number`
 
 Estimates header size given a count of the roots and the expected byte length
 of the root CIDs. The default length works for a standard CIDv1 with a
 single-byte multihash code, such as SHA2-256 (i.e. the most common CIDv1).
 
 <a name="CarBufferWriter__createWriter__buffer______options____"></a>
-
 ### `CarBufferWriter.createWriter(buffer[, options])`
 
-- `buffer` `(ArrayBuffer)`
+* `buffer` `(ArrayBuffer)`
+* `options` `(object, optional)`
+  * `options.roots` `(CID[], optional)`
+  * `options.byteOffset` `(number, optional)`
+  * `options.byteLength` `(number, optional)`
+  * `options.headerSize` `(number, optional)`
 
-- `options` `(object, optional)`
-  - `options.roots` `(CID[], optional)`
-  - `options.byteOffset` `(number, optional)`
-  - `options.byteLength` `(number, optional)`
-  - `options.headerSize` `(number, optional)`
-
-- Returns:  `CarBufferWriter`
+* Returns:  `CarBufferWriter`
 
 Creates synchronous CAR writer that can be used to encode blocks into a given
 buffer. Optionally you could pass `byteOffset` and `byteLength` to specify a
@@ -1000,25 +882,22 @@ Note: Incorrect `headerSize` may lead to copying bytes inside a buffer
 which will have a negative impact on performance.
 
 <a name="async__decoder__readHeader__reader__"></a>
-
 ### `async decoder.readHeader(reader)`
 
-- `reader` `(BytesReader)`
+* `reader` `(BytesReader)`
+* `strictVersion` `(number, optional)`
 
-- `strictVersion` `(number, optional)`
-
-- Returns:  `Promise<(CarHeader|CarV2Header)>`
+* Returns:  `Promise<(CarHeader|CarV2Header)>`
 
 Reads header data from a `BytesReader`. The header may either be in the form
 of a `CarHeader` or `CarV2Header` depending on the CAR being read.
 
 <a name="async__decoder__readBlockHead__reader__"></a>
-
 ### `async decoder.readBlockHead(reader)`
 
-- `reader` `(BytesReader)`
+* `reader` `(BytesReader)`
 
-- Returns:  `Promise<BlockHeader>`
+* Returns:  `Promise<BlockHeader>`
 
 Reads the leading data of an individual block from CAR data from a
 `BytesReader`. Returns a `BlockHeader` object which contains
@@ -1026,50 +905,45 @@ Reads the leading data of an individual block from CAR data from a
 or read the block binary data.
 
 <a name="decoder__createDecoder__reader__"></a>
-
 ### `decoder.createDecoder(reader)`
 
-- `reader` `(BytesReader)`
+* `reader` `(BytesReader)`
 
-- Returns:  `CarDecoder`
+* Returns:  `CarDecoder`
 
 Creates a `CarDecoder` from a `BytesReader`. The `CarDecoder` is as async
 interface that will consume the bytes from the `BytesReader` to yield a
 `header()` and either `blocks()` or `blocksIndex()` data.
 
 <a name="decoder__bytesReader__bytes__"></a>
-
 ### `decoder.bytesReader(bytes)`
 
-- `bytes` `(Uint8Array)`
+* `bytes` `(Uint8Array)`
 
-- Returns:  `BytesReader`
+* Returns:  `BytesReader`
 
 Creates a `BytesReader` from a `Uint8Array`.
 
 <a name="decoder__asyncIterableReader__asyncIterable__"></a>
-
 ### `decoder.asyncIterableReader(asyncIterable)`
 
-- `asyncIterable` `(AsyncIterable<Uint8Array>)`
+* `asyncIterable` `(AsyncIterable<Uint8Array>)`
 
-- Returns:  `BytesReader`
+* Returns:  `BytesReader`
 
 Creates a `BytesReader` from an `AsyncIterable<Uint8Array>`, which allows for
 consumption of CAR data from a streaming source.
 
 <a name="decoder__limitReader__reader____byteLimit__"></a>
-
 ### `decoder.limitReader(reader, byteLimit)`
 
-- `reader` `(BytesReader)`
+* `reader` `(BytesReader)`
+* `byteLimit` `(number)`
 
-- `byteLimit` `(number)`
-
-- Returns:  `BytesReader`
+* Returns:  `BytesReader`
 
 Wraps a `BytesReader` in a limiting `BytesReader` which limits maximum read
-to `byteLimit` bytes. It *does not* update `pos` of the original
+to `byteLimit` bytes. It _does not_ update `pos` of the original
 `BytesReader`.
 
 ## License

@@ -80,7 +80,6 @@ describe('CarIndexer fromIterable()', () => {
     return verifyIndexer(indexer)
   })
 
-  // fails on chrome, not sure why
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
       // @ts-expect-error arg is wrong type
