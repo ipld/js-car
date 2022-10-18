@@ -53,33 +53,33 @@
       "browser": "./src/index-browser.js"
     },
     "./buffer-writer": {
-      "types": "./src/buffer-writer.d.ts",
+      "types": "./dist/src/buffer-writer.d.ts",
       "import": "./src/buffer-writer.js"
     },
     "./decoder": {
-      "types": "./src/decoder.d.ts",
+      "types": "./dist/src/decoder.d.ts",
       "import": "./src/decoder.js"
     },
     "./indexed-reader": {
-      "types": "./src/indexed-reader.d.ts",
+      "types": "./dist/src/indexed-reader.d.ts",
       "browser": "./src/indexed-reader-browser.js",
       "import": "./src/indexed-reader.js"
     },
     "./indexer": {
-      "types": "./src/indexer.d.ts",
+      "types": "./dist/src/indexer.d.ts",
       "import": "./src/indexer.js"
     },
     "./iterator": {
-      "types": "./src/iterator.d.ts",
+      "types": "./dist/src/iterator.d.ts",
       "import": "./src/iterator.js"
     },
     "./reader": {
-      "types": "./src/reader.d.ts",
+      "types": "./dist/src/reader.d.ts",
       "browser": "./src/reader-browser.js",
       "import": "./src/reader.js"
     },
     "./writer": {
-      "types": "./src/writer.d.ts",
+      "types": "./dist/src/writer.d.ts",
       "browser": "./src/writer-browser.js",
       "import": "./src/writer.js"
     }
