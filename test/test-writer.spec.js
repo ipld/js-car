@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 /* globals describe, it */
 
-import { CarWriter } from '@ipld/car/writer'
-import { CarReader } from '@ipld/car/reader'
+import { CarWriter } from '../src/writer.js'
+import { CarReader } from '../src/reader.js'
 import { bytes, CID } from 'multiformats'
 import { carBytes, makeData, assert, rndCid } from './common.js'
 import {
@@ -12,9 +12,10 @@ import {
   verifyBlocks,
   verifyCids
 } from './verify-store-reader.js'
+import { expect } from 'aegir/chai'
 
 /**
- * @typedef {import('../api').Block} Block
+ * @typedef {import('../src/api').Block} Block
  */
 
 const { toHex } = bytes
@@ -57,7 +58,8 @@ const newRoots = [
  */
 async function verifyUpdateRoots (bytes) {
   const reader = await CarReader.fromBytes(bytes)
-  await assert.isRejected(verifyRoots(reader)) // whoa, different roots? like magic
+  // the assert.isRejected form of this causes an uncatchable error in Chrome
+  await expect(verifyRoots(reader)).to.eventually.be.rejected() // whoa, different roots? like magic
   assert.deepEqual(await reader.getRoots(), newRoots)
   await verifyHas(reader)
   await verifyGet(reader)
@@ -276,7 +278,7 @@ describe('CarWriter', () => {
 
   it('bad argument for create()', () => {
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
-      // @ts-ignore
+      // @ts-expect-error arg is wrong type
       assert.throws(() => CarWriter.create(arg))
     }
   })
@@ -284,18 +286,21 @@ describe('CarWriter', () => {
   it('bad argument for put()', async () => {
     const { writer } = CarWriter.create()
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
-      // @ts-ignore
-      await assert.isRejected(writer.put(arg))
+      // @ts-expect-error arg is wrong type
+      // the assert.isRejected form of this causes an uncatchable error in Chrome
+      await expect(writer.put(arg)).to.eventually.be.rejected()
     }
 
     for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
-      // @ts-ignore
-      await assert.isRejected(writer.put({ bytes: new Uint8Array(0), cid: arg }))
+      // @ts-expect-error arg is wrong type
+      // the assert.isRejected form of this causes an uncatchable error in Chrome
+      await expect(writer.put({ bytes: new Uint8Array(0), cid: arg })).to.eventually.be.rejected()
     }
 
     for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
-      // @ts-ignore
-      await assert.isRejected(writer.put({ cid: rndCid, bytes: arg }))
+      // @ts-expect-error arg is wrong type
+      // the assert.isRejected form of this causes an uncatchable error in Chrome
+      await expect(writer.put({ cid: rndCid, bytes: arg })).to.eventually.be.rejected()
     }
   })
 
@@ -318,7 +323,9 @@ describe('CarWriter', () => {
     const { writer, out } = CarWriter.create()
     collector(out)
     await writer.close()
-    await assert.isRejected(writer.close(), /closed/i)
+
+    // the assert.isRejected form of this causes an uncatchable error in Chrome
+    await expect(writer.close()).to.eventually.be.rejectedWith(/closed/i)
   })
 
   it('update roots (fd)', async () => {

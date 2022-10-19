@@ -1,8 +1,9 @@
 /* eslint-env mocha */
 
-import { CarBlockIterator, CarCIDIterator } from '@ipld/car/iterator'
+import { CarBlockIterator, CarCIDIterator } from '../src/iterator.js'
 import { carBytes, makeIterable, assert } from './common.js'
 import { verifyRoots, verifyBlocks, verifyCids } from './verify-store-reader.js'
+import { expect } from 'aegir/chai'
 
 /**
  * @param {CarBlockIterator} iter
@@ -48,15 +49,17 @@ for (const type of ['Block', 'CID']) {
 
     it('fromBytes() bad argument', async () => {
       for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-        // @ts-ignore
-        await assert.isRejected((type === 'Block' ? CarBlockIterator : CarCIDIterator).fromBytes(arg))
+        // @ts-expect-error arg is wrong type
+        // the assert.isRejected form of this causes an uncatchable error in Chrome
+        await expect((type === 'Block' ? CarBlockIterator : CarCIDIterator).fromBytes(arg)).to.eventually.be.rejected()
       }
     })
 
     it('fromIterable() bad argument', async () => {
       for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-        // @ts-ignore
-        await assert.isRejected((type === 'Block' ? CarBlockIterator : CarCIDIterator).fromIterable(arg))
+        // @ts-expect-error arg is wrong type
+        // the assert.isRejected form of this causes an uncatchable error in Chrome
+        await expect((type === 'Block' ? CarBlockIterator : CarCIDIterator).fromIterable(arg)).to.eventually.be.rejected()
       }
     })
 

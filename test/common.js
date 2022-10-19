@@ -3,12 +3,10 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
-
-import chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
+import { assert } from 'aegir/chai'
 
 /**
- * @typedef {import('../api').Block} Block
+ * @typedef {import('../src/api').Block} Block
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 
@@ -28,9 +26,6 @@ class TestBlock {
   }
 }
 
-chai.use(chaiAsPromised)
-const { assert } = chai
-
 /** @type {TestBlock[]} */
 let rawBlocks
 /** @type {TestBlock[]} */
@@ -47,7 +42,7 @@ const rndCid = CID.parse('bafyreihyrpefhacm6kkp4ql6j6udakdit7g3dmkzfriqfykhjw6ca
 /**
  * @param {any} object
  * @param {{code: number, encode: (obj: any) => Uint8Array}} codec
- * @param {import('multiformats/cid').CIDVersion} version
+ * @param {import('multiformats/cid').Version} version
  * @returns {Promise<TestBlock & { object: any }>}
  */
 async function toBlock (object, codec, version = 1) {

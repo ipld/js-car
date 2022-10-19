@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 
-import { CarReader } from '@ipld/car/reader'
-import { CarWriter } from '@ipld/car/writer'
-import { bytesReader, readHeader } from '@ipld/car/decoder'
+import { CarReader } from '../src/reader.js'
+import { CarWriter } from '../src/writer.js'
+import { bytesReader, readHeader } from '../src/decoder.js'
 import * as Block from 'multiformats/block'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
@@ -26,6 +26,7 @@ import {
 } from './verify-store-reader.js'
 import { data as fixtures } from './fixtures.js'
 import { expectations as fixtureExpectations } from './fixtures-expectations.js'
+import { expect } from 'aegir/chai'
 
 describe('CarReader fromBytes()', () => {
   it('complete', async () => {
@@ -49,8 +50,9 @@ describe('CarReader fromBytes()', () => {
 
   it('bad argument', async () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      // @ts-ignore
-      await assert.isRejected(CarReader.fromBytes(arg))
+      // @ts-expect-error arg is wrong type
+      // the assert.isRejected form of this causes an uncatchable error in Chrome
+      await expect(CarReader.fromBytes(arg)).to.eventually.be.rejected()
     }
   })
 
@@ -90,7 +92,7 @@ describe('CarReader fromBytes()', () => {
     bytes.set(carBytes)
     try {
       await CarReader.fromBytes(bytes)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       assert.strictEqual(err.message, 'Invalid CAR section (zero length)')
       return
     }
@@ -103,7 +105,7 @@ describe('CarReader fromBytes()', () => {
     bytes[0] = 0
     try {
       await CarReader.fromBytes(bytes)
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       assert.strictEqual(err.message, 'Invalid CAR header (zero length)')
       return
     }
@@ -175,8 +177,9 @@ describe('CarReader fromIterable()', () => {
 
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      // @ts-ignore
-      await assert.isRejected(CarReader.fromIterable(arg))
+      // @ts-expect-error arg is wrong type
+      // the assert.isRejected form of this causes an uncatchable error in Chrome
+      await expect(CarReader.fromIterable(arg)).to.eventually.be.rejected()
     }
   })
 
@@ -208,7 +211,7 @@ describe('Shared fixtures', () => {
         let header
         try {
           header = await readHeader(bytesReader(data))
-        } catch (err) {
+        } catch (/** @type {any} */ err) {
           if (expectedError != null) {
             assert.equal(err.message, expectedError)
             return

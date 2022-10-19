@@ -4,11 +4,11 @@ import { toBlock, assert, makeData } from './common.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').RootsReader} RootsReader
- * @typedef {import('../api').BlockIterator} BlockIterator
- * @typedef {import('../api').CIDIterator} CIDIterator
- * @typedef {import('../api').BlockReader} BlockReader
+ * @typedef {import('../src/api').Block} Block
+ * @typedef {import('../src/api').RootsReader} RootsReader
+ * @typedef {import('../src/api').BlockIterator} BlockIterator
+ * @typedef {import('../src/api').CIDIterator} CIDIterator
+ * @typedef {import('../src/api').BlockReader} BlockReader
  */
 
 /**

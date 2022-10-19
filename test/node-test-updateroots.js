@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url'
 import fs from 'fs'
 import { promisify } from 'util'
 import { CID } from 'multiformats/cid'
-import { CarReader } from '@ipld/car/reader'
-import { CarWriter } from '@ipld/car/writer'
+import { CarReader } from '../src/reader.js'
+import { CarWriter } from '../src/writer.js'
 import {
   verifyRoots,
   verifyHas,

@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { CarIndexer } from '@ipld/car/indexer'
+import { CarIndexer } from '../src/indexer.js'
 import {
   goCarBytes,
   goCarIndex,
@@ -11,6 +11,7 @@ import {
   assert
 } from './common.js'
 import { verifyRoots } from './verify-store-reader.js'
+import { expect } from 'aegir/chai'
 
 describe('CarIndexer fromBytes()', () => {
   it('complete', async () => {
@@ -43,8 +44,9 @@ describe('CarIndexer fromBytes()', () => {
 
   it('bad argument', async () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      // @ts-ignore
-      await assert.isRejected(CarIndexer.fromBytes(arg))
+      // @ts-expect-error arg is wrong type
+      // the assert.isRejected form of this causes an uncatchable error in Chrome
+      await expect(CarIndexer.fromBytes(arg)).to.eventually.be.rejected()
     }
   })
 })
@@ -80,8 +82,9 @@ describe('CarIndexer fromIterable()', () => {
 
   it('bad argument', async () => {
     for (const arg of [new Uint8Array(0), true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
-      // @ts-ignore
-      await assert.isRejected(CarIndexer.fromIterable(arg))
+      // @ts-expect-error arg is wrong type
+      // the assert.isRejected form of this causes an uncatchable error in Chrome
+      await expect(CarIndexer.fromIterable(arg)).to.eventually.be.rejected()
     }
   })
 })

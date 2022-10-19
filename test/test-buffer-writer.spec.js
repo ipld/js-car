@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 
-import * as CarBufferWriter from '@ipld/car/buffer-writer'
-import { CarReader } from '@ipld/car/reader'
-import { createHeader } from '../lib/encoder.js'
+import * as CarBufferWriter from '../src/buffer-writer.js'
+import { CarReader } from '../src/reader.js'
+import { createHeader } from '../src/encoder.js'
 import { assert } from './common.js'
 import { CID, varint } from 'multiformats'
 import * as CBOR from '@ipld/dag-cbor'

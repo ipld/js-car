@@ -1,27 +1,27 @@
-import { CID } from 'multiformats/cid'
+import type { CID } from 'multiformats/cid'
 
 export type { CID }
 /* Generic types for interfacing with block storage */
 
-export type Block = {
+export interface Block {
   cid: CID
   bytes: Uint8Array
 }
 
-export type BlockHeader = {
+export interface BlockHeader {
   cid: CID
   length: number
   blockLength: number
 }
 
-export type BlockIndex = BlockHeader & {
+export interface BlockIndex extends BlockHeader {
   offset: number
   blockOffset: number
 }
 
 export interface RootsReader {
   version: number
-  getRoots(): Promise<CID[]>
+  getRoots: () => Promise<CID[]>
 }
 
 export interface BlockIterator extends AsyncIterable<Block> {}
@@ -29,21 +29,21 @@ export interface BlockIterator extends AsyncIterable<Block> {}
 export interface CIDIterator extends AsyncIterable<CID> {}
 
 export interface BlockReader {
-  has(key: CID): Promise<boolean>
-  get(key: CID): Promise<Block | undefined>
-  blocks(): BlockIterator
-  cids(): CIDIterator
+  has: (key: CID) => Promise<boolean>
+  get: (key: CID) => Promise<Block | undefined>
+  blocks: () => BlockIterator
+  cids: () => CIDIterator
 }
 
 export interface BlockWriter {
-  put(block: Block): Promise<void>
-  close(): Promise<void>
+  put: (block: Block) => Promise<void>
+  close: () => Promise<void>
 }
 
 export interface CarBufferWriter {
-  addRoot(root:CID, options?:{ resize?: boolean }):CarBufferWriter
-  write(block: Block): CarBufferWriter
-  close(options?:{ resize?: boolean }): Uint8Array
+  addRoot: (root: CID, options?: { resize?: boolean }) => CarBufferWriter
+  write: (block: Block) => CarBufferWriter
+  close: (options?: { resize?: boolean }) => Uint8Array
 }
 
 export interface CarBufferWriterOptions {

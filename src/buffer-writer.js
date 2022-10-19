@@ -4,10 +4,10 @@ import { tokensToLength } from 'cborg/length'
 import * as CBOR from '@ipld/dag-cbor'
 
 /**
- * @typedef {import('../api').CID} CID
- * @typedef {import('../api').Block} Block
- * @typedef {import('../api').CarBufferWriter} Writer
- * @typedef {import('../api').CarBufferWriterOptions} Options
+ * @typedef {import('./api').CID} CID
+ * @typedef {import('./api').Block} Block
+ * @typedef {import('./api').CarBufferWriter} Writer
+ * @typedef {import('./api').CarBufferWriterOptions} Options
  * @typedef {import('./coding').CarEncoder} CarEncoder
  */
 
@@ -53,7 +53,7 @@ class CarBufferWriter {
    * Write a `Block` (a `{ cid:CID, bytes:Uint8Array }` pair) to the archive.
    * Throws if there is not enough capacity.
    *
-   * @param {Block} block A `{ cid:CID, bytes:Uint8Array }` pair.
+   * @param {Block} block - A `{ cid:CID, bytes:Uint8Array }` pair.
    * @returns {CarBufferWriter}
    */
   write (block) {

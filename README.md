@@ -1,13 +1,21 @@
 # @ipld/car
 
-A JavaScript Content Addressable aRchive (CAR) file reader and writer.
+[![codecov](https://img.shields.io/codecov/c/github/ipld/js-car.svg?style=flat-square)](https://codecov.io/gh/ipld/js-car)
+[![CI](https://img.shields.io/github/workflow/status/ipld/js-car/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipld/js-car/actions/workflows/js-test-and-release.yml)
+
+> Content Addressable aRchive format reader and writer
+
+## Install
+
+```console
+$ npm i @ipld/car
+```
 
 See also:
 
  * Original [Go implementation](https://github.com/ipfs/go-car)
  * [CAR specification](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md)
  * [IPLD](https://ipld.io)
- 
 
 ## Contents
 
@@ -944,8 +952,8 @@ to `byteLimit` bytes. It _does not_ update `pos` of the original
 
 Licensed under either of
 
- * Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / http://www.apache.org/licenses/LICENSE-2.0)
- * MIT ([LICENSE-MIT](LICENSE-MIT) / http://opensource.org/licenses/MIT)
+ * Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+ * MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
 
 ### Contribution
 

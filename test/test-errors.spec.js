@@ -2,7 +2,7 @@
 import { bytes } from 'multiformats'
 import { encode as cbEncode } from '@ipld/dag-cbor'
 import { encode as vEncode } from 'varint'
-import { CarReader } from '@ipld/car/reader'
+import { CarReader } from '../src/reader.js'
 import { carBytes, assert, goCarV2Bytes } from './common.js'
 
 /**

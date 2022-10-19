@@ -4,15 +4,15 @@
 
 import fs from 'fs'
 import { Readable } from 'stream'
-import { garbage } from 'ipld-garbage'
+import { garbage } from '@ipld/garbage'
 import varint from 'varint'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { CID } from 'multiformats/cid'
-import { CarWriter, CarIndexer, CarReader, CarIndexedReader } from '@ipld/car'
+import { CarWriter, CarIndexer, CarReader, CarIndexedReader } from '../src/index.js'
 import { assert } from './common.js'
 
-/** @typedef {import('../api').BlockIndex} BlockIndex */
+/** @typedef {import('../src/api').BlockIndex} BlockIndex */
 
 describe('Large CAR', () => {
   /** @type {any[]} */

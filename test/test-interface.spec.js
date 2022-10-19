@@ -1,9 +1,9 @@
 /* eslint-env mocha */
-import * as car from '@ipld/car'
-import { CarReader, __browser } from '@ipld/car/reader'
-import { CarIndexer } from '@ipld/car/indexer'
-import { CarBlockIterator, CarCIDIterator } from '@ipld/car/iterator'
-import { CarWriter } from '@ipld/car/writer'
+import * as car from '../src/index.js'
+import { CarReader, __browser } from '../src/reader.js'
+import { CarIndexer } from '../src/indexer.js'
+import { CarBlockIterator, CarCIDIterator } from '../src/iterator.js'
+import { CarWriter } from '../src/writer.js'
 
 import { assert } from './common.js'
 

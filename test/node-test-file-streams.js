@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 import fs from 'fs'
 import { Readable, pipeline } from 'stream'
 import { promisify } from 'util'
-import { CarReader, CarWriter } from '@ipld/car'
+import { CarReader, CarWriter } from '../src/index.js'
 import { makeData, assert } from './common.js'
 import {
   verifyRoots,
@@ -18,7 +18,7 @@ import {
 } from './verify-store-reader.js'
 
 /** @typedef {import('multiformats').CID} CID */
-/** @typedef {import('../api').Block} Block */
+/** @typedef {import('../src/api').Block} Block */
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
