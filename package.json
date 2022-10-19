@@ -95,7 +95,7 @@
     "lint": "aegir lint",
     "build": "aegir build",
     "release": "aegir release",
-    "test": "npm run lint && aegir test -t node -t browser -t webworker -t electron-main && npm run test:examples",
+    "test": "npm run lint && aegir test && npm run test:examples",
     "test:ts": "npm run test --prefix test/ts-use",
     "test:node": "aegir test -t node --cov",
     "test:chrome": "aegir test -t browser --cov",
@@ -109,23 +109,19 @@
     "docs": "jsdoc4readme --readme --description-only src/reader*.js src/indexed-reader.js src/iterator.js src/indexer.js src/writer*.js src/buffer-writer.js src/decoder.js"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^7.0.0",
+    "@ipld/dag-cbor": "^8.0.0",
     "cborg": "^1.9.0",
-    "multiformats": "^9.5.4",
+    "multiformats": "^10.0.2",
     "varint": "^6.0.0"
   },
   "devDependencies": {
-    "@ipld/dag-pb": "^2.1.14",
-    "@types/chai": "^4.3.0",
-    "@types/chai-as-promised": "^7.1.4",
-    "@types/mocha": "^10.0.0",
+    "@ipld/dag-pb": "^3.0.0",
+    "@ipld/garbage": "^6.0.0",
     "@types/node": "^18.0.0",
     "@types/varint": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
     "aegir": "^37.5.6",
-    "ipjs": "^5.2.0",
-    "ipld-garbage": "^5.0.0",
     "jsdoc4readme": "^1.4.0"
   },
   "directories": {

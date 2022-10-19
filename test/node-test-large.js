@@ -4,7 +4,7 @@
 
 import fs from 'fs'
 import { Readable } from 'stream'
-import { garbage } from 'ipld-garbage'
+import { garbage } from '@ipld/garbage'
 import varint from 'varint'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
