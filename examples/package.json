@@ -17,7 +17,7 @@
   "dependencies": {
     "@ipld/car": "file:..",
     "@ipld/dag-cbor": "^7.0.0",
-    "@ipld/dag-json": "^8.0.0",
+    "@ipld/dag-json": "^9.0.0",
     "@ipld/dag-pb": "^2.0.2",
     "@multiformats/blake2": "^1.0.1",
     "@types/varint": "^6.0.0",
