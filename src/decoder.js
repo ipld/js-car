@@ -33,7 +33,7 @@ async function readVarint (reader) {
     throw new Error('Unexpected end of data')
   }
   const i = varint.decode(bytes)
-  reader.seek(varint.decode.bytes)
+  reader.seek(/** @type {number} */(varint.decode.bytes))
   return i
   /* c8 ignore next 2 */
   // Node.js 12 c8 bug
@@ -117,9 +117,9 @@ async function readMultihash (reader) {
 
   const bytes = await reader.upTo(8)
   varint.decode(bytes) // code
-  const codeLength = varint.decode.bytes
+  const codeLength = /** @type {number} */(varint.decode.bytes)
   const length = varint.decode(bytes.subarray(varint.decode.bytes))
-  const lengthLength = varint.decode.bytes
+  const lengthLength = /** @type {number} */(varint.decode.bytes)
   const mhLength = codeLength + lengthLength + length
   const multihash = await reader.exactly(mhLength)
   reader.seek(mhLength)
