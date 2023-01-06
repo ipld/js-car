@@ -1,7 +1,7 @@
 # @ipld/car
 
 [![codecov](https://img.shields.io/codecov/c/github/ipld/js-car.svg?style=flat-square)](https://codecov.io/gh/ipld/js-car)
-[![CI](https://img.shields.io/github/workflow/status/ipld/js-car/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/ipld/js-car/actions/workflows/js-test-and-release.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ipld/js-car/js-test-and-release.yml?branch=master\&style=flat-square)](https://github.com/ipld/js-car/actions/workflows/js-test-and-release.yml?query=branch%3Amaster)
 
 > Content Addressable aRchive format reader and writer
 
