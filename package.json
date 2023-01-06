@@ -199,7 +199,7 @@
     "varint": "^6.0.0"
   },
   "devDependencies": {
-    "@ipld/dag-pb": "^3.0.0",
+    "@ipld/dag-pb": "^4.0.0",
     "@ipld/garbage": "^6.0.0",
     "@types/node": "^18.0.0",
     "@types/varint": "^6.0.0",
