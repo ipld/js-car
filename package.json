@@ -1,6 +1,6 @@
 {
   "name": "@ipld/car",
-  "version": "0.0.0-dev",
+  "version": "5.0.2",
   "description": "Content Addressable aRchive format reader and writer",
   "author": "Rod <rod@vagg.org> (http://r.va.gg/)",
   "license": "Apache-2.0 OR MIT",

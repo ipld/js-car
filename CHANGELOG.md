@@ -1,3 +1,25 @@
+## [5.0.2](https://github.com/ipld/js-car/compare/v5.0.1...v5.0.2) (2023-01-06)
+
+
+### Bug Fixes
+
+* update release config ([eeb8844](https://github.com/ipld/js-car/commit/eeb8844e3e72519aea738c077dcad74914d93bf7))
+
+
+### Dependencies
+
+* bump @ipld/dag-cbor from 8.0.1 to 9.0.0 ([cee8547](https://github.com/ipld/js-car/commit/cee8547fe255feb56f2e9f7063e06aee826af431))
+* bump multiformats from 10.0.3 to 11.0.0 ([dba8cb1](https://github.com/ipld/js-car/commit/dba8cb13e5021b1e48f682bc7dece66384873263))
+* **dev:** bump @ipld/dag-pb from 3.0.2 to 4.0.0 ([158d579](https://github.com/ipld/js-car/commit/158d5791694964ab56114932ce22f0f88734a671))
+
+
+### Trivial Changes
+
+* **deps:** bump @ipld/dag-cbor from 8.0.1 to 9.0.0 in /examples ([bf3e5a4](https://github.com/ipld/js-car/commit/bf3e5a418685d7e66212e6b3ee45a50acc8021d0))
+* **deps:** bump @ipld/dag-json from 9.1.1 to 10.0.0 in /examples ([d4e60a2](https://github.com/ipld/js-car/commit/d4e60a250e50413a242a06a3538f84d448b787da))
+* **deps:** bump @ipld/dag-pb from 3.0.2 to 4.0.0 in /examples ([68729b8](https://github.com/ipld/js-car/commit/68729b816c9d75352bb95154f2b1f86e3b07bfef))
+* **deps:** bump multiformats from 10.0.3 to 11.0.0 in /examples ([97e5ab3](https://github.com/ipld/js-car/commit/97e5ab3ce33b09a5a84c4ff2684f9f98b9aede25))
+
 ## [4.1.6](https://github.com/ipld/js-car/compare/v4.1.5...v4.1.6) (2022-10-13)
 
 
