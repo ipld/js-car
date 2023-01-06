@@ -193,7 +193,7 @@
     "docs": "jsdoc4readme --readme --description-only src/reader*.js src/indexed-reader.js src/iterator.js src/indexer.js src/writer*.js src/buffer-writer.js src/decoder.js"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^8.0.0",
+    "@ipld/dag-cbor": "^9.0.0",
     "cborg": "^1.9.0",
     "multiformats": "^11.0.0",
     "varint": "^6.0.0"
