@@ -148,7 +148,7 @@ export class CarReader {
    * @static
    * @memberof CarReader
    * @param {Uint8Array} bytes
-   * @returns {Promise<CarReader>} blip blop
+   * @returns {Promise<CarReader>}
    */
   static async fromBytes (bytes) {
     if (!(bytes instanceof Uint8Array)) {

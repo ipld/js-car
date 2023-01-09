@@ -338,7 +338,7 @@ the `CID`s contained within the CAR referenced by this reader.
 
 * `bytes` `(Uint8Array)`
 
-* Returns:  `Promise<CarReader>`: blip blop
+* Returns:  `Promise<CarReader>`
 
 Instantiate a [`CarReader`](#CarReader) from a `Uint8Array` blob. This performs a
 decode fully in memory and maintains the decoded state in memory for full
