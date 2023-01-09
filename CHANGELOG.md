@@ -1,3 +1,10 @@
+## [5.0.3](https://github.com/ipld/js-car/compare/v5.0.2...v5.0.3) (2023-01-09)
+
+
+### Documentation
+
+* remove blip blop ([6dc6ca8](https://github.com/ipld/js-car/commit/6dc6ca81b8ac7f3e94b437e190c9a80bf8d9d82f))
+
 ## [5.0.2](https://github.com/ipld/js-car/compare/v5.0.1...v5.0.2) (2023-01-06)
 
 
