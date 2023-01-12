@@ -78,6 +78,10 @@
       "browser": "./src/reader-browser.js",
       "import": "./src/reader.js"
     },
+    "./reader-sync": {
+      "types": "./dist/src/reader-sync-browser.d.ts",
+      "import": "./src/reader-sync-browser.js"
+    },
     "./writer": {
       "types": "./dist/src/writer.d.ts",
       "browser": "./src/writer-browser.js",

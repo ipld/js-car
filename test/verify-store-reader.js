@@ -109,7 +109,7 @@ async function verifyGet (reader) {
 }
 
 /**
- * @param {BlockIterator} iterator
+ * @param {import('../src/api').AnyIterable<Block>} iterator
  * @param {boolean | void} unordered
  */
 async function verifyBlocks (iterator, unordered) {
@@ -147,7 +147,7 @@ async function verifyBlocks (iterator, unordered) {
 }
 
 /**
- * @param {CIDIterator} iterator
+ * @param {import('../src/api').AnyIterable<CID>} iterator
  * @param {boolean | void} unordered
  */
 async function verifyCids (iterator, unordered) {

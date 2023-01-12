@@ -1,5 +1,16 @@
 import type { CID } from 'multiformats/cid'
 
+export type Promisable<T> = T | PromiseLike<T>
+
+/**
+ * Any iterable or iterator.
+ */
+export type Iterableish<T> = Iterable<T> | Iterator<T> | AsyncIterable<T> | AsyncIterator<T>
+/**
+ * Literally any `Iterable` (async or regular).
+ */
+export type AnyIterable<T> = Iterable<T> | AsyncIterable<T>
+
 export type { CID }
 /* Generic types for interfacing with block storage */
 
@@ -21,7 +32,7 @@ export interface BlockIndex extends BlockHeader {
 
 export interface RootsReader {
   version: number
-  getRoots: () => Promise<CID[]>
+  getRoots: () => Promisable<CID[]>
 }
 
 export interface BlockIterator extends AsyncIterable<Block> {}
@@ -29,10 +40,10 @@ export interface BlockIterator extends AsyncIterable<Block> {}
 export interface CIDIterator extends AsyncIterable<CID> {}
 
 export interface BlockReader {
-  has: (key: CID) => Promise<boolean>
-  get: (key: CID) => Promise<Block | undefined>
-  blocks: () => BlockIterator
-  cids: () => CIDIterator
+  has: (key: CID) => Promisable<boolean>
+  get: (key: CID) => Promisable<Block | undefined>
+  blocks: () => AnyIterable<Block>
+  cids: () => AnyIterable<CID>
 }
 
 export interface BlockWriter {

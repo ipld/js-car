@@ -1,4 +1,3 @@
-import { asyncIterableReader, bytesReader, createDecoder } from './decoder.js'
 import * as DecoderSync from './decoder-sync.js'
 
 /**
@@ -25,13 +24,13 @@ import * as DecoderSync from './decoder-sync.js'
  * The former will likely result in smaller bundle sizes where this is
  * important.
  *
- * @name CarReader
+ * @name CarReaderSync
  * @class
  * @implements {CarReaderIface}
  * @property {number} version The version number of the CAR referenced by this
  * reader (should be `1` or `2`).
  */
-export class CarReader {
+export class CarReaderSync {
   /**
    * @constructs CarReader
    * @param {CarHeader|CarV2Header} header
@@ -59,10 +58,9 @@ export class CarReader {
    * @function
    * @memberof CarReader
    * @instance
-   * @async
-   * @returns {Promise<CID[]>}
+   * @returns {CID[]}
    */
-  async getRoots () {
+  getRoots () {
     return this._header.roots
     /* c8 ignore next 2 */
     // Node.js 12 c8 bug
@@ -77,9 +75,9 @@ export class CarReader {
    * @instance
    * @async
    * @param {CID} key
-   * @returns {Promise<boolean>}
+   * @returns {boolean}
    */
-  async has (key) {
+  has (key) {
     return this._keys.indexOf(key.toString()) > -1
     /* c8 ignore next 2 */
     // Node.js 12 c8 bug
@@ -96,9 +94,9 @@ export class CarReader {
    * @instance
    * @async
    * @param {CID} key
-   * @returns {Promise<Block | undefined>}
+   * @returns {Block | undefined}
    */
-  async get (key) {
+  get (key) {
     const index = this._keys.indexOf(key.toString())
     return index > -1 ? this._blocks[index] : undefined
     /* c8 ignore next 2 */
@@ -115,9 +113,9 @@ export class CarReader {
    * @instance
    * @async
    * @generator
-   * @returns {AsyncGenerator<Block>}
+   * @returns {Generator<Block>}
    */
-  async * blocks () {
+  * blocks () {
     for (const block of this._blocks) {
       yield block
     }
@@ -132,9 +130,9 @@ export class CarReader {
    * @instance
    * @async
    * @generator
-   * @returns {AsyncGenerator<CID>}
+   * @returns {Generator<CID>}
    */
-  async * cids () {
+  * cids () {
     for (const block of this._blocks) {
       yield block.cid
     }
@@ -145,79 +143,16 @@ export class CarReader {
    * @static
    * @memberof CarReader
    * @param {Uint8Array} bytes
-   * @returns {CarReader} blip blop
+   * @returns {CarReaderSync} blip blop
    */
-  static fromBytesSync (bytes) {
+  static fromBytes (bytes) {
     if (!(bytes instanceof Uint8Array)) {
       throw new TypeError('fromBytes() requires a Uint8Array')
     }
 
     const { header, blocks } = DecoderSync.fromBytes(bytes)
-    return new CarReader(header, blocks)
+    return new CarReaderSync(header, blocks)
   }
-
-  /**
-   * Instantiate a {@link CarReader} from a `Uint8Array` blob. This performs a
-   * decode fully in memory and maintains the decoded state in memory for full
-   * access to the data via the `CarReader` API.
-   *
-   * @async
-   * @static
-   * @memberof CarReader
-   * @param {Uint8Array} bytes
-   * @returns {Promise<CarReader>}
-   */
-  static async fromBytes (bytes) {
-    if (!(bytes instanceof Uint8Array)) {
-      throw new TypeError('fromBytes() requires a Uint8Array')
-    }
-    return decodeReaderComplete(bytesReader(bytes))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
-  }
-
-  /**
-   * Instantiate a {@link CarReader} from a `AsyncIterable<Uint8Array>`, such as
-   * a [modern Node.js stream](https://nodejs.org/api/stream.html#stream_streams_compatibility_with_async_generators_and_async_iterators).
-   * This performs a decode fully in memory and maintains the decoded state in
-   * memory for full access to the data via the `CarReader` API.
-   *
-   * Care should be taken for large archives; this API may not be appropriate
-   * where memory is a concern or the archive is potentially larger than the
-   * amount of memory that the runtime can handle.
-   *
-   * @async
-   * @static
-   * @memberof CarReader
-   * @param {AsyncIterable<Uint8Array>} asyncIterable
-   * @returns {Promise<CarReader>}
-   */
-  static async fromIterable (asyncIterable) {
-    if (!asyncIterable || !(typeof asyncIterable[Symbol.asyncIterator] === 'function')) {
-      throw new TypeError('fromIterable() requires an async iterable')
-    }
-    return decodeReaderComplete(asyncIterableReader(asyncIterable))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
-  }
-}
-
-/**
- * @private
- * @param {BytesReader} reader
- * @returns {Promise<CarReader>}
- */
-export async function decodeReaderComplete (reader) {
-  const decoder = createDecoder(reader)
-  const header = await decoder.header()
-  const blocks = []
-  for await (const block of decoder.blocks()) {
-    blocks.push(block)
-  }
-
-  return new CarReader(header, blocks)
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 export const __browser = true

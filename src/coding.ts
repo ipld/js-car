@@ -45,12 +45,22 @@ export interface CarDecoder {
   blocksIndex: () => AsyncGenerator<BlockIndex>
 }
 
-export interface BytesReader {
+export interface Seekable {
+  seek: (length: number) => void
+}
+
+export interface BytesReader extends Seekable {
   upTo: (length: number) => Promise<Uint8Array>
 
-  exactly: (length: number) => Promise<Uint8Array>
+  exactly: (length: number, seek: boolean) => Promise<Uint8Array>
 
-  seek: (length: number) => void
+  pos: number
+}
+
+export interface BytesReaderSync extends Seekable{
+  upTo: (length: number) => Uint8Array
+
+  exactly: (length: number, seek: boolean) => Uint8Array
 
   pos: number
 }
