@@ -2,7 +2,7 @@ import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { decode as decodeDagCbor } from '@ipld/dag-cbor'
 import { CarHeader as headerValidator } from './header-validator.js'
-import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './utils.js'
+import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
 
 /**
  * @typedef {import('./api').Block} Block

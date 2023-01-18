@@ -3,10 +3,6 @@ import type { CID } from 'multiformats/cid'
 export type Promisable<T> = T | PromiseLike<T>
 
 /**
- * Any iterable or iterator.
- */
-export type Iterableish<T> = Iterable<T> | Iterator<T> | AsyncIterable<T> | AsyncIterator<T>
-/**
  * Literally any `Iterable` (async or regular).
  */
 export type AnyIterable<T> = Iterable<T> | AsyncIterable<T>

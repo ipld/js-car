@@ -52,7 +52,7 @@ export interface Seekable {
 export interface BytesReader extends Seekable {
   upTo: (length: number) => Promise<Uint8Array>
 
-  exactly: (length: number, seek: boolean) => Promise<Uint8Array>
+  exactly: (length: number, seek?: boolean) => Promise<Uint8Array>
 
   pos: number
 }
@@ -60,7 +60,7 @@ export interface BytesReader extends Seekable {
 export interface BytesReaderSync extends Seekable{
   upTo: (length: number) => Uint8Array
 
-  exactly: (length: number, seek: boolean) => Uint8Array
+  exactly: (length: number, seek?: boolean) => Uint8Array
 
   pos: number
 }
