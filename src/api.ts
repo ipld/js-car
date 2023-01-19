@@ -77,7 +77,7 @@ export interface WriterChannel {
 }
 
 export interface CarReader extends BlockReader, RootsReader {}
-export interface SyncCarReader extends SyncBlockReader, SyncRootsReader {}
+export interface CarBufferReader extends SyncBlockReader, SyncRootsReader {}
 
 /* Specific implementations for CAR block storage */
 

@@ -1,5 +1,5 @@
 import { CarReader } from './reader.js'
-import { CarReaderSync } from './reader-sync.js'
+import { CarBufferReader } from './buffer-reader.js'
 import { CarIndexer } from './indexer.js'
 import { CarBlockIterator, CarCIDIterator } from './iterator.js'
 import { CarWriter } from './writer.js'
@@ -8,7 +8,7 @@ import * as CarBufferWriter from './buffer-writer.js'
 
 export {
   CarReader,
-  CarReaderSync,
+  CarBufferReader,
   CarIndexer,
   CarBlockIterator,
   CarCIDIterator,

@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 
-import { CarReaderSync } from '../src/reader-sync-browser.js'
+import { CarBufferReader } from '../src/buffer-reader-browser.js'
 import { bytesReader, readHeader } from '../src/decoder-sync.js'
 import { base64 } from 'multiformats/bases/base64'
 import * as dagPb from '@ipld/dag-pb'
@@ -25,7 +25,7 @@ import { expect } from 'aegir/chai'
 
 describe('CarReader Sync fromBytes()', () => {
   it('complete', async () => {
-    const reader = CarReaderSync.fromBytes(carBytes)
+    const reader = CarBufferReader.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyHas(reader)
     await verifyGet(reader)
@@ -35,7 +35,7 @@ describe('CarReader Sync fromBytes()', () => {
   })
 
   it('complete (get before has) switch', async () => {
-    const reader = CarReaderSync.fromBytes(carBytes)
+    const reader = CarBufferReader.fromBytes(carBytes)
     await verifyRoots(reader)
     await verifyGet(reader)
     await verifyHas(reader)
@@ -47,19 +47,19 @@ describe('CarReader Sync fromBytes()', () => {
     for (const arg of [true, false, null, undefined, 'string', 100, { obj: 'nope' }]) {
       expect(() => {
         // @ts-ignore
-        CarReaderSync.fromBytes(arg)
+        CarBufferReader.fromBytes(arg)
       }).throws()
     }
   })
 
   it('decode error - truncated', () => {
     assert.throws(() => {
-      CarReaderSync.fromBytes(carBytes.slice(0, carBytes.length - 10))
+      CarBufferReader.fromBytes(carBytes.slice(0, carBytes.length - 10))
     }, Error, 'Unexpected end of data')
   })
 
   it('v2 complete', () => {
-    const reader = CarReaderSync.fromBytes(goCarV2Bytes)
+    const reader = CarBufferReader.fromBytes(goCarV2Bytes)
     const roots = reader.getRoots()
     assert.strictEqual(roots.length, 1)
     assert.ok(goCarV2Roots[0].equals(roots[0]))
@@ -86,7 +86,7 @@ describe('CarReader Sync fromBytes()', () => {
     const bytes = new Uint8Array(carBytes.length + 5)
     bytes.set(carBytes)
     try {
-      CarReaderSync.fromBytes(bytes)
+      CarBufferReader.fromBytes(bytes)
     } catch (/** @type {any} */ err) {
       assert.strictEqual(err.message, 'Invalid CAR section (zero length)')
       return
@@ -99,7 +99,7 @@ describe('CarReader Sync fromBytes()', () => {
     bytes.set(carBytes)
     bytes[0] = 0
     try {
-      CarReaderSync.fromBytes(bytes)
+      CarBufferReader.fromBytes(bytes)
     } catch (/** @type {any} */ err) {
       assert.strictEqual(err.message, 'Invalid CAR header (zero length)')
       return
@@ -141,7 +141,7 @@ describe('Shared fixtures', () => {
       }
       it(name, async () => {
         const data = base64.baseDecode(fixtures[name])
-        const reader = CarReaderSync.fromBytes(data)
+        const reader = CarBufferReader.fromBytes(data)
         let i = 0
         for await (const cid of reader.cids()) {
           assert.strictEqual(cid.toString(), expectedCids[i++])
