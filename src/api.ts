@@ -1,11 +1,9 @@
 import type { CID } from 'multiformats/cid'
 
-export type Promisable<T> = T | PromiseLike<T>
-
 /**
  * Literally any `Iterable` (async or regular).
  */
-export type AnyIterable<T> = Iterable<T> | AsyncIterable<T>
+export type AwaitIterable<T> = Iterable<T> | AsyncIterable<T>
 
 export type { CID }
 /* Generic types for interfacing with block storage */
@@ -28,7 +26,12 @@ export interface BlockIndex extends BlockHeader {
 
 export interface RootsReader {
   version: number
-  getRoots: () => Promisable<CID[]>
+  getRoots: () => Promise<CID[]>
+}
+
+export interface SyncRootsReader {
+  version: number
+  getRoots: () => CID[]
 }
 
 export interface BlockIterator extends AsyncIterable<Block> {}
@@ -36,10 +39,17 @@ export interface BlockIterator extends AsyncIterable<Block> {}
 export interface CIDIterator extends AsyncIterable<CID> {}
 
 export interface BlockReader {
-  has: (key: CID) => Promisable<boolean>
-  get: (key: CID) => Promisable<Block | undefined>
-  blocks: () => AnyIterable<Block>
-  cids: () => AnyIterable<CID>
+  has: (key: CID) => Promise<boolean>
+  get: (key: CID) => Promise<Block | undefined>
+  blocks: () => AsyncIterable<Block>
+  cids: () => AsyncIterable<CID>
+}
+
+export interface SyncBlockReader {
+  has: (key: CID) => boolean
+  get: (key: CID) => Block | undefined
+  blocks: () => Iterable<Block>
+  cids: () => Iterable<CID>
 }
 
 export interface BlockWriter {
@@ -67,6 +77,7 @@ export interface WriterChannel {
 }
 
 export interface CarReader extends BlockReader, RootsReader {}
+export interface SyncCarReader extends SyncBlockReader, SyncRootsReader {}
 
 /* Specific implementations for CAR block storage */
 

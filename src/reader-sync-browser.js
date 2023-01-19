@@ -3,7 +3,7 @@ import * as DecoderSync from './decoder-sync.js'
 /**
  * @typedef {import('multiformats').CID} CID
  * @typedef {import('./api').Block} Block
- * @typedef {import('./api').CarReader} CarReaderIface
+ * @typedef {import('./api').SyncCarReader} CarReaderIface
  * @typedef {import('./coding').BytesReader} BytesReader
  * @typedef {import('./coding').CarHeader} CarHeader
  * @typedef {import('./coding').CarV2Header} CarV2Header
@@ -13,14 +13,14 @@ import * as DecoderSync from './decoder-sync.js'
  * Provides blockstore-like access to a CAR.
  *
  * Implements the `RootsReader` interface:
- * {@link CarReader.getRoots `getRoots()`}. And the `BlockReader` interface:
- * {@link CarReader.get `get()`}, {@link CarReader.has `has()`},
- * {@link CarReader.blocks `blocks()`} (defined as a `BlockIterator`) and
- * {@link CarReader.cids `cids()`} (defined as a `CIDIterator`).
+ * {@link SyncCarReader.getRoots `getRoots()`}. And the `BlockReader` interface:
+ * {@link SyncCarReader.get `get()`}, {@link CarReader.has `has()`},
+ * {@link SyncCarReader.blocks `blocks()`} (defined as a `BlockIterator`) and
+ * {@link SyncCarReader.cids `cids()`} (defined as a `CIDIterator`).
  *
- * Load this class with either `import { CarReader } from '@ipld/car/reader'`
- * (`const { CarReader } = require('@ipld/car/reader')`). Or
- * `import { CarReader } from '@ipld/car'` (`const { CarReader } = require('@ipld/car')`).
+ * Load this class with either `import { CarReaderSync } from '@ipld/car/reader-sync'`
+ * (`const { CarReaderSync } = require('@ipld/car/reader-sync')`). Or
+ * `import { CarReaderSync } from '@ipld/car'` (`const { CarReaderSync } = require('@ipld/car')`).
  * The former will likely result in smaller bundle sizes where this is
  * important.
  *
@@ -32,7 +32,7 @@ import * as DecoderSync from './decoder-sync.js'
  */
 export class CarReaderSync {
   /**
-   * @constructs CarReader
+   * @constructs CarReaderSync
    * @param {CarHeader|CarV2Header} header
    * @param {Block[]} blocks
    */
@@ -43,8 +43,8 @@ export class CarReaderSync {
   }
 
   /**
-   * @property
-   * @memberof CarReader
+   * @property version
+   * @memberof CarReaderSync
    * @instance
    */
   get version () {
@@ -56,7 +56,7 @@ export class CarReaderSync {
    * zero or more `CID`s.
    *
    * @function
-   * @memberof CarReader
+   * @memberof CarReaderSync
    * @instance
    * @returns {CID[]}
    */
@@ -71,9 +71,8 @@ export class CarReaderSync {
    * reader.
    *
    * @function
-   * @memberof CarReader
+   * @memberof CarReaderSync
    * @instance
-   * @async
    * @param {CID} key
    * @returns {boolean}
    */
@@ -90,9 +89,8 @@ export class CarReaderSync {
    * returned.
    *
    * @function
-   * @memberof CarReader
+   * @memberof CarReaderSync
    * @instance
-   * @async
    * @param {CID} key
    * @returns {Block | undefined}
    */
@@ -109,9 +107,8 @@ export class CarReaderSync {
    * the CAR referenced by this reader.
    *
    * @function
-   * @memberof CarReader
+   * @memberof CarReaderSync
    * @instance
-   * @async
    * @generator
    * @returns {Generator<Block>}
    */
@@ -126,9 +123,8 @@ export class CarReaderSync {
    * the `CID`s contained within the CAR referenced by this reader.
    *
    * @function
-   * @memberof CarReader
+   * @memberof CarReaderSync
    * @instance
-   * @async
    * @generator
    * @returns {Generator<CID>}
    */
@@ -139,9 +135,12 @@ export class CarReaderSync {
   }
 
   /**
+   * Instantiate a {@link CarReaderSync} from a `Uint8Array` blob. This performs a
+   * decode fully in memory and maintains the decoded state in memory for full
+   * access to the data via the `CarReader` API.
    *
    * @static
-   * @memberof CarReader
+   * @memberof CarReaderSync
    * @param {Uint8Array} bytes
    * @returns {CarReaderSync} blip blop
    */

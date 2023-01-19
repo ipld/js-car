@@ -8,7 +8,7 @@ import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADE
  * @typedef {import('./api').Block} Block
  * @typedef {import('./api').BlockHeader} BlockHeader
  * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./coding').BytesReaderSync} BytesReaderSync
+ * @typedef {import('./coding').SyncBytesReader} BytesReaderSync
  * @typedef {import('./coding').CarHeader} CarHeader
  * @typedef {import('./coding').CarV2Header} CarV2Header
  * @typedef {import('./coding').CarV2FixedHeader} CarV2FixedHeader

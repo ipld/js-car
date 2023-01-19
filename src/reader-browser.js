@@ -141,11 +141,14 @@ export class CarReader {
   }
 
   /**
+   * Instantiate a {@link CarReader} from a `Uint8Array` blob. This performs a
+   * decode fully in memory and maintains the decoded state in memory for full
+   * access to the data via the `CarReader` API.
    *
    * @static
    * @memberof CarReader
    * @param {Uint8Array} bytes
-   * @returns {CarReader} blip blop
+   * @returns {CarReader}
    */
   static fromBytesSync (bytes) {
     if (!(bytes instanceof Uint8Array)) {

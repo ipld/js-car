@@ -80,7 +80,8 @@
     },
     "./reader-sync": {
       "types": "./dist/src/reader-sync-browser.d.ts",
-      "import": "./src/reader-sync-browser.js"
+      "browser": "./src/reader-sync-browser.js",
+      "import": "./src/reader-sync.js"
     },
     "./writer": {
       "types": "./dist/src/writer.d.ts",
@@ -216,6 +217,7 @@
     "./src/index.js": "./src/index-browser.js",
     "./src/index-reader.js": "./src/index-reader-browser.js",
     "./src/reader.js": "./src/reader-browser.js",
+    "./src/reader-sync.js": "./src/reader-sync-browser.js",
     "./src/writer.js": "./src/writer-browser.js",
     "fs": false,
     "util": false,
