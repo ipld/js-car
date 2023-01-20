@@ -8,7 +8,7 @@ import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADE
  * @typedef {import('./api').Block} Block
  * @typedef {import('./api').BlockHeader} BlockHeader
  * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./coding').BytesBufferReader} BytesReaderSync
+ * @typedef {import('./coding').BytesBufferReader} BytesBufferReader
  * @typedef {import('./coding').CarHeader} CarHeader
  * @typedef {import('./coding').CarV2Header} CarV2Header
  * @typedef {import('./coding').CarV2FixedHeader} CarV2FixedHeader
@@ -19,7 +19,7 @@ import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADE
  * of a `CarHeader` or `CarV2Header` depending on the CAR being read.
  *
  * @name decoder.readHeader(reader)
- * @param {BytesReaderSync} reader
+ * @param {BytesBufferReader} reader
  * @param {number} [strictVersion]
  * @returns {CarHeader | CarV2Header}
  */
@@ -57,7 +57,7 @@ export function readHeader (reader, strictVersion) {
 /**
  * Reads CID sync
  *
- * @param {BytesReaderSync} reader
+ * @param {BytesBufferReader} reader
  * @returns {CID}
  */
 function readCid (reader) {
@@ -88,7 +88,7 @@ function readCid (reader) {
  * or read the block binary data.
  *
  * @name async decoder.readBlockHead(reader)
- * @param {BytesReaderSync} reader
+ * @param {BytesBufferReader} reader
  * @returns {BlockHeader}
  */
 export function readBlockHead (reader) {
@@ -141,12 +141,12 @@ export function fromBytes (bytes) {
  *
  * @name decoder.bytesReader(bytes)
  * @param {Uint8Array} bytes
- * @returns {BytesReaderSync}
+ * @returns {BytesBufferReader}
  */
 export function bytesReader (bytes) {
   let pos = 0
 
-  /** @type {BytesReaderSync} */
+  /** @type {BytesBufferReader} */
   return {
     upTo (length) {
       return bytes.subarray(pos, pos + Math.min(length, bytes.length - pos))
@@ -184,14 +184,14 @@ export function bytesReader (bytes) {
  * `BytesReader`.
  *
  * @name decoder.limitReader(reader, byteLimit)
- * @param {BytesReaderSync} reader
+ * @param {BytesBufferReader} reader
  * @param {number} byteLimit
- * @returns {BytesReaderSync}
+ * @returns {BytesBufferReader}
  */
 export function limitReader (reader, byteLimit) {
   let bytesRead = 0
 
-  /** @type {BytesReaderSync} */
+  /** @type {BytesBufferReader} */
   return {
     upTo (length) {
       let bytes = reader.upTo(length)
