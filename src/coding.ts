@@ -57,7 +57,7 @@ export interface BytesReader extends Seekable {
   pos: number
 }
 
-export interface SyncBytesReader extends Seekable{
+export interface BytesBufferReader extends Seekable{
   upTo: (length: number) => Uint8Array
 
   exactly: (length: number, seek?: boolean) => Uint8Array

@@ -33,7 +33,7 @@ function compareCids (actual, expected) {
 }
 
 /**
- * @param {RootsReader | import('../src/api').SyncRootsReader} reader
+ * @param {RootsReader | import('../src/api').RootsBufferReader} reader
  */
 async function verifyRoots (reader) {
   // using toString() for now, backing buffers in Uint8Arrays are getting in the way
@@ -45,7 +45,7 @@ async function verifyRoots (reader) {
 }
 
 /**
- * @param {BlockReader | import('../src/api').SyncBlockReader} reader
+ * @param {BlockReader | import('../src/api').BlockBufferReader} reader
  */
 async function verifyHas (reader) {
   const { allBlocks } = await makeData()
@@ -78,7 +78,7 @@ async function verifyHas (reader) {
 }
 
 /**
- * @param {BlockReader | import('../src/api').SyncBlockReader} reader
+ * @param {BlockReader | import('../src/api').BlockBufferReader} reader
  */
 async function verifyGet (reader) {
   const { allBlocks } = await makeData()

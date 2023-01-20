@@ -29,7 +29,7 @@ export interface RootsReader {
   getRoots: () => Promise<CID[]>
 }
 
-export interface SyncRootsReader {
+export interface RootsBufferReader {
   version: number
   getRoots: () => CID[]
 }
@@ -41,11 +41,11 @@ export interface CIDIterator extends AsyncIterable<CID> {}
 export interface BlockReader {
   has: (key: CID) => Promise<boolean>
   get: (key: CID) => Promise<Block | undefined>
-  blocks: () => AsyncIterable<Block>
-  cids: () => AsyncIterable<CID>
+  blocks: () => BlockIterator
+  cids: () => CIDIterator
 }
 
-export interface SyncBlockReader {
+export interface BlockBufferReader {
   has: (key: CID) => boolean
   get: (key: CID) => Block | undefined
   blocks: () => Iterable<Block>
@@ -77,7 +77,7 @@ export interface WriterChannel {
 }
 
 export interface CarReader extends BlockReader, RootsReader {}
-export interface CarBufferReader extends SyncBlockReader, SyncRootsReader {}
+export interface CarBufferReader extends BlockBufferReader, RootsBufferReader {}
 
 /* Specific implementations for CAR block storage */
 

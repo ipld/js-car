@@ -117,7 +117,7 @@ methods as well as iterators for [`blocks()`](#CarReader_blocks)] and
 [an `AsyncIterable`](#CarReader__fromIterable) of `Uint8Array`s (note that
 Node.js streams are `AsyncIterable`s and can be consumed in this way).
 
-`CarBufferReader` works exactly the same way as `CarReader` but all method are synchronous.
+`CarBufferReader` works exactly the same way as `CarReader` but all methods are synchronous.
 
 ### [`CarIndexedReader`](#CarIndexedReader)
 
@@ -215,66 +215,79 @@ be directly fed to a
 
 ### Contents
 
- * [`class CarReader`](#CarReader)
- * [`async CarReader#getRoots()`](#CarReader_getRoots)
- * [`async CarReader#has(key)`](#CarReader_has)
- * [`async CarReader#get(key)`](#CarReader_get)
- * [`async * CarReader#blocks()`](#CarReader_blocks)
- * [`async * CarReader#cids()`](#CarReader_cids)
- * [`CarReader.fromBytesSync(bytes)`](#CarReader__fromBytesSync)
- * [`async CarReader.fromBytes(bytes)`](#CarReader__fromBytes)
- * [`async CarReader.fromIterable(asyncIterable)`](#CarReader__fromIterable)
- * [`async CarReader.readRaw(fd, blockIndex)`](#CarReader__readRaw)
- * [`class CarIndexedReader`](#CarIndexedReader)
- * [`async CarIndexedReader#getRoots()`](#CarIndexedReader_getRoots)
- * [`async CarIndexedReader#has(key)`](#CarIndexedReader_has)
- * [`async CarIndexedReader#get(key)`](#CarIndexedReader_get)
- * [`async * CarIndexedReader#blocks()`](#CarIndexedReader_blocks)
- * [`async * CarIndexedReader#cids()`](#CarIndexedReader_cids)
- * [`async CarIndexedReader#close()`](#CarIndexedReader_close)
- * [`async CarIndexedReader.fromFile(path)`](#CarIndexedReader__fromFile)
- * [`class CarBlockIterator`](#CarBlockIterator)
- * [`async CarBlockIterator#getRoots()`](#CarBlockIterator_getRoots)
- * [`async CarBlockIterator.fromBytes(bytes)`](#CarBlockIterator__fromBytes)
- * [`async CarBlockIterator.fromIterable(asyncIterable)`](#CarBlockIterator__fromIterable)
- * [`class CarCIDIterator`](#CarCIDIterator)
- * [`async CarCIDIterator#getRoots()`](#CarCIDIterator_getRoots)
- * [`async CarCIDIterator.fromBytes(bytes)`](#CarCIDIterator__fromBytes)
- * [`async CarCIDIterator.fromIterable(asyncIterable)`](#CarCIDIterator__fromIterable)
- * [`class CarIndexer`](#CarIndexer)
- * [`async CarIndexer#getRoots()`](#CarIndexer_getRoots)
- * [`async CarIndexer.fromBytes(bytes)`](#CarIndexer__fromBytes)
- * [`async CarIndexer.fromIterable(asyncIterable)`](#CarIndexer__fromIterable)
- * [`class CarWriter`](#CarWriter)
- * [`async CarWriter#put(block)`](#CarWriter_put)
- * [`async CarWriter#close()`](#CarWriter_close)
- * [`async CarWriter.create(roots)`](#CarWriter__create)
- * [`async CarWriter.createAppender()`](#CarWriter__createAppender)
- * [`async CarWriter.updateRootsInBytes(bytes, roots)`](#CarWriter__updateRootsInBytes)
- * [`async CarWriter.updateRootsInFile(fd, roots)`](#CarWriter__updateRootsInFile)
- * [`class CarBufferWriter`](#CarBufferWriter)
- * [`CarBufferWriter#addRoot(root, options)`](#CarBufferWriter_addRoot)
- * [`CarBufferWriter#write(block)`](#CarBufferWriter_write)
- * [`CarBufferWriter#close([options])`](#CarBufferWriter_close)
- * [`CarBufferWriter.blockLength(Block)`](#CarBufferWriter__blockLength__Block__)
- * [`CarBufferWriter.calculateHeaderLength(rootLengths)`](#CarBufferWriter__calculateHeaderLength__rootLengths__)
- * [`CarBufferWriter.headerLength({ roots })`](#CarBufferWriter__headerLength______roots______)
- * [`CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`](#CarBufferWriter__estimateHeaderLength__rootCount______rootByteLength____)
- * [`CarBufferWriter.createWriter(buffer[, options])`](#CarBufferWriter__createWriter__buffer______options____)
- * [`async decoder.readHeader(reader)`](#async__decoder__readHeader__reader__)
- * [`async decoder.readBlockHead(reader)`](#async__decoder__readBlockHead__reader__)
- * [`decoder.createDecoder(reader)`](#decoder__createDecoder__reader__)
- * [`decoder.bytesReader(bytes)`](#decoder__bytesReader__bytes__)
- * [`decoder.asyncIterableReader(asyncIterable)`](#decoder__asyncIterableReader__asyncIterable__)
- * [`decoder.limitReader(reader, byteLimit)`](#decoder__limitReader__reader____byteLimit__)
- * [`class CarBufferReader`](#CarBufferReader)
- * [`CarBufferReader#getRoots()`](#CarBufferReader_getRoots)
- * [`CarBufferReader#has(key)`](#CarBufferReader_has)
- * [`CarBufferReader#get(key)`](#CarBufferReader_get)
- * [`* CarBufferReader#blocks()`](#CarBufferReader_blocks)
- * [`* CarBufferReader#cids()`](#CarBufferReader_cids)
- * [`CarBufferReader.fromBytes(bytes)`](#CarBufferReader__fromBytes)
- * [`CarBufferReader.readRaw(fd, blockIndex)`](#CarBufferReader__readRaw)
+- [@ipld/car](#ipldcar)
+  - [Install](#install)
+  - [Contents](#contents)
+  - [Example](#example)
+  - [Usage](#usage)
+    - [`CarReader`](#carreader)
+    - [`CarIndexedReader`](#carindexedreader)
+    - [`CarBlockIterator` and `CarCIDIterator`](#carblockiterator-and-carciditerator)
+    - [`CarIndexer`](#carindexer)
+    - [`CarWriter`](#carwriter)
+  - [API](#api)
+    - [Contents](#contents-1)
+    - [`class CarReader`](#class-carreader)
+    - [`async CarReader#getRoots()`](#async-carreadergetroots)
+    - [`async CarReader#has(key)`](#async-carreaderhaskey)
+    - [`async CarReader#get(key)`](#async-carreadergetkey)
+    - [`async * CarReader#blocks()`](#async--carreaderblocks)
+    - [`async * CarReader#cids()`](#async--carreadercids)
+    - [`async CarReader.fromBytes(bytes)`](#async-carreaderfrombytesbytes)
+    - [`async CarReader.fromIterable(asyncIterable)`](#async-carreaderfromiterableasynciterable)
+    - [`async CarReader.readRaw(fd, blockIndex)`](#async-carreaderreadrawfd-blockindex)
+    - [`class CarIndexedReader`](#class-carindexedreader)
+    - [`async CarIndexedReader#getRoots()`](#async-carindexedreadergetroots)
+    - [`async CarIndexedReader#has(key)`](#async-carindexedreaderhaskey)
+    - [`async CarIndexedReader#get(key)`](#async-carindexedreadergetkey)
+    - [`async * CarIndexedReader#blocks()`](#async--carindexedreaderblocks)
+    - [`async * CarIndexedReader#cids()`](#async--carindexedreadercids)
+    - [`async CarIndexedReader#close()`](#async-carindexedreaderclose)
+    - [`async CarIndexedReader.fromFile(path)`](#async-carindexedreaderfromfilepath)
+    - [`class CarBlockIterator`](#class-carblockiterator)
+    - [`async CarBlockIterator#getRoots()`](#async-carblockiteratorgetroots)
+    - [`async CarBlockIterator.fromBytes(bytes)`](#async-carblockiteratorfrombytesbytes)
+    - [`async CarBlockIterator.fromIterable(asyncIterable)`](#async-carblockiteratorfromiterableasynciterable)
+    - [`class CarCIDIterator`](#class-carciditerator)
+    - [`async CarCIDIterator#getRoots()`](#async-carciditeratorgetroots)
+    - [`async CarCIDIterator.fromBytes(bytes)`](#async-carciditeratorfrombytesbytes)
+    - [`async CarCIDIterator.fromIterable(asyncIterable)`](#async-carciditeratorfromiterableasynciterable)
+    - [`class CarIndexer`](#class-carindexer)
+    - [`async CarIndexer#getRoots()`](#async-carindexergetroots)
+    - [`async CarIndexer.fromBytes(bytes)`](#async-carindexerfrombytesbytes)
+    - [`async CarIndexer.fromIterable(asyncIterable)`](#async-carindexerfromiterableasynciterable)
+    - [`class CarWriter`](#class-carwriter)
+    - [`async CarWriter#put(block)`](#async-carwriterputblock)
+    - [`async CarWriter#close()`](#async-carwriterclose)
+    - [`async CarWriter.create(roots)`](#async-carwritercreateroots)
+    - [`async CarWriter.createAppender()`](#async-carwritercreateappender)
+    - [`async CarWriter.updateRootsInBytes(bytes, roots)`](#async-carwriterupdaterootsinbytesbytes-roots)
+    - [`async CarWriter.updateRootsInFile(fd, roots)`](#async-carwriterupdaterootsinfilefd-roots)
+    - [`class CarBufferWriter`](#class-carbufferwriter)
+    - [`CarBufferWriter#addRoot(root, options)`](#carbufferwriteraddrootroot-options)
+    - [`CarBufferWriter#write(block)`](#carbufferwriterwriteblock)
+    - [`CarBufferWriter#close([options])`](#carbufferwritercloseoptions)
+    - [`CarBufferWriter.blockLength(Block)`](#carbufferwriterblocklengthblock)
+    - [`CarBufferWriter.calculateHeaderLength(rootLengths)`](#carbufferwritercalculateheaderlengthrootlengths)
+    - [`CarBufferWriter.headerLength({ roots })`](#carbufferwriterheaderlength-roots-)
+    - [`CarBufferWriter.estimateHeaderLength(rootCount[, rootByteLength])`](#carbufferwriterestimateheaderlengthrootcount-rootbytelength)
+    - [`CarBufferWriter.createWriter(buffer[, options])`](#carbufferwritercreatewriterbuffer-options)
+    - [`async decoder.readHeader(reader)`](#async-decoderreadheaderreader)
+    - [`async decoder.readBlockHead(reader)`](#async-decoderreadblockheadreader)
+    - [`decoder.createDecoder(reader)`](#decodercreatedecoderreader)
+    - [`decoder.bytesReader(bytes)`](#decoderbytesreaderbytes)
+    - [`decoder.asyncIterableReader(asyncIterable)`](#decoderasynciterablereaderasynciterable)
+    - [`decoder.limitReader(reader, byteLimit)`](#decoderlimitreaderreader-bytelimit)
+    - [`class CarBufferReader`](#class-carbufferreader)
+    - [`CarBufferReader#getRoots()`](#carbufferreadergetroots)
+    - [`CarBufferReader#has(key)`](#carbufferreaderhaskey)
+    - [`CarBufferReader#get(key)`](#carbufferreadergetkey)
+    - [`CarBufferReader#blocks()`](#carbufferreaderblocks)
+    - [`CarBufferReader#cids()`](#carbufferreadercids)
+    - [`CarBufferReader.fromBytes(bytes)`](#carbufferreaderfrombytesbytes)
+    - [`CarBufferReader.readRaw(fd, blockIndex)`](#carbufferreaderreadrawfd-blockindex)
+  - [License](#license)
+    - [Contribution](#contribution)
 
 <a name="CarReader"></a>
 ### `class CarReader`
@@ -344,17 +357,6 @@ the CAR referenced by this reader.
 
 Returns a `CIDIterator` (`AsyncIterable<CID>`) that iterates over all of
 the `CID`s contained within the CAR referenced by this reader.
-
-<a name="CarReader__fromBytesSync"></a>
-### `CarReader.fromBytesSync(bytes)`
-
-* `bytes` `(Uint8Array)`
-
-* Returns:  `CarReader`
-
-Instantiate a [`CarReader`](#CarReader) from a `Uint8Array` blob. This performs a
-decode fully in memory and maintains the decoded state in memory for full
-access to the data via the `CarReader` API.
 
 <a name="CarReader__fromBytes"></a>
 ### `async CarReader.fromBytes(bytes)`
@@ -981,11 +983,11 @@ Properties:
 
 Provides blockstore-like access to a CAR.
 
-Implements the `RootsReader` interface:
-[`getRoots()`](#ICarBufferReader__getRoots). And the `BlockReader` interface:
+Implements the `RootsBufferReader` interface:
+[`getRoots()`](#ICarBufferReader__getRoots). And the `BlockBufferReader` interface:
 [`get()`](#ICarBufferReader__get), [`has()`](#ICarBufferReader__has),
-[`blocks()`](#ICarBufferReader__blocks) (defined as a `BlockIterator`) and
-[`cids()`](#ICarBufferReader__cids) (defined as a `CIDIterator`).
+[`blocks()`](#ICarBufferReader__blocks) and
+[`cids()`](#ICarBufferReader__cids).
 
 Load this class with either `import { CarBufferReader } from '@ipld/car/buffer-reader'`
 (`const { CarBufferReader } = require('@ipld/car/buffer-reader')`). Or
@@ -1024,28 +1026,26 @@ the provided `CID` doesn't exist within the CAR, `undefined` will be
 returned.
 
 <a name="CarBufferReader_blocks"></a>
-### `* CarBufferReader#blocks()`
+### `CarBufferReader#blocks()`
 
-* Returns:  `Generator<Block>`
+* Returns:  `Block[]`
 
-Returns a `BlockIterator` (`AsyncIterable<Block>`) that iterates over all
-of the `Block`s (`{ cid:CID, bytes:Uint8Array }` pairs) contained within
+Returns a `Block[]` of the `Block`s (`{ cid:CID, bytes:Uint8Array }` pairs) contained within
 the CAR referenced by this reader.
 
 <a name="CarBufferReader_cids"></a>
-### `* CarBufferReader#cids()`
+### `CarBufferReader#cids()`
 
-* Returns:  `Generator<CID>`
+* Returns:  `CID[]`
 
-Returns a `CIDIterator` (`AsyncIterable<CID>`) that iterates over all of
-the `CID`s contained within the CAR referenced by this reader.
+Returns a `CID[]` of the `CID`s contained within the CAR referenced by this reader.
 
 <a name="CarBufferReader__fromBytes"></a>
 ### `CarBufferReader.fromBytes(bytes)`
 
 * `bytes` `(Uint8Array)`
 
-* Returns:  `CarBufferReader`: blip blop
+* Returns:  `CarBufferReader`
 
 Instantiate a [`CarBufferReader`](#CarBufferReader) from a `Uint8Array` blob. This performs a
 decode fully in memory and maintains the decoded state in memory for full

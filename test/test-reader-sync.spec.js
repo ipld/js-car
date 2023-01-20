@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 import { CarBufferReader } from '../src/buffer-reader-browser.js'
-import { bytesReader, readHeader } from '../src/decoder-sync.js'
+import { bytesReader, readHeader } from '../src/buffer-decoder.js'
 import { base64 } from 'multiformats/bases/base64'
 import * as dagPb from '@ipld/dag-pb'
 import {

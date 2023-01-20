@@ -1,10 +1,9 @@
-import * as DecoderSync from './decoder-sync.js'
+import * as BufferDecoder from './buffer-decoder.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
  * @typedef {import('./api').Block} Block
  * @typedef {import('./api').CarBufferReader} ICarBufferReader
- * @typedef {import('./coding').BytesReader} BytesReader
  * @typedef {import('./coding').CarHeader} CarHeader
  * @typedef {import('./coding').CarV2Header} CarV2Header
  */
@@ -12,11 +11,11 @@ import * as DecoderSync from './decoder-sync.js'
 /**
  * Provides blockstore-like access to a CAR.
  *
- * Implements the `RootsReader` interface:
- * {@link ICarBufferReader.getRoots `getRoots()`}. And the `BlockReader` interface:
+ * Implements the `RootsBufferReader` interface:
+ * {@link ICarBufferReader.getRoots `getRoots()`}. And the `BlockBufferReader` interface:
  * {@link ICarBufferReader.get `get()`}, {@link ICarBufferReader.has `has()`},
- * {@link ICarBufferReader.blocks `blocks()`} (defined as a `BlockIterator`) and
- * {@link ICarBufferReader.cids `cids()`} (defined as a `CIDIterator`).
+ * {@link ICarBufferReader.blocks `blocks()`} and
+ * {@link ICarBufferReader.cids `cids()`}.
  *
  * Load this class with either `import { CarBufferReader } from '@ipld/car/buffer-reader'`
  * (`const { CarBufferReader } = require('@ipld/car/buffer-reader')`). Or
@@ -40,6 +39,7 @@ export class CarBufferReader {
     this._header = header
     this._blocks = blocks
     this._keys = blocks.map((b) => b.cid.toString())
+    this._cids = this._blocks.map(b => b.cid)
   }
 
   /**
@@ -77,7 +77,7 @@ export class CarBufferReader {
    * @returns {boolean}
    */
   has (key) {
-    return this._keys.indexOf(key.toString()) > -1
+    return Boolean(this._cids.find((cid) => cid.equals(key)))
     /* c8 ignore next 2 */
     // Node.js 12 c8 bug
   }
@@ -102,36 +102,28 @@ export class CarBufferReader {
   }
 
   /**
-   * Returns a `BlockIterator` (`AsyncIterable<Block>`) that iterates over all
-   * of the `Block`s (`{ cid:CID, bytes:Uint8Array }` pairs) contained within
+   * Returns a `Block[]` of the `Block`s (`{ cid:CID, bytes:Uint8Array }` pairs) contained within
    * the CAR referenced by this reader.
    *
    * @function
    * @memberof CarBufferReader
    * @instance
-   * @generator
-   * @returns {Generator<Block>}
+   * @returns {Block[]}
    */
-  * blocks () {
-    for (const block of this._blocks) {
-      yield block
-    }
+  blocks () {
+    return this._blocks
   }
 
   /**
-   * Returns a `CIDIterator` (`AsyncIterable<CID>`) that iterates over all of
-   * the `CID`s contained within the CAR referenced by this reader.
+   * Returns a `CID[]` of the `CID`s contained within the CAR referenced by this reader.
    *
    * @function
    * @memberof CarBufferReader
    * @instance
-   * @generator
-   * @returns {Generator<CID>}
+   * @returns {CID[]}
    */
-  * cids () {
-    for (const block of this._blocks) {
-      yield block.cid
-    }
+  cids () {
+    return this._cids
   }
 
   /**
@@ -142,14 +134,14 @@ export class CarBufferReader {
    * @static
    * @memberof CarBufferReader
    * @param {Uint8Array} bytes
-   * @returns {CarBufferReader} blip blop
+   * @returns {CarBufferReader}
    */
   static fromBytes (bytes) {
     if (!(bytes instanceof Uint8Array)) {
       throw new TypeError('fromBytes() requires a Uint8Array')
     }
 
-    const { header, blocks } = DecoderSync.fromBytes(bytes)
+    const { header, blocks } = BufferDecoder.fromBytes(bytes)
     return new CarBufferReader(header, blocks)
   }
 }

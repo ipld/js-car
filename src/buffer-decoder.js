@@ -8,7 +8,7 @@ import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADE
  * @typedef {import('./api').Block} Block
  * @typedef {import('./api').BlockHeader} BlockHeader
  * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./coding').SyncBytesReader} BytesReaderSync
+ * @typedef {import('./coding').BytesBufferReader} BytesReaderSync
  * @typedef {import('./coding').CarHeader} CarHeader
  * @typedef {import('./coding').CarV2Header} CarV2Header
  * @typedef {import('./coding').CarV2FixedHeader} CarV2FixedHeader
@@ -18,7 +18,7 @@ import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADE
  * Reads header data from a `BytesReader`. The header may either be in the form
  * of a `CarHeader` or `CarV2Header` depending on the CAR being read.
  *
- * @name async decoder.readHeader(reader)
+ * @name decoder.readHeader(reader)
  * @param {BytesReaderSync} reader
  * @param {number} [strictVersion]
  * @returns {CarHeader | CarV2Header}
