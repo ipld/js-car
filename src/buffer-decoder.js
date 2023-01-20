@@ -83,7 +83,7 @@ function readCid (reader) {
 
 /**
  * Reads the leading data of an individual block from CAR data from a
- * `BytesReader`. Returns a `BlockHeader` object which contains
+ * `BytesBufferReader`. Returns a `BlockHeader` object which contains
  * `{ cid, length, blockLength }` which can be used to either index the block
  * or read the block binary data.
  *
@@ -109,9 +109,7 @@ export function readBlockHead (reader) {
 }
 
 /**
- * Creates a `CarDecoder` from a `BytesReader`. The `CarDecoder` is as async
- * interface that will consume the bytes from the `BytesReader` to yield a
- * `header()` and either `blocks()` or `blocksIndex()` data.
+ * Returns Car header and blocks from a Uint8Array
  *
  * @param {Uint8Array} bytes
  * @returns {{ header : CarHeader | CarV2Header , blocks: Block[]}}
@@ -137,7 +135,7 @@ export function fromBytes (bytes) {
 }
 
 /**
- * Creates a `BytesReader` from a `Uint8Array`.
+ * Creates a `BytesBufferReader` from a `Uint8Array`.
  *
  * @name decoder.bytesReader(bytes)
  * @param {Uint8Array} bytes
@@ -179,9 +177,9 @@ export function bytesReader (bytes) {
 }
 
 /**
- * Wraps a `BytesReader` in a limiting `BytesReader` which limits maximum read
+ * Wraps a `BytesBufferReader` in a limiting `BytesBufferReader` which limits maximum read
  * to `byteLimit` bytes. It _does not_ update `pos` of the original
- * `BytesReader`.
+ * `BytesBufferReader`.
  *
  * @name decoder.limitReader(reader, byteLimit)
  * @param {BytesBufferReader} reader
