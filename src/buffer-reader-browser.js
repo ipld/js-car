@@ -38,8 +38,7 @@ export class CarBufferReader {
   constructor (header, blocks) {
     this._header = header
     this._blocks = blocks
-    this._keys = blocks.map((b) => b.cid.toString())
-    this._cids = this._blocks.map(b => b.cid)
+    this._cids = undefined
   }
 
   /**
@@ -77,7 +76,7 @@ export class CarBufferReader {
    * @returns {boolean}
    */
   has (key) {
-    return Boolean(this._cids.find((cid) => cid.equals(key)))
+    return this._blocks.some(b => b.cid.equals(key))
     /* c8 ignore next 2 */
     // Node.js 12 c8 bug
   }
@@ -95,8 +94,7 @@ export class CarBufferReader {
    * @returns {Block | undefined}
    */
   get (key) {
-    const index = this._keys.indexOf(key.toString())
-    return index > -1 ? this._blocks[index] : undefined
+    return this._blocks.find(b => b.cid.equals(key))
     /* c8 ignore next 2 */
     // Node.js 12 c8 bug
   }
@@ -123,6 +121,9 @@ export class CarBufferReader {
    * @returns {CID[]}
    */
   cids () {
+    if (!this._cids) {
+      this._cids = this._blocks.map(b => b.cid)
+    }
     return this._cids
   }
 
