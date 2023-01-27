@@ -1,3 +1,10 @@
+## [5.1.0](https://github.com/ipld/js-car/compare/v5.0.3...v5.1.0) (2023-01-27)
+
+
+### Features
+
+* add support for sync car reading ([#121](https://github.com/ipld/js-car/issues/121)) ([c3917aa](https://github.com/ipld/js-car/commit/c3917aa955559c21e8ec41c7dcdebae4e91c50fe))
+
 ## [5.0.3](https://github.com/ipld/js-car/compare/v5.0.2...v5.0.3) (2023-01-09)
 
 
