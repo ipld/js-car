@@ -78,6 +78,11 @@
       "browser": "./src/reader-browser.js",
       "import": "./src/reader.js"
     },
+    "./buffer-reader": {
+      "types": "./dist/src/buffer-reader-browser.d.ts",
+      "browser": "./src/buffer-reader-browser.js",
+      "import": "./src/buffer-reader.js"
+    },
     "./writer": {
       "types": "./dist/src/writer.d.ts",
       "browser": "./src/writer-browser.js",
@@ -190,7 +195,7 @@
     "test:examples": "npm run test --prefix examples/",
     "dep-check": "aegir dep-check",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
-    "docs": "jsdoc4readme --readme --description-only src/reader*.js src/indexed-reader.js src/iterator.js src/indexer.js src/writer*.js src/buffer-writer.js src/decoder.js"
+    "docs": "jsdoc4readme --readme --description-only src/reader*.js src/indexed-reader.js src/iterator.js src/indexer.js src/writer*.js src/buffer-writer.js src/decoder.js src/buffer-reader*.js"
   },
   "dependencies": {
     "@ipld/dag-cbor": "^9.0.0",
@@ -212,6 +217,7 @@
     "./src/index.js": "./src/index-browser.js",
     "./src/index-reader.js": "./src/index-reader-browser.js",
     "./src/reader.js": "./src/reader-browser.js",
+    "./src/buffer-reader.js": "./src/buffer-reader-browser.js",
     "./src/writer.js": "./src/writer-browser.js",
     "fs": false,
     "util": false,

@@ -1,8 +1,8 @@
-import varint from 'varint'
 import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { decode as decodeDagCbor } from '@ipld/dag-cbor'
 import { CarHeader as headerValidator } from './header-validator.js'
+import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
 
 /**
  * @typedef {import('./api').Block} Block
@@ -15,56 +15,6 @@ import { CarHeader as headerValidator } from './header-validator.js'
  * @typedef {import('./coding').CarDecoder} CarDecoder
  */
 
-const CIDV0_BYTES = {
-  SHA2_256: 0x12,
-  LENGTH: 0x20,
-  DAG_PB: 0x70
-}
-
-const V2_HEADER_LENGTH = /* characteristics */ 16 /* v1 offset */ + 8 /* v1 size */ + 8 /* index offset */ + 8
-
-/**
- * @param {BytesReader} reader
- * @returns {Promise<number>}
- */
-async function readVarint (reader) {
-  const bytes = await reader.upTo(8)
-  if (!bytes.length) {
-    throw new Error('Unexpected end of data')
-  }
-  const i = varint.decode(bytes)
-  reader.seek(/** @type {number} */(varint.decode.bytes))
-  return i
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
-}
-
-/**
- * @param {BytesReader} reader
- * @returns {Promise<CarV2FixedHeader>}
- */
-async function readV2Header (reader) {
-  /** @type {Uint8Array} */
-  const bytes = await reader.exactly(V2_HEADER_LENGTH)
-  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
-  let offset = 0
-  const header = {
-    version: 2,
-    /** @type {[bigint, bigint]} */
-    characteristics: [
-      dv.getBigUint64(offset, true),
-      dv.getBigUint64(offset += 8, true)
-    ],
-    dataOffset: Number(dv.getBigUint64(offset += 8, true)),
-    dataSize: Number(dv.getBigUint64(offset += 8, true)),
-    indexOffset: Number(dv.getBigUint64(offset += 8, true))
-  }
-  reader.seek(V2_HEADER_LENGTH)
-  return header
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
-}
-
 /**
  * Reads header data from a `BytesReader`. The header may either be in the form
  * of a `CarHeader` or `CarV2Header` depending on the CAR being read.
@@ -75,12 +25,11 @@ async function readV2Header (reader) {
  * @returns {Promise<CarHeader|CarV2Header>}
  */
 export async function readHeader (reader, strictVersion) {
-  const length = await readVarint(reader)
+  const length = decodeVarint(await reader.upTo(8), reader)
   if (length === 0) {
     throw new Error('Invalid CAR header (zero length)')
   }
-  const header = await reader.exactly(length)
-  reader.seek(length)
+  const header = await reader.exactly(length, true)
   const block = decodeDagCbor(header)
   if (!headerValidator(block)) {
     throw new Error('Invalid CAR header format')
@@ -98,7 +47,7 @@ export async function readHeader (reader, strictVersion) {
     return block
   }
   // version 2
-  const v2Header = await readV2Header(reader)
+  const v2Header = decodeV2Header(await reader.exactly(V2_HEADER_LENGTH, true))
   reader.seek(v2Header.dataOffset - reader.pos)
   const v1Header = await readHeader(reader, 1)
   return Object.assign(v1Header, v2Header)
@@ -108,46 +57,23 @@ export async function readHeader (reader, strictVersion) {
 
 /**
  * @param {BytesReader} reader
- * @returns {Promise<Uint8Array>}
- */
-async function readMultihash (reader) {
-  // | code | length | .... |
-  // where both code and length are varints, so we have to decode
-  // them first before we can know total length
-
-  const bytes = await reader.upTo(8)
-  varint.decode(bytes) // code
-  const codeLength = /** @type {number} */(varint.decode.bytes)
-  const length = varint.decode(bytes.subarray(varint.decode.bytes))
-  const lengthLength = /** @type {number} */(varint.decode.bytes)
-  const mhLength = codeLength + lengthLength + length
-  const multihash = await reader.exactly(mhLength)
-  reader.seek(mhLength)
-  return multihash
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
-}
-
-/**
- * @param {BytesReader} reader
  * @returns {Promise<CID>}
  */
 async function readCid (reader) {
-  const first = await reader.exactly(2)
+  const first = await reader.exactly(2, false)
   if (first[0] === CIDV0_BYTES.SHA2_256 && first[1] === CIDV0_BYTES.LENGTH) {
     // cidv0 32-byte sha2-256
-    const bytes = await reader.exactly(34)
-    reader.seek(34)
+    const bytes = await reader.exactly(34, true)
     const multihash = Digest.decode(bytes)
     return CID.create(0, CIDV0_BYTES.DAG_PB, multihash)
   }
 
-  const version = await readVarint(reader)
+  const version = decodeVarint(await reader.upTo(8), reader)
   if (version !== 1) {
     throw new Error(`Unexpected CID version (${version})`)
   }
-  const codec = await readVarint(reader)
-  const bytes = await readMultihash(reader)
+  const codec = decodeVarint(await reader.upTo(8), reader)
+  const bytes = await reader.exactly(getMultihashLength(await reader.upTo(8)), true)
   const multihash = Digest.decode(bytes)
   return CID.create(version, codec, multihash)
   /* c8 ignore next 2 */
@@ -168,7 +94,7 @@ export async function readBlockHead (reader) {
   // length includes a CID + Binary, where CID has a variable length
   // we have to deal with
   const start = reader.pos
-  let length = await readVarint(reader)
+  let length = decodeVarint(await reader.upTo(8), reader)
   if (length === 0) {
     throw new Error('Invalid CAR section (zero length)')
   }
@@ -187,8 +113,7 @@ export async function readBlockHead (reader) {
  */
 async function readBlock (reader) {
   const { cid, blockLength } = await readBlockHead(reader)
-  const bytes = await reader.exactly(blockLength)
-  reader.seek(blockLength)
+  const bytes = await reader.exactly(blockLength, true)
   return { bytes, cid }
   /* c8 ignore next 2 */
   // Node.js 12 c8 bug
@@ -261,16 +186,21 @@ export function bytesReader (bytes) {
   /** @type {BytesReader} */
   return {
     async upTo (length) {
-      return bytes.subarray(pos, pos + Math.min(length, bytes.length - pos))
+      const out = bytes.subarray(pos, pos + Math.min(length, bytes.length - pos))
       /* c8 ignore next 2 */
+      return out
       // Node.js 12 c8 bug
     },
 
-    async exactly (length) {
+    async exactly (length, seek = false) {
       if (length > bytes.length - pos) {
         throw new Error('Unexpected end of data')
       }
-      return bytes.subarray(pos, pos + length)
+      const out = bytes.subarray(pos, pos + length)
+      if (seek) {
+        pos += length
+      }
+      return out
       /* c8 ignore next 2 */
       // Node.js 12 c8 bug
     },
@@ -340,14 +270,19 @@ export function chunkReader (readChunk /*, closer */) {
       // Node.js 12 c8 bug
     },
 
-    async exactly (length) {
+    async exactly (length, seek = false) {
       if (currentChunk.length - offset < length) {
         await read(length)
       }
       if (currentChunk.length - offset < length) {
         throw new Error('Unexpected end of data')
       }
-      return currentChunk.subarray(offset, offset + length)
+      const out = currentChunk.subarray(offset, offset + length)
+      if (seek) {
+        pos += length
+        offset += length
+      }
+      return out
       /* c8 ignore next 2 */
       // Node.js 12 c8 bug
     },
@@ -412,10 +347,13 @@ export function limitReader (reader, byteLimit) {
       // Node.js 12 c8 bug
     },
 
-    async exactly (length) {
-      const bytes = await reader.exactly(length)
+    async exactly (length, seek = false) {
+      const bytes = await reader.exactly(length, seek)
       if (bytes.length + bytesRead > byteLimit) {
         throw new Error('Unexpected end of data')
+      }
+      if (seek) {
+        bytesRead += length
       }
       return bytes
       /* c8 ignore next 2 */
