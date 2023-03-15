@@ -1,3 +1,10 @@
+## [5.1.1](https://github.com/ipld/js-car/compare/v5.1.0...v5.1.1) (2023-03-15)
+
+
+### Bug Fixes
+
+* export CarBufferReader and CarBufferWriter from index-browser.js ([#136](https://github.com/ipld/js-car/issues/136)) ([70f0e7c](https://github.com/ipld/js-car/commit/70f0e7c120a4c73b68ae66bce0694a16f4c942fd))
+
 ## [5.1.0](https://github.com/ipld/js-car/compare/v5.0.3...v5.1.0) (2023-01-27)
 
 
