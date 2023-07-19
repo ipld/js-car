@@ -1,3 +1,10 @@
+## [5.2.0](https://github.com/ipld/js-car/compare/v5.1.1...v5.2.0) (2023-07-19)
+
+
+### Features
+
+* expose contentType ([#142](https://github.com/ipld/js-car/issues/142)) ([65e2758](https://github.com/ipld/js-car/commit/65e275881821520d17cc822337e1218144b49a62))
+
 ## [5.1.1](https://github.com/ipld/js-car/compare/v5.1.0...v5.1.1) (2023-03-15)
 
 
