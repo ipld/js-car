@@ -6,6 +6,9 @@ import { CarWriter } from './writer.js'
 import { CarIndexedReader } from './indexed-reader.js'
 import * as CarBufferWriter from './buffer-writer.js'
 
+// @see https://www.iana.org/assignments/media-types/application/vnd.ipld.car
+export const contentType = 'application/vnd.ipld.car'
+
 export {
   CarReader,
   CarBufferReader,
