@@ -1,3 +1,16 @@
+## [5.2.2](https://github.com/ipld/js-car/compare/v5.2.1...v5.2.2) (2023-08-28)
+
+
+### Trivial Changes
+
+* add test for trailing null byte ([42ff49e](https://github.com/ipld/js-car/commit/42ff49e0edc3d1a71ab97f40d4a1d7adabf12739))
+
+
+### Dependencies
+
+* bump cborg from 1.10.2 to 2.0.5 ([08e9f1c](https://github.com/ipld/js-car/commit/08e9f1cf5c11ff146a419c3d9429d4c518db1ad1))
+* bump multiformats from 11.0.2 to 12.1.0 ([524d358](https://github.com/ipld/js-car/commit/524d358a10ef402cd63e940e753808104b73a8e3))
+
 ## [5.2.1](https://github.com/ipld/js-car/compare/v5.2.0...v5.2.1) (2023-08-28)
 
 
