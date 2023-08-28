@@ -63,6 +63,7 @@ export class CarWriter extends BrowserCarWriter {
       bytes = new Uint8Array(chunkSize) // need a new chunk each time, can't reuse old
       const read = await readChunk()
       offset += read
+      /* eslint no-warning-comments: 0 */
       // TODO: test header > 256 bytes
       return read < chunkSize ? bytes.subarray(0, read) : bytes
     })
