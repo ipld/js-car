@@ -87,6 +87,38 @@ describe('CarReader fromBytes()', () => {
     }
   })
 
+  describe('decode error - trailing null bytes', () => {
+    const cases = [
+      {
+        name: 'carBytes',
+        bytes: (() => {
+          const bytes = new Uint8Array(carBytes.length + 5)
+          bytes.set(carBytes)
+          return bytes
+        })()
+      },
+      {
+        name: 'sample-v1-with-zero-len-section.car',
+        bytes: base64.baseDecode(fixtures['sample-v1-with-zero-len-section.car'])
+      },
+      {
+        name: 'sample-v1-with-zero-len-section2.car',
+        bytes: base64.baseDecode(fixtures['sample-v1-with-zero-len-section2.car'])
+      }
+    ]
+    for (const { name, bytes } of cases) {
+      it(name, async () => {
+        try {
+          await CarReader.fromBytes(bytes)
+        } catch (/** @type {any} */ err) {
+          assert.strictEqual(err.message, 'Invalid CAR section (zero length)')
+          return
+        }
+        assert.fail('Did not throw')
+      })
+    }
+  })
+
   it('decode error - trailing null bytes', async () => {
     const bytes = new Uint8Array(carBytes.length + 5)
     bytes.set(carBytes)
