@@ -2,10 +2,10 @@
 
 // this test is not intended to run in the browser
 
-import path from 'path'
 import fs from 'fs'
-import { promisify } from 'util'
+import path from 'path'
 import { fileURLToPath } from 'url'
+import { promisify } from 'util'
 import { bytes } from 'multiformats'
 import { CarReader } from '../src/index.js'
 import { assert, makeData, goCarIndex } from './common.js'

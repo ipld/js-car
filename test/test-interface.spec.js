@@ -1,10 +1,9 @@
 /* eslint-env mocha */
 import * as car from '../src/index.js'
-import { CarReader, __browser } from '../src/reader.js'
 import { CarIndexer } from '../src/indexer.js'
 import { CarBlockIterator, CarCIDIterator } from '../src/iterator.js'
+import { CarReader, __browser } from '../src/reader.js'
 import { CarWriter } from '../src/writer.js'
-
 import { assert } from './common.js'
 
 // simple sanity check that our main exports match the direct exports

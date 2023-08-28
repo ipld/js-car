@@ -1,5 +1,6 @@
 /* eslint-env mocha */
 
+import { expect } from 'aegir/chai'
 import { CarIndexer } from '../src/indexer.js'
 import {
   goCarBytes,
@@ -11,7 +12,6 @@ import {
   assert
 } from './common.js'
 import { verifyRoots } from './verify-store-reader.js'
-import { expect } from 'aegir/chai'
 
 describe('CarIndexer fromBytes()', () => {
   it('complete', async () => {

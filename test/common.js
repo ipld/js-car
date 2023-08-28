@@ -1,9 +1,9 @@
-import { bytes, CID } from 'multiformats'
-import { sha256 } from 'multiformats/hashes/sha2'
-import * as raw from 'multiformats/codecs/raw'
 import * as dagCbor from '@ipld/dag-cbor'
 import * as dagPb from '@ipld/dag-pb'
 import { assert } from 'aegir/chai'
+import { bytes, CID } from 'multiformats'
+import * as raw from 'multiformats/codecs/raw'
+import { sha256 } from 'multiformats/hashes/sha2'
 
 /**
  * @typedef {import('../src/api').Block} Block

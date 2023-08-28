@@ -2,10 +2,10 @@
 
 // this test is not intended to run in the browser
 
-import path from 'path'
-import { fileURLToPath } from 'url'
 import fs from 'fs'
+import path from 'path'
 import { Readable, pipeline } from 'stream'
+import { fileURLToPath } from 'url'
 import { promisify } from 'util'
 import { CarReader, CarWriter } from '../src/index.js'
 import { makeData, assert } from './common.js'

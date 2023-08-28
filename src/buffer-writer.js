@@ -1,7 +1,7 @@
-import varint from 'varint'
+import * as CBOR from '@ipld/dag-cbor'
 import { Token, Type } from 'cborg'
 import { tokensToLength } from 'cborg/length'
-import * as CBOR from '@ipld/dag-cbor'
+import varint from 'varint'
 
 /**
  * @typedef {import('./api').CID} CID

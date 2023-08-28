@@ -2,13 +2,14 @@
 
 // this test is not intended to run in the browser
 
+import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import fs from 'fs'
 import { promisify } from 'util'
 import { CID } from 'multiformats/cid'
 import { CarReader } from '../src/reader.js'
 import { CarWriter } from '../src/writer.js'
+import { assert } from './common.js'
 import {
   verifyRoots,
   verifyHas,
@@ -16,7 +17,6 @@ import {
   verifyBlocks,
   verifyCids
 } from './verify-store-reader.js'
-import { assert } from './common.js'
 
 const fsopen = promisify(fs.open)
 const fsclose = promisify(fs.close)

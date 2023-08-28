@@ -4,11 +4,11 @@
 
 import fs from 'fs'
 import { Readable } from 'stream'
-import { garbage } from '@ipld/garbage'
-import varint from 'varint'
 import * as dagCbor from '@ipld/dag-cbor'
-import { sha256 } from 'multiformats/hashes/sha2'
+import { garbage } from '@ipld/garbage'
 import { CID } from 'multiformats/cid'
+import { sha256 } from 'multiformats/hashes/sha2'
+import varint from 'varint'
 import { CarWriter, CarIndexer, CarReader, CarIndexedReader } from '../src/index.js'
 import { assert } from './common.js'
 

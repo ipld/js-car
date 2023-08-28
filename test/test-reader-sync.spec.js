@@ -1,9 +1,10 @@
 /* eslint-env mocha */
 
-import { CarBufferReader } from '../src/buffer-reader-browser.js'
-import { bytesReader, readHeader } from '../src/buffer-decoder.js'
-import { base64 } from 'multiformats/bases/base64'
 import * as dagPb from '@ipld/dag-pb'
+import { expect } from 'aegir/chai'
+import { base64 } from 'multiformats/bases/base64'
+import { bytesReader, readHeader } from '../src/buffer-decoder.js'
+import { CarBufferReader } from '../src/buffer-reader-browser.js'
 import {
   carBytes,
   assert,
@@ -12,6 +13,8 @@ import {
   goCarV2Index,
   goCarV2Contents
 } from './common.js'
+import { expectations as fixtureExpectations } from './fixtures-expectations.js'
+import { data as fixtures } from './fixtures.js'
 import {
   verifyRoots,
   verifyHas,
@@ -19,9 +22,6 @@ import {
   verifyBlocks,
   verifyCids
 } from './verify-store-reader.js'
-import { data as fixtures } from './fixtures.js'
-import { expectations as fixtureExpectations } from './fixtures-expectations.js'
-import { expect } from 'aegir/chai'
 
 describe('CarReader Sync fromBytes()', () => {
   it('complete', async () => {

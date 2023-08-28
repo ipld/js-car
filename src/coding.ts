@@ -1,5 +1,5 @@
-import type { CID } from 'multiformats/cid'
 import type { Block, BlockIndex } from './api.js'
+import type { CID } from 'multiformats/cid'
 
 export interface CarEncoder {
   setRoots: (roots: CID[]) => Promise<void>
@@ -38,7 +38,7 @@ export interface CarV2Header extends CarV2FixedHeader {
 }
 
 export interface CarDecoder {
-  header: () => Promise<CarHeader|CarV2Header>
+  header: () => Promise<CarHeader | CarV2Header>
 
   blocks: () => AsyncGenerator<Block>
 
@@ -57,7 +57,7 @@ export interface BytesReader extends Seekable {
   pos: number
 }
 
-export interface BytesBufferReader extends Seekable{
+export interface BytesBufferReader extends Seekable {
   upTo: (length: number) => Uint8Array
 
   exactly: (length: number, seek?: boolean) => Uint8Array
