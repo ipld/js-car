@@ -1,13 +1,14 @@
 /* eslint-env mocha */
 
+import * as dagPb from '@ipld/dag-pb'
+import { expect } from 'aegir/chai'
+import { base64 } from 'multiformats/bases/base64'
+import * as Block from 'multiformats/block'
+import * as raw from 'multiformats/codecs/raw'
+import { sha256 } from 'multiformats/hashes/sha2'
+import { bytesReader, readHeader } from '../src/decoder.js'
 import { CarReader } from '../src/reader.js'
 import { CarWriter } from '../src/writer.js'
-import { bytesReader, readHeader } from '../src/decoder.js'
-import * as Block from 'multiformats/block'
-import { sha256 } from 'multiformats/hashes/sha2'
-import * as raw from 'multiformats/codecs/raw'
-import { base64 } from 'multiformats/bases/base64'
-import * as dagPb from '@ipld/dag-pb'
 import {
   carBytes,
   makeIterable,
@@ -17,6 +18,8 @@ import {
   goCarV2Index,
   goCarV2Contents
 } from './common.js'
+import { expectations as fixtureExpectations } from './fixtures-expectations.js'
+import { data as fixtures } from './fixtures.js'
 import {
   verifyRoots,
   verifyHas,
@@ -24,9 +27,6 @@ import {
   verifyBlocks,
   verifyCids
 } from './verify-store-reader.js'
-import { data as fixtures } from './fixtures.js'
-import { expectations as fixtureExpectations } from './fixtures-expectations.js'
-import { expect } from 'aegir/chai'
 
 describe('CarReader fromBytes()', () => {
   it('complete', async () => {

@@ -1,15 +1,15 @@
 /* eslint-env mocha */
 
-import * as CarBufferWriter from '../src/buffer-writer.js'
-import { CarReader } from '../src/reader.js'
-import { createHeader } from '../src/encoder.js'
-import { assert } from './common.js'
-import { CID, varint } from 'multiformats'
 import * as CBOR from '@ipld/dag-cbor'
-import { sha256, sha512 } from 'multiformats/hashes/sha2'
-import { identity } from 'multiformats/hashes/identity'
-import * as Raw from 'multiformats/codecs/raw'
+import { CID, varint } from 'multiformats'
 import * as Block from 'multiformats/block'
+import * as Raw from 'multiformats/codecs/raw'
+import { identity } from 'multiformats/hashes/identity'
+import { sha256, sha512 } from 'multiformats/hashes/sha2'
+import * as CarBufferWriter from '../src/buffer-writer.js'
+import { createHeader } from '../src/encoder.js'
+import { CarReader } from '../src/reader.js'
+import { assert } from './common.js'
 
 describe('CarBufferWriter', () => {
   const cid = CID.parse('bafkreifuosuzujyf4i6psbneqtwg2fhplc2wxptc5euspa2gn3bwhnihfu')

@@ -1,8 +1,8 @@
 import fs from 'fs'
 import { promisify } from 'util'
-import { CarWriter as BrowserCarWriter } from './writer-browser.js'
 import { readHeader, chunkReader } from './decoder.js'
 import { createHeader } from './encoder.js'
+import { CarWriter as BrowserCarWriter } from './writer-browser.js'
 
 const fsread = promisify(fs.read)
 const fswrite = promisify(fs.write)
@@ -64,8 +64,6 @@ export class CarWriter extends BrowserCarWriter {
       const read = await readChunk()
       offset += read
       // TODO: test header > 256 bytes
-      // also Node.js 12 c8 bug
-      /* c8 ignore next 2 */
       return read < chunkSize ? bytes.subarray(0, read) : bytes
     })
 

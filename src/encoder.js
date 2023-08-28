@@ -1,5 +1,5 @@
-import varint from 'varint'
 import { encode as dagCborEncode } from '@ipld/dag-cbor'
+import varint from 'varint'
 
 /**
  * @typedef {import('multiformats').CID} CID

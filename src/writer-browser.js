@@ -1,7 +1,7 @@
 import { CID } from 'multiformats/cid'
+import { bytesReader, readHeader } from './decoder.js'
 import { createEncoder, createHeader } from './encoder.js'
 import { create as iteratorChannel } from './iterator-channel.js'
-import { bytesReader, readHeader } from './decoder.js'
 
 /**
  * @typedef {import('./api').Block} Block

@@ -1,9 +1,9 @@
 /* eslint-env mocha */
-/* globals describe, it */
 
-import { CarWriter } from '../src/writer.js'
-import { CarReader } from '../src/reader.js'
+import { expect } from 'aegir/chai'
 import { bytes, CID } from 'multiformats'
+import { CarReader } from '../src/reader.js'
+import { CarWriter } from '../src/writer.js'
 import { carBytes, makeData, assert, rndCid } from './common.js'
 import {
   verifyRoots,
@@ -12,7 +12,6 @@ import {
   verifyBlocks,
   verifyCids
 } from './verify-store-reader.js'
-import { expect } from 'aegir/chai'
 
 /**
  * @typedef {import('../src/api').Block} Block

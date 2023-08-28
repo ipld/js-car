@@ -1,9 +1,9 @@
 /* eslint-env mocha */
 
+import { expect } from 'aegir/chai'
 import { CarBlockIterator, CarCIDIterator } from '../src/iterator.js'
 import { carBytes, makeIterable, assert } from './common.js'
 import { verifyRoots, verifyBlocks, verifyCids } from './verify-store-reader.js'
-import { expect } from 'aegir/chai'
 
 /**
  * @param {CarBlockIterator} iter
