@@ -51,8 +51,6 @@ export async function readHeader (reader, strictVersion) {
   reader.seek(v2Header.dataOffset - reader.pos)
   const v1Header = await readHeader(reader, 1)
   return Object.assign(v1Header, v2Header)
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -76,8 +74,6 @@ async function readCid (reader) {
   const bytes = await reader.exactly(getMultihashLength(await reader.upTo(8)), true)
   const multihash = Digest.decode(bytes)
   return CID.create(version, codec, multihash)
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -103,8 +99,6 @@ export async function readBlockHead (reader) {
   const blockLength = length - Number(reader.pos - start) // subtract CID length
 
   return { cid, length, blockLength }
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -115,8 +109,6 @@ async function readBlock (reader) {
   const { cid, blockLength } = await readBlockHead(reader)
   const bytes = await reader.exactly(blockLength, true)
   return { bytes, cid }
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -129,8 +121,6 @@ async function readBlockIndex (reader) {
   const index = { cid, length, blockLength, offset, blockOffset: reader.pos }
   reader.seek(index.blockLength)
   return index
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -150,8 +140,6 @@ export function createDecoder (reader) {
       reader = limitReader(reader, header.dataSize - v1length)
     }
     return header
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   })()
 
   return {
@@ -187,9 +175,7 @@ export function bytesReader (bytes) {
   return {
     async upTo (length) {
       const out = bytes.subarray(pos, pos + Math.min(length, bytes.length - pos))
-      /* c8 ignore next 2 */
       return out
-      // Node.js 12 c8 bug
     },
 
     async exactly (length, seek = false) {
@@ -201,8 +187,6 @@ export function bytesReader (bytes) {
         pos += length
       }
       return out
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     },
 
     seek (length) {
@@ -266,8 +250,6 @@ export function chunkReader (readChunk /*, closer */) {
         await read(length)
       }
       return currentChunk.subarray(offset, offset + Math.min(currentChunk.length - offset, length))
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     },
 
     async exactly (length, seek = false) {
@@ -283,8 +265,6 @@ export function chunkReader (readChunk /*, closer */) {
         offset += length
       }
       return out
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     },
 
     seek (length) {
@@ -315,8 +295,6 @@ export function asyncIterableReader (asyncIterable) {
       return null
     }
     return next.value
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   return chunkReader(readChunk)
@@ -343,8 +321,6 @@ export function limitReader (reader, byteLimit) {
         bytes = bytes.subarray(0, byteLimit - bytesRead)
       }
       return bytes
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     },
 
     async exactly (length, seek = false) {
@@ -356,8 +332,6 @@ export function limitReader (reader, byteLimit) {
         bytesRead += length
       }
       return bytes
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     },
 
     seek (length) {

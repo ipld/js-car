@@ -76,8 +76,6 @@ export class CarIndexedReader {
    */
   async getRoots () {
     return this._roots
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -92,8 +90,6 @@ export class CarIndexedReader {
    */
   async has (key) {
     return this._index.has(key.toString())
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -122,8 +118,6 @@ export class CarIndexedReader {
       blockOffset: blockIndex.blockOffset
     }
     return NodeCarReader.readRaw(this._fd, readIndex)
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -177,8 +171,6 @@ export class CarIndexedReader {
     if (this._fd) {
       return this._fd.close()
     }
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -213,8 +205,6 @@ export class CarIndexedReader {
       order.push(cidStr)
     }
     return new CarIndexedReader(iterable.version, path, await iterable.getRoots(), index, order)
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 

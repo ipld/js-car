@@ -70,8 +70,6 @@ export class CarIndexer {
    */
   async getRoots () {
     return this._roots
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -97,8 +95,6 @@ export class CarIndexer {
       throw new TypeError('fromBytes() requires a Uint8Array')
     }
     return decodeIndexerComplete(bytesReader(bytes))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -118,8 +114,6 @@ export class CarIndexer {
       throw new TypeError('fromIterable() requires an async iterable')
     }
     return decodeIndexerComplete(asyncIterableReader(asyncIterable))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 
@@ -133,6 +127,4 @@ async function decodeIndexerComplete (reader) {
   const { version, roots } = await decoder.header()
 
   return new CarIndexer(version, roots, decoder.blocksIndex())
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }

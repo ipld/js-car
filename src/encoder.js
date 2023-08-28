@@ -60,8 +60,6 @@ function createEncoder (writer) {
      */
     async close () {
       await writer.end()
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     }
   }
 }

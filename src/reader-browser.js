@@ -63,8 +63,6 @@ export class CarReader {
    */
   async getRoots () {
     return this._header.roots
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -80,8 +78,6 @@ export class CarReader {
    */
   async has (key) {
     return this._keys.indexOf(key.toString()) > -1
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -100,8 +96,6 @@ export class CarReader {
   async get (key) {
     const index = this._keys.indexOf(key.toString())
     return index > -1 ? this._blocks[index] : undefined
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -155,8 +149,6 @@ export class CarReader {
       throw new TypeError('fromBytes() requires a Uint8Array')
     }
     return decodeReaderComplete(bytesReader(bytes))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -180,8 +172,6 @@ export class CarReader {
       throw new TypeError('fromIterable() requires an async iterable')
     }
     return decodeReaderComplete(asyncIterableReader(asyncIterable))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 
@@ -199,8 +189,6 @@ export async function decodeReaderComplete (reader) {
   }
 
   return new CarReader(header, blocks)
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 export const __browser = true

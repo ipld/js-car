@@ -61,8 +61,6 @@ export class CarBufferReader {
    */
   getRoots () {
     return this._header.roots
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -77,8 +75,6 @@ export class CarBufferReader {
    */
   has (key) {
     return this._blocks.some(b => b.cid.equals(key))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -95,8 +91,6 @@ export class CarBufferReader {
    */
   get (key) {
     return this._blocks.find(b => b.cid.equals(key))
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**

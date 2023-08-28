@@ -45,8 +45,6 @@ export class CarBufferReader extends BrowserCarBufferReader {
       throw new Error(`Failed to read entire block (${read} instead of ${blockLength})`)
     }
     return { cid, bytes }
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 
