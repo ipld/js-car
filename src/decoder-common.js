@@ -27,8 +27,6 @@ export function decodeVarint (bytes, seeker) {
   const i = varint.decode(bytes)
   seeker.seek(/** @type {number} */(varint.decode.bytes))
   return i
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -57,8 +55,6 @@ export function decodeV2Header (bytes) {
     indexOffset: Number(dv.getBigUint64(offset += 8, true))
   }
   return header
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**

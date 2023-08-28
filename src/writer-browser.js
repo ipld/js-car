@@ -83,8 +83,6 @@ export class CarWriter {
     }
     this._mutex = this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes }))
     return this._mutex
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -104,8 +102,6 @@ export class CarWriter {
     await this._mutex
     this._ended = true
     return this._encoder.close()
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -181,8 +177,6 @@ export class CarWriter {
     }
     bytes.set(newHeader, 0)
     return bytes
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 

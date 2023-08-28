@@ -53,8 +53,6 @@ export function create () {
       const drainer = makeDrainer()
       outWaitResolver()
       await drainer
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     }
   }
 
@@ -86,8 +84,6 @@ export function create () {
       }
 
       return outWait
-      /* c8 ignore next 2 */
-      // Node.js 12 c8 bug
     }
   }
 

@@ -38,8 +38,6 @@ export class CarIteratorBase {
    */
   async getRoots () {
     return this._roots
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 
@@ -114,8 +112,6 @@ export class CarBlockIterator extends CarIteratorBase {
   static async fromBytes (bytes) {
     const { version, roots, iterator } = await fromBytes(bytes)
     return new CarBlockIterator(version, roots, iterator)
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -133,8 +129,6 @@ export class CarBlockIterator extends CarIteratorBase {
   static async fromIterable (asyncIterable) {
     const { version, roots, iterator } = await fromIterable(asyncIterable)
     return new CarBlockIterator(version, roots, iterator)
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 
@@ -199,8 +193,6 @@ export class CarCIDIterator extends CarIteratorBase {
           return next
         }
         return { done: false, value: next.value.cid }
-        /* c8 ignore next 2 */
-        // Node.js 12 c8 bug
       }
     }
   }
@@ -220,8 +212,6 @@ export class CarCIDIterator extends CarIteratorBase {
   static async fromBytes (bytes) {
     const { version, roots, iterator } = await fromBytes(bytes)
     return new CarCIDIterator(version, roots, iterator)
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 
   /**
@@ -240,8 +230,6 @@ export class CarCIDIterator extends CarIteratorBase {
   static async fromIterable (asyncIterable) {
     const { version, roots, iterator } = await fromIterable(asyncIterable)
     return new CarCIDIterator(version, roots, iterator)
-    /* c8 ignore next 2 */
-    // Node.js 12 c8 bug
   }
 }
 
@@ -254,8 +242,6 @@ async function fromBytes (bytes) {
     throw new TypeError('fromBytes() requires a Uint8Array')
   }
   return decodeIterator(bytesReader(bytes))
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -267,8 +253,6 @@ async function fromIterable (asyncIterable) {
     throw new TypeError('fromIterable() requires an async iterable')
   }
   return decodeIterator(asyncIterableReader(asyncIterable))
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
 
 /**
@@ -280,6 +264,4 @@ async function decodeIterator (reader) {
   const decoder = createDecoder(reader)
   const { version, roots } = await decoder.header()
   return { version, roots, iterator: decoder.blocks() }
-  /* c8 ignore next 2 */
-  // Node.js 12 c8 bug
 }
