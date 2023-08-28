@@ -1,3 +1,23 @@
+## [5.2.1](https://github.com/ipld/js-car/compare/v5.2.0...v5.2.1) (2023-08-28)
+
+
+### Bug Fixes
+
+* lint ([a387c02](https://github.com/ipld/js-car/commit/a387c02360f9ed72dd4c30710d910ec8e5f79c6d))
+
+
+### Trivial Changes
+
+* add or force update .github/workflows/js-test-and-release.yml ([882328b](https://github.com/ipld/js-car/commit/882328be3ca9519c410c100e9c4ef470887490b1))
+* delete templates [skip ci] ([#143](https://github.com/ipld/js-car/issues/143)) ([bc8a033](https://github.com/ipld/js-car/commit/bc8a033e21c96045ef10288dfb74d0172e9ce912))
+* remove Node.js 12 c8 bug cruft ([17d3e2f](https://github.com/ipld/js-car/commit/17d3e2f1647ddc97a61a175cbd1217919d9b6cbd))
+* remove unused devDeps ([7c98329](https://github.com/ipld/js-car/commit/7c98329ce56ed127238cdb028b60428055d9b936))
+
+
+### Dependencies
+
+* **dev:** bump aegir from 37.12.1 to 40.0.11 ([764e6fb](https://github.com/ipld/js-car/commit/764e6fb90cea0821a3ddb81b2636c14fee206b6b))
+
 ## [5.2.0](https://github.com/ipld/js-car/compare/v5.1.1...v5.2.0) (2023-07-19)
 
 
