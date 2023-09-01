@@ -19,7 +19,7 @@
     "@ipld/dag-cbor": "^9.0.0",
     "@ipld/dag-json": "^10.0.0",
     "@ipld/dag-pb": "^4.0.0",
-    "@multiformats/blake2": "^1.0.1",
+    "@multiformats/blake2": "^2.0.0",
     "@types/varint": "^6.0.0",
     "multiformats": "^12.1.0",
     "varint": "^6.0.0"
