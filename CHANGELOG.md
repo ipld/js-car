@@ -1,3 +1,16 @@
+## [5.2.3](https://github.com/ipld/js-car/compare/v5.2.2...v5.2.3) (2023-09-12)
+
+
+### Trivial Changes
+
+* **deps:** bump @multiformats/blake2 from 1.0.13 to 2.0.0 in /examples ([#150](https://github.com/ipld/js-car/issues/150)) ([94dbed8](https://github.com/ipld/js-car/commit/94dbed8e4e5ad568f68db8f2f78e46f50b13f606))
+* **deps:** bump multiformats from 11.0.2 to 12.1.0 in /examples ([43be52f](https://github.com/ipld/js-car/commit/43be52f38f4bd1e1c480f43d9ec93fdd7f5bf566))
+
+
+### Dependencies
+
+* bump cborg from 2.0.5 to 4.0.0 ([1cf1d67](https://github.com/ipld/js-car/commit/1cf1d67d4cc51966a92c624239abb422ed1e498d))
+
 ## [5.2.2](https://github.com/ipld/js-car/compare/v5.2.1...v5.2.2) (2023-08-28)
 
 
