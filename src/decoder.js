@@ -2,7 +2,7 @@ import { decode as decodeDagCbor } from '@ipld/dag-cbor'
 import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
-import { CarHeader as headerValidator } from './header-validator.js'
+import { CarV1HeaderOrV2Pragma } from './header-validator.js'
 
 /**
  * @typedef {import('./api').Block} Block
@@ -31,22 +31,23 @@ export async function readHeader (reader, strictVersion) {
   }
   const header = await reader.exactly(length, true)
   const block = decodeDagCbor(header)
-  if (!headerValidator(block)) {
+  if (CarV1HeaderOrV2Pragma.toTyped(block) === undefined) {
     throw new Error('Invalid CAR header format')
   }
   if ((block.version !== 1 && block.version !== 2) || (strictVersion !== undefined && block.version !== strictVersion)) {
     throw new Error(`Invalid CAR version: ${block.version}${strictVersion !== undefined ? ` (expected ${strictVersion})` : ''}`)
   }
-  // we've made 'roots' optional in the schema so we can do the version check
-  // before rejecting the block as invalid if there is no version
-  const hasRoots = Array.isArray(block.roots)
-  if ((block.version === 1 && !hasRoots) || (block.version === 2 && hasRoots)) {
-    throw new Error('Invalid CAR header format')
-  }
   if (block.version === 1) {
+    // CarV1HeaderOrV2Pragma makes roots optional, let's make it mandatory
+    if (!Array.isArray(block.roots)) {
+      throw new Error('Invalid CAR header format')
+    }
     return block
   }
   // version 2
+  if (block.roots !== undefined) {
+    throw new Error('Invalid CAR header format')
+  }
   const v2Header = decodeV2Header(await reader.exactly(V2_HEADER_LENGTH, true))
   reader.seek(v2Header.dataOffset - reader.pos)
   const v1Header = await readHeader(reader, 1)
