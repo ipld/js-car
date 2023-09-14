@@ -1,6 +1,18 @@
-type CarHeader struct {
-  version Int
-  roots optional [&Any]
-  # roots is _not_ optional for CarV1 but we defer that check within code to
-  # gracefully handle the >V1 case where it's just {version:X}
+# CarV1HeaderOrV2Pragma is a more relaxed form, and can parse {version:x} where
+# roots are optional. This is typically useful for the {verison:2} CARv2
+# pragma.
+
+type CarV1HeaderOrV2Pragma struct {
+	roots optional [&Any]
+	# roots is _not_ optional for CarV1 but we defer that check within code to
+	# gracefully handle the V2 case where it's just {version:X}
+	version Int
 }
+
+# CarV1Header is the strict form of the header, and requires roots to be
+# present. This is compatible with the CARv1 specification.
+
+# type CarV1Header struct {
+# 	roots [&Any]
+# 	version Int
+# }

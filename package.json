@@ -184,6 +184,7 @@
     "clean": "aegir clean",
     "lint": "aegir lint",
     "build": "aegir build",
+    "build:validator": "npx @ipld/schema to-js src/header.ipldsch > src/header-validator.js",
     "release": "aegir release",
     "test": "npm run lint && aegir test && npm run test:examples",
     "test:node": "aegir test -t node --cov",
@@ -227,5 +228,8 @@
     "ignore": [
       "dist"
     ]
-  }
+  },
+  "eslintIgnore": [
+    "src/header-validator.js"
+  ]
 }
