@@ -26,12 +26,12 @@ export interface BlockIndex extends BlockHeader {
 
 export interface RootsReader {
   version: number
-  getRoots: () => Promise<CID[]>
+  getRoots(): Promise<CID[]>
 }
 
 export interface RootsBufferReader {
   version: number
-  getRoots: () => CID[]
+  getRoots(): CID[]
 }
 
 export interface BlockIterator extends AsyncIterable<Block> {}
@@ -39,28 +39,28 @@ export interface BlockIterator extends AsyncIterable<Block> {}
 export interface CIDIterator extends AsyncIterable<CID> {}
 
 export interface BlockReader {
-  has: (key: CID) => Promise<boolean>
-  get: (key: CID) => Promise<Block | undefined>
-  blocks: () => BlockIterator
-  cids: () => CIDIterator
+  has(key: CID): Promise<boolean>
+  get(key: CID): Promise<Block | undefined>
+  blocks(): BlockIterator
+  cids(): CIDIterator
 }
 
 export interface BlockBufferReader {
-  has: (key: CID) => boolean
-  get: (key: CID) => Block | undefined
-  blocks: () => Iterable<Block>
-  cids: () => Iterable<CID>
+  has(key: CID): boolean
+  get(key: CID): Block | undefined
+  blocks(): Iterable<Block>
+  cids(): Iterable<CID>
 }
 
 export interface BlockWriter {
-  put: (block: Block) => Promise<void>
-  close: () => Promise<void>
+  put(block: Block): Promise<void>
+  close(): Promise<void>
 }
 
 export interface CarBufferWriter {
-  addRoot: (root: CID, options?: { resize?: boolean }) => CarBufferWriter
-  write: (block: Block) => CarBufferWriter
-  close: (options?: { resize?: boolean }) => Uint8Array
+  addRoot(root: CID, options?: { resize?: boolean }): CarBufferWriter
+  write(block: Block): CarBufferWriter
+  close(options?: { resize?: boolean }): Uint8Array
 }
 
 export interface CarBufferWriterOptions {

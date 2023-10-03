@@ -2,16 +2,16 @@ import type { Block, BlockIndex } from './api.js'
 import type { CID } from 'multiformats/cid'
 
 export interface CarEncoder {
-  setRoots: (roots: CID[]) => Promise<void>
+  setRoots(roots: CID[]): Promise<void>
 
-  writeBlock: (block: Block) => Promise<void>
+  writeBlock(block: Block): Promise<void>
 
-  close: () => Promise<void>
+  close(): Promise<void>
 }
 
 export interface IteratorChannel_Writer<T> {
-  write: (chunk: T) => Promise<void>
-  end: () => Promise<void>
+  write(chunk: T): Promise<void>
+  end(): Promise<void>
 }
 
 export interface IteratorChannel<T> {
@@ -38,29 +38,29 @@ export interface CarV2Header extends CarV2FixedHeader {
 }
 
 export interface CarDecoder {
-  header: () => Promise<CarHeader | CarV2Header>
+  header(): Promise<CarHeader | CarV2Header>
 
-  blocks: () => AsyncGenerator<Block>
+  blocks(): AsyncGenerator<Block>
 
-  blocksIndex: () => AsyncGenerator<BlockIndex>
+  blocksIndex(): AsyncGenerator<BlockIndex>
 }
 
 export interface Seekable {
-  seek: (length: number) => void
+  seek(length: number): void
 }
 
 export interface BytesReader extends Seekable {
-  upTo: (length: number) => Promise<Uint8Array>
+  upTo(length: number): Promise<Uint8Array>
 
-  exactly: (length: number, seek?: boolean) => Promise<Uint8Array>
+  exactly(length: number, seek?: boolean): Promise<Uint8Array>
 
   pos: number
 }
 
 export interface BytesBufferReader extends Seekable {
-  upTo: (length: number) => Uint8Array
+  upTo(length: number): Uint8Array
 
-  exactly: (length: number, seek?: boolean) => Uint8Array
+  exactly(length: number, seek?: boolean): Uint8Array
 
   pos: number
 }
