@@ -1,3 +1,20 @@
+## [5.2.4](https://github.com/ipld/js-car/compare/v5.2.3...v5.2.4) (2023-10-03)
+
+
+### Bug Fixes
+
+* switch interface method decl style ([f921993](https://github.com/ipld/js-car/commit/f921993cd8e8c03c181a082816235ae4c9dbafe3))
+
+
+### Trivial Changes
+
+* use new schema validator compiler, add both forms of schema ([cbf7e06](https://github.com/ipld/js-car/commit/cbf7e067c8bdebc3c9b594ab9021a8f2bbb8f2d6))
+
+
+### Dependencies
+
+* **dev:** bump aegir from 40.0.13 to 41.0.0 ([3bed89c](https://github.com/ipld/js-car/commit/3bed89c390e56f2272a6b9bf33195e277faa6409))
+
 ## [5.2.3](https://github.com/ipld/js-car/compare/v5.2.2...v5.2.3) (2023-09-12)
 
 
