@@ -1,3 +1,10 @@
+## [5.2.5](https://github.com/ipld/js-car/compare/v5.2.4...v5.2.5) (2024-01-03)
+
+
+### Dependencies
+
+* update dependencies, including multiformats@13 ([70d5213](https://github.com/ipld/js-car/commit/70d5213126848b3223b869e44f1d691622451cae))
+
 ## [5.2.4](https://github.com/ipld/js-car/compare/v5.2.3...v5.2.4) (2023-10-03)
 
 
