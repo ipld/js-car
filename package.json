@@ -199,16 +199,16 @@
     "docs": "jsdoc4readme --readme --description-only src/reader*.js src/indexed-reader.js src/iterator.js src/indexer.js src/writer*.js src/buffer-writer.js src/decoder.js src/buffer-reader*.js"
   },
   "dependencies": {
-    "@ipld/dag-cbor": "^9.0.0",
-    "cborg": "^4.0.0",
-    "multiformats": "^12.1.0",
+    "@ipld/dag-cbor": "^9.0.7",
+    "cborg": "^4.0.5",
+    "multiformats": "^13.0.0",
     "varint": "^6.0.0"
   },
   "devDependencies": {
-    "@ipld/dag-pb": "^4.0.0",
-    "@ipld/garbage": "^6.0.0",
-    "@types/varint": "^6.0.0",
-    "aegir": "^41.0.0",
+    "@ipld/dag-pb": "^4.0.7",
+    "@ipld/garbage": "^6.0.5",
+    "@types/varint": "^6.0.3",
+    "aegir": "^41.3.5",
     "jsdoc4readme": "^1.4.0"
   },
   "browser": {
