@@ -208,7 +208,7 @@
     "@ipld/dag-pb": "^4.0.7",
     "@ipld/garbage": "^6.0.5",
     "@types/varint": "^6.0.3",
-    "aegir": "^41.3.5",
+    "aegir": "^42.0.1",
     "jsdoc4readme": "^1.4.0"
   },
   "browser": {
