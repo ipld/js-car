@@ -55,6 +55,7 @@ export interface BlockBufferReader {
 export interface BlockWriter {
   put(block: Block): Promise<void>
   close(): Promise<void>
+  version(): number
 }
 
 export interface CarBufferWriter {

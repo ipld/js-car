@@ -8,6 +8,8 @@ import varint from 'varint'
  * @typedef {import('./coding').IteratorChannel_Writer<Uint8Array>} IteratorChannel_Writer
  */
 
+const CAR_V1_VERSION = 1
+
 /**
  * Create a header from an array of roots.
  *
@@ -15,7 +17,7 @@ import varint from 'varint'
  * @returns {Uint8Array}
  */
 export function createHeader (roots) {
-  const headerBytes = dagCborEncode({ version: 1, roots })
+  const headerBytes = dagCborEncode({ version: CAR_V1_VERSION, roots })
   const varintBytes = varint.encode(headerBytes.length)
   const header = new Uint8Array(varintBytes.length + headerBytes.length)
   header.set(varintBytes, 0)
@@ -60,6 +62,13 @@ function createEncoder (writer) {
      */
     async close () {
       await writer.end()
+    },
+
+    /**
+     * @returns {number}
+     */
+    version () {
+      return CAR_V1_VERSION
     }
   }
 }
