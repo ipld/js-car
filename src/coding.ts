@@ -7,6 +7,8 @@ export interface CarEncoder {
   writeBlock(block: Block): Promise<void>
 
   close(): Promise<void>
+
+  version(): number
 }
 
 export interface IteratorChannel_Writer<T> {

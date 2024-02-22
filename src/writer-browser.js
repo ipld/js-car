@@ -105,6 +105,15 @@ export class CarWriter {
   }
 
   /**
+   * Returns the version number of the CAR file being written
+   *
+   * @returns {number}
+   */
+  version () {
+    return this._encoder.version()
+  }
+
+  /**
    * Create a new CAR writer "channel" which consists of a
    * `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }` pair.
    *

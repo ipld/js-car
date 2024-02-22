@@ -224,6 +224,13 @@ describe('CarWriter', () => {
     assert.strictEqual(toHex(bytes).substring(0, expectedStart.length), expectedStart)
   })
 
+  it('version', async () => {
+    const { writer } = CarWriter.create(roots)
+
+    // v1 only
+    assert.equal(writer.version(), 1)
+  })
+
   it('no roots', async () => {
     const { writer, out } = CarWriter.create()
     const collection = collector(out)
