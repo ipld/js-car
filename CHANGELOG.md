@@ -1,3 +1,10 @@
+## [5.3.0](https://github.com/ipld/js-car/compare/v5.2.6...v5.3.0) (2024-02-22)
+
+
+### Features
+
+* add version method to CarWriter ([#162](https://github.com/ipld/js-car/issues/162)) ([d1ded7f](https://github.com/ipld/js-car/commit/d1ded7f32437b8229b61cd3f11eac92a313a228a)), closes [#161](https://github.com/ipld/js-car/issues/161)
+
 ## [5.2.6](https://github.com/ipld/js-car/compare/v5.2.5...v5.2.6) (2024-01-10)
 
 
