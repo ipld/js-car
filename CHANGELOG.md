@@ -1,3 +1,13 @@
+## [5.3.3](https://github.com/ipld/js-car/compare/v5.3.2...v5.3.3) (2024-10-29)
+
+### Trivial Changes
+
+* adjust examples for new linting rules ([0dff3ed](https://github.com/ipld/js-car/commit/0dff3edd36f132b377d9de28d79b507ba6e922a8))
+
+### Dependencies
+
+* **dev:** bump aegir from 44.1.4 to 45.0.1 ([fbdc762](https://github.com/ipld/js-car/commit/fbdc762fe6cdb5fe1f3325eb80614e1785a80205))
+
 ## [5.3.2](https://github.com/ipld/js-car/compare/v5.3.1...v5.3.2) (2024-06-24)
 
 ### Dependencies
