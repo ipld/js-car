@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
+
 // Take a .car file and dump its contents into one file per block, with the
 // filename being the CID of that block.
 // Also prints a DAG-JSON form of the block and its CID to stdout.
@@ -8,10 +10,10 @@
 import fs from 'fs'
 import { CarBlockIterator } from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
-import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
-import * as raw from 'multiformats/codecs/raw'
+import * as dagPb from '@ipld/dag-pb'
 import * as json from 'multiformats/codecs/json'
+import * as raw from 'multiformats/codecs/raw'
 
 if (!process.argv[2]) {
   console.log('Usage: dump-car.js [--inspect] <path/to/car>')

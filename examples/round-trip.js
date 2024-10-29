@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
+
 // Create a simple .car file with a single block and that block's CID as the
 // single root. Then read the .car and fetch the block again.
 
 import fs from 'fs'
 import { Readable } from 'stream'
 import { CarReader, CarWriter } from '@ipld/car'
-import * as raw from 'multiformats/codecs/raw'
 import { CID } from 'multiformats/cid'
+import * as raw from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 
 async function example () {

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
+
 // Take a .car file and dump its index in DAG-JSON format, one line per block
 
 import fs from 'fs'
