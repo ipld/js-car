@@ -1,21 +1,23 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
+
 // Example: verify a car file's block bytes match the reported CIDs and that
 // they have round-tripishness.
 // This example is overly verbose but illustrates some concepts involved in CAR
 // files.
 
 import fs from 'fs'
-import { bytes, CID } from 'multiformats'
 import { CarBlockIterator } from '@ipld/car/iterator'
 import * as dagCbor from '@ipld/dag-cbor'
-import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
-import * as raw from 'multiformats/codecs/raw'
-import * as json from 'multiformats/codecs/json'
-import { sha256 } from 'multiformats/hashes/sha2'
-import { from as hasher } from 'multiformats/hashes/hasher'
+import * as dagPb from '@ipld/dag-pb'
 import { blake2b256 } from '@multiformats/blake2/blake2b'
+import { bytes, CID } from 'multiformats'
+import * as json from 'multiformats/codecs/json'
+import * as raw from 'multiformats/codecs/raw'
+import { from as hasher } from 'multiformats/hashes/hasher'
+import { sha256 } from 'multiformats/hashes/sha2'
 
 const { toHex } = bytes
 

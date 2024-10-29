@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
+
 // Take a .car file and dump its contents to stdout as a single DAG-JSON format
 // block. The format is standardised for describing CAR fixtures at
 // https://ipld.io/specs/transport/car/fixture/
 
 import fs from 'fs'
-import { CarReader } from '@ipld/car/reader'
 import { CarIndexer } from '@ipld/car/indexer'
+import { CarReader } from '@ipld/car/reader'
 import * as dagCbor from '@ipld/dag-cbor'
-import * as dagPb from '@ipld/dag-pb'
 import * as dagJson from '@ipld/dag-json'
-import * as raw from 'multiformats/codecs/raw'
+import * as dagPb from '@ipld/dag-pb'
 import * as json from 'multiformats/codecs/json'
+import * as raw from 'multiformats/codecs/raw'
 
 if (!process.argv[2]) {
   console.log('Usage: dump-car.js <path/to/car>')

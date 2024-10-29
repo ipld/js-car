@@ -1,7 +1,9 @@
+/* eslint-disable no-console */
+
 import assert from 'assert'
-import { promisify } from 'util'
 import { execFile } from 'child_process'
 import { promises as fsPromises } from 'fs'
+import { promisify } from 'util'
 
 const { unlink, stat } = fsPromises
 
