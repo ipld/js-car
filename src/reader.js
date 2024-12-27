@@ -8,7 +8,24 @@ import { CarReader as BrowserCarReader } from './reader-browser.js'
  * @typedef {import('./api').CarReader} CarReaderIface
  */
 
-const fsread = promisify(fs.read)
+/**
+ * @description not happy with typing here, but it's needed for the `promisify(fs.read)` function.
+ * @type {any}
+ */
+let _fsReadFn
+/**
+ * @description This function is needed not to initialize the `fs.read` on load time. To run in cf workers without polyfill.
+ * @param {number} fd
+ * @param {Uint8Array} buffer
+ * @param {number} offset
+ * @param {number} length
+ * @param {number} position
+ * @returns {Promise<{ bytesRead: number, buffer: Uint8Array }>}
+ */
+function fsread (fd, buffer, offset, length, position) {
+  _fsReadFn = _fsReadFn || promisify(fs.read)
+  return _fsReadFn(fd, buffer, offset, length, position)
+}
 
 /**
  * @class
@@ -53,4 +70,4 @@ export class CarReader extends BrowserCarReader {
   }
 }
 
-export const __browser = false
+export const __browser = !fs
