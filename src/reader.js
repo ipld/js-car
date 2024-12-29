@@ -1,5 +1,4 @@
-import fs from 'fs'
-import { promisify } from 'util'
+import { fsread, fs } from './promise-fs-opts.js'
 import { CarReader as BrowserCarReader } from './reader-browser.js'
 
 /**
@@ -7,25 +6,6 @@ import { CarReader as BrowserCarReader } from './reader-browser.js'
  * @typedef {import('./api').BlockIndex} BlockIndex
  * @typedef {import('./api').CarReader} CarReaderIface
  */
-
-/**
- * @description not happy with typing here, but it's needed for the `promisify(fs.read)` function.
- * @type {any}
- */
-let _fsReadFn
-/**
- * @description This function is needed not to initialize the `fs.read` on load time. To run in cf workers without polyfill.
- * @param {number} fd
- * @param {Uint8Array} buffer
- * @param {number} offset
- * @param {number} length
- * @param {number} position
- * @returns {Promise<{ bytesRead: number, buffer: Uint8Array }>}
- */
-function fsread (fd, buffer, offset, length, position) {
-  _fsReadFn = _fsReadFn || promisify(fs.read)
-  return _fsReadFn(fd, buffer, offset, length, position)
-}
 
 /**
  * @class

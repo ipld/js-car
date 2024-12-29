@@ -1,11 +1,7 @@
-import fs from 'fs'
-import { promisify } from 'util'
 import { readHeader, chunkReader } from './decoder.js'
 import { createHeader } from './encoder.js'
+import { fsread, fswrite, fs } from './promise-fs-opts.js'
 import { CarWriter as BrowserCarWriter } from './writer-browser.js'
-
-const fsread = promisify(fs.read)
-const fswrite = promisify(fs.write)
 
 /**
  * @typedef {import('multiformats/cid').CID} CID
@@ -81,4 +77,4 @@ export class CarWriter extends BrowserCarWriter {
   }
 }
 
-export const __browser = false
+export const __browser = !fs
