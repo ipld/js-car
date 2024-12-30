@@ -1,10 +1,11 @@
 import fs from 'fs'
 import { promisify } from 'util'
 
-export { fs }
+const hasFS = Boolean(fs)
+
+export { hasFS }
 
 /**
- * @description not happy with typing here, but it's needed for the `promisify(fs.read)` function.
  * @type {any}
  */
 let _fsReadFn
@@ -18,12 +19,13 @@ let _fsReadFn
  * @returns {Promise<{ bytesRead: number, buffer: Uint8Array }>}
  */
 export function fsread (fd, buffer, offset, length, position) {
-  _fsReadFn = _fsReadFn || promisify(fs.read)
+  if (!_fsReadFn) {
+    _fsReadFn = promisify(fs.read)
+  }
   return _fsReadFn(fd, buffer, offset, length, position)
 }
 
 /**
- * @description not happy with typing here, but it's needed for the `promisify(fs.write)` function.
  * @type {any}
  */
 let _fsWriteFn
@@ -37,6 +39,8 @@ let _fsWriteFn
  * @returns {Promise<{ bytesRead: number, buffer: Uint8Array }>}
  */
 export function fswrite (fd, buffer, offset, length, position) {
-  _fsWriteFn = _fsWriteFn || promisify(fs.write)
+  if (!_fsWriteFn) {
+    _fsWriteFn = promisify(fs.write)
+  }
   return _fsWriteFn(fd, buffer, offset, length, position)
 }
