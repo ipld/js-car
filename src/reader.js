@@ -1,14 +1,12 @@
-import fs from 'fs'
-import { promisify } from 'util'
+import { fsread, hasFS } from './promise-fs-opts.js'
 import { CarReader as BrowserCarReader } from './reader-browser.js'
 
 /**
  * @typedef {import('./api').Block} Block
  * @typedef {import('./api').BlockIndex} BlockIndex
  * @typedef {import('./api').CarReader} CarReaderIface
+ * @typedef {import('fs').promises.FileHandle} FileHandle
  */
-
-const fsread = promisify(fs.read)
 
 /**
  * @class
@@ -27,7 +25,7 @@ export class CarReader extends BrowserCarReader {
    * @async
    * @static
    * @memberof CarReader
-   * @param {fs.promises.FileHandle | number} fd - A file descriptor from the
+   * @param {FileHandle | number} fd - A file descriptor from the
    * Node.js `fs` module. Either an integer, from `fs.open()` or a `FileHandle`
    * from `fs.promises.open()`.
    * @param {BlockIndex} blockIndex - An index pointing to the location of the
@@ -53,4 +51,4 @@ export class CarReader extends BrowserCarReader {
   }
 }
 
-export const __browser = false
+export const __browser = !hasFS

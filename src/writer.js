@@ -1,15 +1,12 @@
-import fs from 'fs'
-import { promisify } from 'util'
 import { readHeader, chunkReader } from './decoder.js'
 import { createHeader } from './encoder.js'
+import { fsread, fswrite, hasFS } from './promise-fs-opts.js'
 import { CarWriter as BrowserCarWriter } from './writer-browser.js'
-
-const fsread = promisify(fs.read)
-const fswrite = promisify(fs.write)
 
 /**
  * @typedef {import('multiformats/cid').CID} CID
  * @typedef {import('./api').BlockWriter} BlockWriter
+ * @typedef {import('fs').promises.FileHandle} FileHandle
  */
 
 /**
@@ -35,7 +32,7 @@ export class CarWriter extends BrowserCarWriter {
    * @async
    * @static
    * @memberof CarWriter
-   * @param {fs.promises.FileHandle | number} fd - A file descriptor from the
+   * @param {FileHandle | number} fd - A file descriptor from the
    * Node.js `fs` module. Either an integer, from `fs.open()` or a `FileHandle`
    * from `fs.promises.open()`.
    * @param {CID[]} roots - A new list of roots to replace the existing list in
@@ -81,4 +78,4 @@ export class CarWriter extends BrowserCarWriter {
   }
 }
 
-export const __browser = false
+export const __browser = !hasFS
