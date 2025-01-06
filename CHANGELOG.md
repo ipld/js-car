@@ -1,3 +1,9 @@
+## [5.4.0](https://github.com/ipld/js-car/compare/v5.3.3...v5.4.0) (2025-01-06)
+
+### Features
+
+* make reader lazy on fs.read to run ignore polyfill ([#168](https://github.com/ipld/js-car/issues/168)) ([ccb8edc](https://github.com/ipld/js-car/commit/ccb8edc6682e8dcce689e2784212a3c936165ffd))
+
 ## [5.3.3](https://github.com/ipld/js-car/compare/v5.3.2...v5.3.3) (2024-10-29)
 
 ### Trivial Changes
