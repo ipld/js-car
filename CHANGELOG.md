@@ -1,3 +1,9 @@
+## [5.4.1](https://github.com/ipld/js-car/compare/v5.4.0...v5.4.1) (2025-05-08)
+
+### Dependencies
+
+* **dev:** bump aegir from 45.2.1 to 46.0.0 ([#170](https://github.com/ipld/js-car/issues/170)) ([339f1d8](https://github.com/ipld/js-car/commit/339f1d80e7c884a90bb2aa0447c99e73f994b9f7))
+
 ## [5.4.0](https://github.com/ipld/js-car/compare/v5.3.3...v5.4.0) (2025-01-06)
 
 ### Features
