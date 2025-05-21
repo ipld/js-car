@@ -2,11 +2,11 @@ import { asyncIterableReader, bytesReader, createDecoder } from './decoder.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').CarReader} CarReaderIface
- * @typedef {import('./coding').BytesReader} BytesReader
- * @typedef {import('./coding').CarHeader} CarHeader
- * @typedef {import('./coding').CarV2Header} CarV2Header
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').CarReader} CarReaderIface
+ * @typedef {import('./coding.js').BytesReader} BytesReader
+ * @typedef {import('./coding.js').CarHeader} CarHeader
+ * @typedef {import('./coding.js').CarV2Header} CarV2Header
  */
 
 /**

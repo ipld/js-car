@@ -4,11 +4,11 @@ import { toBlock, assert, makeData } from './common.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('../src/api').Block} Block
- * @typedef {import('../src/api').RootsReader} RootsReader
- * @typedef {import('../src/api').BlockIterator} BlockIterator
- * @typedef {import('../src/api').CIDIterator} CIDIterator
- * @typedef {import('../src/api').BlockReader} BlockReader
+ * @typedef {import('../src/api.js').Block} Block
+ * @typedef {import('../src/api.js').RootsReader} RootsReader
+ * @typedef {import('../src/api.js').BlockIterator} BlockIterator
+ * @typedef {import('../src/api.js').CIDIterator} CIDIterator
+ * @typedef {import('../src/api.js').BlockReader} BlockReader
  */
 
 /**
@@ -33,7 +33,7 @@ function compareCids (actual, expected) {
 }
 
 /**
- * @param {RootsReader | import('../src/api').RootsBufferReader} reader
+ * @param {RootsReader | import('../src/api.js').RootsBufferReader} reader
  */
 async function verifyRoots (reader) {
   // using toString() for now, backing buffers in Uint8Arrays are getting in the way
@@ -45,7 +45,7 @@ async function verifyRoots (reader) {
 }
 
 /**
- * @param {BlockReader | import('../src/api').BlockBufferReader} reader
+ * @param {BlockReader | import('../src/api.js').BlockBufferReader} reader
  */
 async function verifyHas (reader) {
   const { allBlocks } = await makeData()
@@ -78,7 +78,7 @@ async function verifyHas (reader) {
 }
 
 /**
- * @param {BlockReader | import('../src/api').BlockBufferReader} reader
+ * @param {BlockReader | import('../src/api.js').BlockBufferReader} reader
  */
 async function verifyGet (reader) {
   const { allBlocks } = await makeData()
@@ -109,7 +109,7 @@ async function verifyGet (reader) {
 }
 
 /**
- * @param {import('../src/api').AwaitIterable<Block>} iterator
+ * @param {import('../src/api.js').AwaitIterable<Block>} iterator
  * @param {boolean | void} unordered
  */
 async function verifyBlocks (iterator, unordered) {
@@ -147,7 +147,7 @@ async function verifyBlocks (iterator, unordered) {
 }
 
 /**
- * @param {import('../src/api').AwaitIterable<CID>} iterator
+ * @param {import('../src/api.js').AwaitIterable<CID>} iterator
  * @param {boolean | void} unordered
  */
 async function verifyCids (iterator, unordered) {

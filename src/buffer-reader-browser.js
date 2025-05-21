@@ -2,10 +2,10 @@ import * as BufferDecoder from './buffer-decoder.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').CarBufferReader} ICarBufferReader
- * @typedef {import('./coding').CarHeader} CarHeader
- * @typedef {import('./coding').CarV2Header} CarV2Header
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').CarBufferReader} ICarBufferReader
+ * @typedef {import('./coding.js').CarHeader} CarHeader
+ * @typedef {import('./coding.js').CarV2Header} CarV2Header
  */
 
 /**
@@ -42,7 +42,7 @@ export class CarBufferReader {
   }
 
   /**
-   * @property version
+   * @property {number} version of the CAR
    * @memberof CarBufferReader
    * @instance
    */

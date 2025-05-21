@@ -6,9 +6,9 @@ import {
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').RootsReader} RootsReader
- * @typedef {import('./coding').BytesReader} BytesReader
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').RootsReader} RootsReader
+ * @typedef {import('./coding.js').BytesReader} BytesReader
  */
 
 /**

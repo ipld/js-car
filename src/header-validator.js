@@ -1,41 +1,74 @@
-/** Auto-generated with @ipld/schema@v4.2.0 at Thu Sep 14 2023 from IPLD Schema:
+/* eslint-disable jsdoc/check-indentation, max-depth */
+
+/**
+ * Auto-generated with @ipld/schema@v4.2.0 at Thu Sep 14 2023 from IPLD Schema:
  *
  * # CarV1HeaderOrV2Pragma is a more relaxed form, and can parse {version:x} where
  * # roots are optional. This is typically useful for the {verison:2} CARv2
  * # pragma.
  *
  * type CarV1HeaderOrV2Pragma struct {
- * 	roots optional [&Any]
- * 	# roots is _not_ optional for CarV1 but we defer that check within code to
- * 	# gracefully handle the V2 case where it's just {version:X}
- * 	version Int
+ *   roots optional [&Any]
+ *   # roots is _not_ optional for CarV1 but we defer that check within code to
+ *   # gracefully handle the V2 case where it's just {version:X}
+ *   version Int
  * }
  *
  * # CarV1Header is the strict form of the header, and requires roots to be
  * # present. This is compatible with the CARv1 specification.
  *
  * # type CarV1Header struct {
- * # 	roots [&Any]
- * # 	version Int
+ * #   roots [&Any]
+ * #   version Int
  * # }
  *
  */
 
 const Kinds = {
-  Null: /** @returns {undefined|null} */ (/** @type {any} */ obj) => obj === null ? obj : undefined,
-  Int: /** @returns {undefined|number} */ (/** @type {any} */ obj) => Number.isInteger(obj) ? obj : undefined,
-  Float: /** @returns {undefined|number} */ (/** @type {any} */ obj) => typeof obj === 'number' && Number.isFinite(obj) ? obj : undefined,
-  String: /** @returns {undefined|string} */ (/** @type {any} */ obj) => typeof obj === 'string' ? obj : undefined,
-  Bool: /** @returns {undefined|boolean} */ (/** @type {any} */ obj) => typeof obj === 'boolean' ? obj : undefined,
-  Bytes: /** @returns {undefined|Uint8Array} */ (/** @type {any} */ obj) => obj instanceof Uint8Array ? obj : undefined,
-  Link: /** @returns {undefined|object} */ (/** @type {any} */ obj) => obj !== null && typeof obj === 'object' && obj.asCID === obj ? obj : undefined,
-  List: /** @returns {undefined|Array<any>} */ (/** @type {any} */ obj) => Array.isArray(obj) ? obj : undefined,
-  Map: /** @returns {undefined|object} */ (/** @type {any} */ obj) => obj !== null && typeof obj === 'object' && obj.asCID !== obj && !Array.isArray(obj) && !(obj instanceof Uint8Array) ? obj : undefined
+  Null: /**
+         * @param obj
+         * @returns {undefined|null}
+         */ (/** @type {any} */ obj) => obj === null ? obj : undefined,
+  Int: /**
+        * @param obj
+        * @returns {undefined|number}
+        */ (/** @type {any} */ obj) => Number.isInteger(obj) ? obj : undefined,
+  Float: /**
+          * @param obj
+          * @returns {undefined|number}
+          */ (/** @type {any} */ obj) => typeof obj === 'number' && Number.isFinite(obj) ? obj : undefined,
+  String: /**
+           * @param obj
+           * @returns {undefined|string}
+           */ (/** @type {any} */ obj) => typeof obj === 'string' ? obj : undefined,
+  Bool: /**
+         * @param obj
+         * @returns {undefined|boolean}
+         */ (/** @type {any} */ obj) => typeof obj === 'boolean' ? obj : undefined,
+  Bytes: /**
+          * @param obj
+          * @returns {undefined|Uint8Array}
+          */ (/** @type {any} */ obj) => obj instanceof Uint8Array ? obj : undefined,
+  Link: /**
+         * @param obj
+         * @returns {undefined|object}
+         */ (/** @type {any} */ obj) => obj !== null && typeof obj === 'object' && obj.asCID === obj ? obj : undefined,
+  List: /**
+         * @param obj
+         * @returns {undefined|Array<any>}
+         */ (/** @type {any} */ obj) => Array.isArray(obj) ? obj : undefined,
+  Map: /**
+        * @param obj
+        * @returns {undefined|object}
+        */ (/** @type {any} */ obj) => obj !== null && typeof obj === 'object' && obj.asCID !== obj && !Array.isArray(obj) && !(obj instanceof Uint8Array) ? obj : undefined
 }
 /** @type {{ [k in string]: (obj:any)=>undefined|any}} */
 const Types = {
   'CarV1HeaderOrV2Pragma > roots (anon) > valueType (anon)': Kinds.Link,
-  'CarV1HeaderOrV2Pragma > roots (anon)': /** @returns {undefined|any} */ (/** @type {any} */ obj) => {
+  'CarV1HeaderOrV2Pragma > roots (anon)': /**
+                                           * @param obj
+                                           * @returns {undefined|any}
+                                           */ (/** @type {any} */ obj) => {
     if (Kinds.List(obj) === undefined) {
       return undefined
     }
@@ -61,7 +94,10 @@ const Types = {
     return obj
   },
   Int: Kinds.Int,
-  CarV1HeaderOrV2Pragma: /** @returns {undefined|any} */ (/** @type {any} */ obj) => {
+  CarV1HeaderOrV2Pragma: /**
+                          * @param obj
+                          * @returns {undefined|any}
+                          */ (/** @type {any} */ obj) => {
     if (Kinds.Map(obj) === undefined) {
       return undefined
     }
@@ -123,7 +159,10 @@ const Types = {
 /** @type {{ [k in string]: (obj:any)=>undefined|any}} */
 const Reprs = {
   'CarV1HeaderOrV2Pragma > roots (anon) > valueType (anon)': Kinds.Link,
-  'CarV1HeaderOrV2Pragma > roots (anon)': /** @returns {undefined|any} */ (/** @type {any} */ obj) => {
+  'CarV1HeaderOrV2Pragma > roots (anon)': /**
+                                           * @param obj
+                                           * @returns {undefined|any}
+                                           */ (/** @type {any} */ obj) => {
     if (Kinds.List(obj) === undefined) {
       return undefined
     }
@@ -149,7 +188,10 @@ const Reprs = {
     return obj
   },
   Int: Kinds.Int,
-  CarV1HeaderOrV2Pragma: /** @returns {undefined|any} */ (/** @type {any} */ obj) => {
+  CarV1HeaderOrV2Pragma: /**
+                          * @param obj
+                          * @returns {undefined|any}
+                          */ (/** @type {any} */ obj) => {
     if (Kinds.Map(obj) === undefined) {
       return undefined
     }

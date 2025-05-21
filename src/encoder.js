@@ -3,9 +3,9 @@ import varint from 'varint'
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('./api').Block} Block
- * @typedef {import('./coding').CarEncoder} CarEncoder
- * @typedef {import('./coding').IteratorChannel_Writer<Uint8Array>} IteratorChannel_Writer
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./coding.js').CarEncoder} CarEncoder
+ * @typedef {import('./coding.js').IteratorChannel_Writer<Uint8Array>} IteratorChannel_Writer
  */
 
 const CAR_V1_VERSION = 1

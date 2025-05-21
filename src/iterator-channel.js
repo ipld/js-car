@@ -1,6 +1,6 @@
 /**
  * @template {any} T
- * @typedef {import('./coding').IteratorChannel<T>} IteratorChannel
+ * @typedef {import('./coding.js').IteratorChannel<T>} IteratorChannel
  */
 
 function noop () {}

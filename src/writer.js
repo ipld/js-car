@@ -5,7 +5,7 @@ import { CarWriter as BrowserCarWriter } from './writer-browser.js'
 
 /**
  * @typedef {import('multiformats/cid').CID} CID
- * @typedef {import('./api').BlockWriter} BlockWriter
+ * @typedef {import('./api.js').BlockWriter} BlockWriter
  * @typedef {import('fs').promises.FileHandle} FileHandle
  */
 

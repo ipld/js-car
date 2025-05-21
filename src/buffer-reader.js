@@ -2,9 +2,9 @@ import fs from 'fs'
 import { CarBufferReader as BrowserCarBufferReader } from './buffer-reader-browser.js'
 
 /**
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./api').CarBufferReader} ICarBufferReader
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').BlockIndex} BlockIndex
+ * @typedef {import('./api.js').CarBufferReader} ICarBufferReader
  */
 
 const fsread = fs.readSync

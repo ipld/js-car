@@ -5,14 +5,14 @@ import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADE
 import { CarV1HeaderOrV2Pragma } from './header-validator.js'
 
 /**
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').BlockHeader} BlockHeader
- * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./coding').BytesReader} BytesReader
- * @typedef {import('./coding').CarHeader} CarHeader
- * @typedef {import('./coding').CarV2Header} CarV2Header
- * @typedef {import('./coding').CarV2FixedHeader} CarV2FixedHeader
- * @typedef {import('./coding').CarDecoder} CarDecoder
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').BlockHeader} BlockHeader
+ * @typedef {import('./api.js').BlockIndex} BlockIndex
+ * @typedef {import('./coding.js').BytesReader} BytesReader
+ * @typedef {import('./coding.js').CarHeader} CarHeader
+ * @typedef {import('./coding.js').CarV2Header} CarV2Header
+ * @typedef {import('./coding.js').CarV2FixedHeader} CarV2FixedHeader
+ * @typedef {import('./coding.js').CarDecoder} CarDecoder
  */
 
 /**
@@ -201,10 +201,10 @@ export function bytesReader (bytes) {
 }
 
 /**
- * @ignore
  * reusable reader for streams and files, we just need a way to read an
  * additional chunk (of some undetermined size) and a way to close the
  * reader when finished
+ *
  * @param {() => Promise<Uint8Array|null>} readChunk
  * @returns {BytesReader}
  */
@@ -216,7 +216,7 @@ export function chunkReader (readChunk /*, closer */) {
 
   const read = async (/** @type {number} */ length) => {
     have = currentChunk.length - offset
-    const bufa = [currentChunk.subarray(offset)]
+    const bufa = /** @type {Uint8Array<ArrayBufferLike>[]} */([currentChunk.subarray(offset)])
     while (have < length) {
       const chunk = await readChunk()
       if (chunk == null) {

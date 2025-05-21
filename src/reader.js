@@ -2,9 +2,9 @@ import { fsread, hasFS } from './promise-fs-opts.js'
 import { CarReader as BrowserCarReader } from './reader-browser.js'
 
 /**
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./api').CarReader} CarReaderIface
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').BlockIndex} BlockIndex
+ * @typedef {import('./api.js').CarReader} CarReaderIface
  * @typedef {import('fs').promises.FileHandle} FileHandle
  */
 

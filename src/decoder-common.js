@@ -17,7 +17,7 @@ export const V2_HEADER_LENGTH = /* characteristics */ 16 /* v1 offset */ + 8 /* 
  * ```
  *
  * @param {Uint8Array} bytes
- * @param {import('./coding').Seekable} seeker
+ * @param {import('./coding.js').Seekable} seeker
  * @returns {number}
  */
 export function decodeVarint (bytes, seeker) {
@@ -38,7 +38,7 @@ export function decodeVarint (bytes, seeker) {
  * ```
  *
  * @param {Uint8Array} bytes
- * @returns {import('./coding').CarV2FixedHeader}
+ * @returns {import('./coding.js').CarV2FixedHeader}
  */
 export function decodeV2Header (bytes) {
   const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)

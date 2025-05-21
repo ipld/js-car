@@ -14,7 +14,7 @@ import {
 } from './verify-store-reader.js'
 
 /**
- * @typedef {import('../src/api').Block} Block
+ * @typedef {import('../src/api.js').Block} Block
  */
 
 const { toHex } = bytes
@@ -292,20 +292,20 @@ describe('CarWriter', () => {
   it('bad argument for put()', async () => {
     const { writer } = CarWriter.create()
     for (const arg of [new Uint8Array(0), true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
-      // @ts-expect-error arg is wrong type
       // the assert.isRejected form of this causes an uncatchable error in Chrome
+      // @ts-expect-error
       await expect(writer.put(arg)).to.eventually.be.rejected()
     }
 
     for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
-      // @ts-expect-error arg is wrong type
       // the assert.isRejected form of this causes an uncatchable error in Chrome
+      // @ts-expect-error
       await expect(writer.put({ bytes: new Uint8Array(0), cid: arg })).to.eventually.be.rejected()
     }
 
     for (const arg of [true, false, null, 'string', 100, { obj: 'nope' }, [false]]) {
-      // @ts-expect-error arg is wrong type
       // the assert.isRejected form of this causes an uncatchable error in Chrome
+      // @ts-expect-error
       await expect(writer.put({ cid: rndCid, bytes: arg })).to.eventually.be.rejected()
     }
   })

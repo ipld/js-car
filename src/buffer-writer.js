@@ -4,11 +4,11 @@ import { tokensToLength } from 'cborg/length'
 import varint from 'varint'
 
 /**
- * @typedef {import('./api').CID} CID
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').CarBufferWriter} Writer
- * @typedef {import('./api').CarBufferWriterOptions} Options
- * @typedef {import('./coding').CarEncoder} CarEncoder
+ * @typedef {import('./api.js').CID} CID
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').CarBufferWriter} Writer
+ * @typedef {import('./api.js').CarBufferWriterOptions} Options
+ * @typedef {import('./coding.js').CarEncoder} CarEncoder
  */
 
 /**
