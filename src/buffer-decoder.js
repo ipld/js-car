@@ -5,13 +5,13 @@ import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADE
 import { CarV1HeaderOrV2Pragma } from './header-validator.js'
 
 /**
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').BlockHeader} BlockHeader
- * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./coding').BytesBufferReader} BytesBufferReader
- * @typedef {import('./coding').CarHeader} CarHeader
- * @typedef {import('./coding').CarV2Header} CarV2Header
- * @typedef {import('./coding').CarV2FixedHeader} CarV2FixedHeader
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').BlockHeader} BlockHeader
+ * @typedef {import('./api.js').BlockIndex} BlockIndex
+ * @typedef {import('./coding.js').BytesBufferReader} BytesBufferReader
+ * @typedef {import('./coding.js').CarHeader} CarHeader
+ * @typedef {import('./coding.js').CarV2Header} CarV2Header
+ * @typedef {import('./coding.js').CarV2FixedHeader} CarV2FixedHeader
  */
 
 /**

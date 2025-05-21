@@ -6,10 +6,10 @@ import { CarReader as NodeCarReader } from './reader.js'
 
 /**
  * @typedef {import('fs').promises.FileHandle} FileHandle
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./api').CarReader} CarReaderIface
- * @typedef {import('./reader-browser').CarReader} CarReader
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').BlockIndex} BlockIndex
+ * @typedef {import('./api.js').CarReader} CarReaderIface
+ * @typedef {import('./reader-browser.js').CarReader} CarReader
  * @typedef {{ blockLength:number, blockOffset:number }} RawLocation
  */
 

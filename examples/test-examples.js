@@ -44,7 +44,9 @@ runExample('round-trip').then(({ stdout, stderr }) => {
 }).then(async () => {
   try {
     await cleanGoCarDump()
-  } catch (err) {} // failure is expected, this is just a prep
+  } catch (err) {
+    // failure is expected, this is just a prep
+  }
   await runExample('dump-car', ['../test/go.car']).then(async ({ stdout, stderr }) => {
     assert.strictEqual(stderr, '')
     assert.strictEqual(stdout,

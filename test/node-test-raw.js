@@ -10,7 +10,7 @@ import { bytes } from 'multiformats'
 import { CarReader } from '../src/index.js'
 import { assert, makeData, goCarIndex } from './common.js'
 
-/** @typedef {import('../src/api').Block} Block */
+/** @typedef {import('../src/api.js').Block} Block */
 
 const fsopen = promisify(fs.open)
 const fsclose = promisify(fs.close)

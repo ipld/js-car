@@ -6,10 +6,10 @@ import {
 
 /**
  * @typedef {import('multiformats').CID} CID
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').RootsReader} RootsReader
- * @typedef {import('./api').BlockIndex} BlockIndex
- * @typedef {import('./coding').BytesReader} BytesReader
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').RootsReader} RootsReader
+ * @typedef {import('./api.js').BlockIndex} BlockIndex
+ * @typedef {import('./coding.js').BytesReader} BytesReader
  */
 
 /**

@@ -6,7 +6,7 @@ import * as raw from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 
 /**
- * @typedef {import('../src/api').Block} Block
+ * @typedef {import('../src/api.js').Block} Block
  * @typedef {import('@ipld/dag-pb').PBNode} PBNode
  */
 

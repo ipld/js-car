@@ -4,11 +4,11 @@ import { createEncoder, createHeader } from './encoder.js'
 import { create as iteratorChannel } from './iterator-channel.js'
 
 /**
- * @typedef {import('./api').Block} Block
- * @typedef {import('./api').BlockWriter} BlockWriter
- * @typedef {import('./api').WriterChannel} WriterChannel
- * @typedef {import('./coding').CarEncoder} CarEncoder
- * @typedef {import('./coding').IteratorChannel<Uint8Array>} IteratorChannel
+ * @typedef {import('./api.js').Block} Block
+ * @typedef {import('./api.js').BlockWriter} BlockWriter
+ * @typedef {import('./api.js').WriterChannel} WriterChannel
+ * @typedef {import('./coding.js').CarEncoder} CarEncoder
+ * @typedef {import('./coding.js').IteratorChannel<Uint8Array>} IteratorChannel
  */
 
 /**

@@ -12,7 +12,7 @@ import varint from 'varint'
 import { CarWriter, CarIndexer, CarReader, CarIndexedReader } from '../src/index.js'
 import { assert } from './common.js'
 
-/** @typedef {import('../src/api').BlockIndex} BlockIndex */
+/** @typedef {import('../src/api.js').BlockIndex} BlockIndex */
 
 describe('Large CAR', () => {
   /** @type {any[]} */
