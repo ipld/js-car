@@ -1,3 +1,18 @@
+## [5.4.2](https://github.com/ipld/js-car/compare/v5.4.1...v5.4.2) (2025-05-22)
+
+### Bug Fixes
+
+* new lint issues ([238c005](https://github.com/ipld/js-car/commit/238c0050b5ba18f4c0fd8db2e2480eca18ac5807))
+
+### Trivial Changes
+
+* ignore package-lock ([fa28954](https://github.com/ipld/js-car/commit/fa289546adc2555b6d3afc8079993eb5065c632a))
+* remove package-lock.json ([f15ab90](https://github.com/ipld/js-car/commit/f15ab90ee8692c11512999a09ef4e8b30b91d9b3))
+
+### Dependencies
+
+* **dev:** bump aegir from 46.0.5 to 47.0.6 ([19b1945](https://github.com/ipld/js-car/commit/19b1945fa76a4354c851220f0623af992de963b9))
+
 ## [5.4.1](https://github.com/ipld/js-car/compare/v5.4.0...v5.4.1) (2025-05-08)
 
 ### Dependencies
