@@ -1,3 +1,13 @@
+## [5.4.3](https://github.com/ipld/js-car/compare/v5.4.2...v5.4.3) (2026-04-02)
+
+### Trivial Changes
+
+* **deps:** bump multiformats from 12.1.3 to 13.4.2 in /examples ([#176](https://github.com/ipld/js-car/issues/176)) ([2c87540](https://github.com/ipld/js-car/commit/2c87540ee5a75de54e90d47485ee30599f5e3eed))
+
+### Dependencies
+
+* bump cborg from 4.5.8 to 5.0.0 ([#178](https://github.com/ipld/js-car/issues/178)) ([40ddb9c](https://github.com/ipld/js-car/commit/40ddb9c6ff5fbbd4d0c092731707f67060f0a5ee))
+
 ## [5.4.2](https://github.com/ipld/js-car/compare/v5.4.1...v5.4.2) (2025-05-22)
 
 ### Bug Fixes
