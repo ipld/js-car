@@ -1,3 +1,9 @@
+## [5.4.4](https://github.com/ipld/js-car/compare/v5.4.3...v5.4.4) (2026-05-07)
+
+### Dependencies
+
+* **dev:** bump aegir from 47.2.0 to 48.0.1 ([#179](https://github.com/ipld/js-car/issues/179)) ([a3dca47](https://github.com/ipld/js-car/commit/a3dca470583d2c0da06aadf7cb7ccceb96ecc7bf))
+
 ## [5.4.3](https://github.com/ipld/js-car/compare/v5.4.2...v5.4.3) (2026-04-02)
 
 ### Trivial Changes
