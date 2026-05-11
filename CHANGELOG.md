@@ -1,3 +1,13 @@
+## [5.4.5](https://github.com/ipld/js-car/compare/v5.4.4...v5.4.5) (2026-05-11)
+
+### Trivial Changes
+
+* **deps:** bump multiformats from 13.4.2 to 14.0.0 in /examples ([#181](https://github.com/ipld/js-car/issues/181)) ([d3255f1](https://github.com/ipld/js-car/commit/d3255f170ea954af2df9c00eff0822f11a7d0600))
+
+### Dependencies
+
+* bump multiformats from 13.4.2 to 14.0.0 ([#180](https://github.com/ipld/js-car/issues/180)) ([e1d683e](https://github.com/ipld/js-car/commit/e1d683eb4ed4d1de7405aa2e7305424461c7006b))
+
 ## [5.4.4](https://github.com/ipld/js-car/compare/v5.4.3...v5.4.4) (2026-05-07)
 
 ### Dependencies
