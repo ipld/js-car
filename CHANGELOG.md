@@ -1,3 +1,13 @@
+## [5.4.6](https://github.com/ipld/js-car/compare/v5.4.5...v5.4.6) (2026-05-12)
+
+### Trivial Changes
+
+* **deps:** bump @ipld/dag-json from 10.2.9 to 11.0.0 in /examples ([#184](https://github.com/ipld/js-car/issues/184)) ([eefd849](https://github.com/ipld/js-car/commit/eefd849ebfa1cee9641cd0d7ba6b71b398b6bea8))
+
+### Dependencies
+
+* bump @ipld/dag-cbor from 9.2.7 to 10.0.1 ([#182](https://github.com/ipld/js-car/issues/182)) ([a2ab328](https://github.com/ipld/js-car/commit/a2ab328098c651f247d77c3c5a832e38dcaa1913))
+
 ## [5.4.5](https://github.com/ipld/js-car/compare/v5.4.4...v5.4.5) (2026-05-11)
 
 ### Trivial Changes
