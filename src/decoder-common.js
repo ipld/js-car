@@ -57,8 +57,13 @@ export function decodeV2Header (bytes) {
   return header
 }
 
+// Matches go-cid's hardcoded, unexported maxDigestAlloc (go-cid/cid.go). Bounds
+// the multihash digest length, not the whole CID.
+const MAX_DIGEST_ALLOC = 32 << 20 // 32MiB
+
 /**
- * Checks the length of the multihash to be read afterwards
+ * Returns the total byte length of the multihash to be read afterwards, throwing
+ * if its declared digest length exceeds the allocation bound.
  *
  * ```js
  * // needs bytes to be read first
@@ -66,7 +71,7 @@ export function decodeV2Header (bytes) {
  * ```
  *
  * @param {Uint8Array} bytes
- * @returns {{ mhLength: number, digestLength: number }}
+ * @returns {number}
  */
 export function getMultihashLength (bytes) {
   // | code | length | .... |
@@ -77,7 +82,8 @@ export function getMultihashLength (bytes) {
   const codeLength = /** @type {number} */(varint.decode.bytes)
   const digestLength = varint.decode(bytes.subarray(codeLength))
   const lengthLength = /** @type {number} */(varint.decode.bytes)
-  const mhLength = codeLength + lengthLength + digestLength
-
-  return { mhLength, digestLength }
+  if (digestLength > MAX_DIGEST_ALLOC) {
+    throw new RangeError(`CID digest of length ${digestLength} exceeds maximum of ${MAX_DIGEST_ALLOC}`)
+  }
+  return codeLength + lengthLength + digestLength
 }

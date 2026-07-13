@@ -3,7 +3,7 @@ import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
 import { CarV1HeaderOrV2Pragma } from './header-validator.js'
-import { MAX_DIGEST_ALLOC, resolveLimits } from './limits.js'
+import { resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').Block} Block
@@ -84,10 +84,7 @@ async function readCid (reader, sectionLength) {
     throw new Error(`Unexpected CID version (${version})`)
   }
   const codec = decodeVarint(await reader.upTo(8), reader)
-  const { mhLength, digestLength } = getMultihashLength(await reader.upTo(8))
-  if (digestLength > MAX_DIGEST_ALLOC) {
-    throw new RangeError(`CID digest of length ${digestLength} exceeds maximum of ${MAX_DIGEST_ALLOC}`)
-  }
+  const mhLength = getMultihashLength(await reader.upTo(8))
   const cidLength = Number(reader.pos - cidStart) + mhLength
   if (cidLength > sectionLength) {
     throw new Error(`Invalid CAR section (CID of length ${cidLength} exceeds section length ${sectionLength})`)
