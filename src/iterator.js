@@ -107,10 +107,11 @@ export class CarBlockIterator extends CarIteratorBase {
    * @static
    * @memberof CarBlockIterator
    * @param {Uint8Array} bytes
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {Promise<CarBlockIterator>}
    */
-  static async fromBytes (bytes) {
-    const { version, roots, iterator } = await fromBytes(bytes)
+  static async fromBytes (bytes, options) {
+    const { version, roots, iterator } = await fromBytes(bytes, options)
     return new CarBlockIterator(version, roots, iterator)
   }
 
@@ -124,10 +125,11 @@ export class CarBlockIterator extends CarIteratorBase {
    * @async
    * @static
    * @param {AsyncIterable<Uint8Array>} asyncIterable
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {Promise<CarBlockIterator>}
    */
-  static async fromIterable (asyncIterable) {
-    const { version, roots, iterator } = await fromIterable(asyncIterable)
+  static async fromIterable (asyncIterable, options) {
+    const { version, roots, iterator } = await fromIterable(asyncIterable, options)
     return new CarBlockIterator(version, roots, iterator)
   }
 }
@@ -207,10 +209,11 @@ export class CarCIDIterator extends CarIteratorBase {
    * @static
    * @memberof CarCIDIterator
    * @param {Uint8Array} bytes
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {Promise<CarCIDIterator>}
    */
-  static async fromBytes (bytes) {
-    const { version, roots, iterator } = await fromBytes(bytes)
+  static async fromBytes (bytes, options) {
+    const { version, roots, iterator } = await fromBytes(bytes, options)
     return new CarCIDIterator(version, roots, iterator)
   }
 
@@ -225,43 +228,47 @@ export class CarCIDIterator extends CarIteratorBase {
    * @static
    * @memberof CarCIDIterator
    * @param {AsyncIterable<Uint8Array>} asyncIterable
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {Promise<CarCIDIterator>}
    */
-  static async fromIterable (asyncIterable) {
-    const { version, roots, iterator } = await fromIterable(asyncIterable)
+  static async fromIterable (asyncIterable, options) {
+    const { version, roots, iterator } = await fromIterable(asyncIterable, options)
     return new CarCIDIterator(version, roots, iterator)
   }
 }
 
 /**
  * @param {Uint8Array} bytes
+ * @param {import('./api.js').CarCodecOptions} [options]
  * @returns {Promise<{ version:number, roots:CID[], iterator:AsyncIterable<Block>}>}
  */
-async function fromBytes (bytes) {
+async function fromBytes (bytes, options) {
   if (!(bytes instanceof Uint8Array)) {
     throw new TypeError('fromBytes() requires a Uint8Array')
   }
-  return decodeIterator(bytesReader(bytes))
+  return decodeIterator(bytesReader(bytes), options)
 }
 
 /**
  * @param {AsyncIterable<Uint8Array>} asyncIterable
+ * @param {import('./api.js').CarCodecOptions} [options]
  * @returns {Promise<{ version:number, roots:CID[], iterator:AsyncIterable<Block>}>}
  */
-async function fromIterable (asyncIterable) {
+async function fromIterable (asyncIterable, options) {
   if (!asyncIterable || !(typeof asyncIterable[Symbol.asyncIterator] === 'function')) {
     throw new TypeError('fromIterable() requires an async iterable')
   }
-  return decodeIterator(asyncIterableReader(asyncIterable))
+  return decodeIterator(asyncIterableReader(asyncIterable), options)
 }
 
 /**
  * @private
  * @param {BytesReader} reader
+ * @param {import('./api.js').CarCodecOptions} [options]
  * @returns {Promise<{ version:number, roots:CID[], iterator:AsyncIterable<Block>}>}
  */
-async function decodeIterator (reader) {
-  const decoder = createDecoder(reader)
+async function decodeIterator (reader, options) {
+  const decoder = createDecoder(reader, options)
   const { version, roots } = await decoder.header()
   return { version, roots, iterator: decoder.blocks() }
 }
