@@ -88,13 +88,14 @@ export class CarIndexer {
    * @static
    * @memberof CarIndexer
    * @param {Uint8Array} bytes
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {Promise<CarIndexer>}
    */
-  static async fromBytes (bytes) {
+  static async fromBytes (bytes, options) {
     if (!(bytes instanceof Uint8Array)) {
       throw new TypeError('fromBytes() requires a Uint8Array')
     }
-    return decodeIndexerComplete(bytesReader(bytes))
+    return decodeIndexerComplete(bytesReader(bytes), options)
   }
 
   /**
@@ -107,23 +108,25 @@ export class CarIndexer {
    * @static
    * @memberof CarIndexer
    * @param {AsyncIterable<Uint8Array>} asyncIterable
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {Promise<CarIndexer>}
    */
-  static async fromIterable (asyncIterable) {
+  static async fromIterable (asyncIterable, options) {
     if (!asyncIterable || !(typeof asyncIterable[Symbol.asyncIterator] === 'function')) {
       throw new TypeError('fromIterable() requires an async iterable')
     }
-    return decodeIndexerComplete(asyncIterableReader(asyncIterable))
+    return decodeIndexerComplete(asyncIterableReader(asyncIterable), options)
   }
 }
 
 /**
  * @private
  * @param {BytesReader} reader
+ * @param {import('./api.js').CarCodecOptions} [options]
  * @returns {Promise<CarIndexer>}
  */
-async function decodeIndexerComplete (reader) {
-  const decoder = createDecoder(reader)
+async function decodeIndexerComplete (reader, options) {
+  const decoder = createDecoder(reader, options)
   const { version, roots } = await decoder.header()
 
   return new CarIndexer(version, roots, decoder.blocksIndex())

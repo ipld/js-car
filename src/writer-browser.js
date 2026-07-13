@@ -2,6 +2,7 @@ import { CID } from 'multiformats/cid'
 import { bytesReader, readHeader } from './decoder.js'
 import { createEncoder, createHeader } from './encoder.js'
 import { create as iteratorChannel } from './iterator-channel.js'
+import { resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').Block} Block
@@ -121,12 +122,13 @@ export class CarWriter {
    * @static
    * @memberof CarWriter
    * @param {CID[] | CID | void} roots
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {WriterChannel} The channel takes the form of
    * `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
    */
-  static create (roots) {
+  static create (roots, options) {
     roots = toRoots(roots)
-    const { encoder, iterator } = encodeWriter()
+    const { encoder, iterator } = encodeWriter(resolveLimits(options))
     const writer = new CarWriter(roots, encoder)
     const out = new CarWriterOut(iterator)
     return { writer, out }
@@ -143,11 +145,12 @@ export class CarWriter {
    * @async
    * @static
    * @memberof CarWriter
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {WriterChannel} The channel takes the form of
    * `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
    */
-  static createAppender () {
-    const { encoder, iterator } = encodeWriter()
+  static createAppender (options) {
+    const { encoder, iterator } = encodeWriter(resolveLimits(options))
     encoder.setRoots = () => Promise.resolve()
     const writer = new CarWriter([], encoder)
     const out = new CarWriterOut(iterator)
@@ -210,11 +213,14 @@ export class CarWriterOut {
   }
 }
 
-function encodeWriter () {
+/**
+ * @param {import('./limits.js').CarLimits} limits
+ */
+function encodeWriter (limits) {
   /** @type {IteratorChannel} */
   const iw = iteratorChannel()
   const { writer, iterator } = iw
-  const encoder = createEncoder(writer)
+  const encoder = createEncoder(writer, limits)
   return { encoder, iterator }
 }
 

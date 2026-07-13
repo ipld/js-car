@@ -66,6 +66,7 @@ export function decodeV2Header (bytes) {
  * ```
  *
  * @param {Uint8Array} bytes
+ * @returns {{ mhLength: number, digestLength: number }}
  */
 export function getMultihashLength (bytes) {
   // | code | length | .... |
@@ -74,9 +75,9 @@ export function getMultihashLength (bytes) {
 
   varint.decode(bytes) // code
   const codeLength = /** @type {number} */(varint.decode.bytes)
-  const length = varint.decode(bytes.subarray(varint.decode.bytes))
+  const digestLength = varint.decode(bytes.subarray(codeLength))
   const lengthLength = /** @type {number} */(varint.decode.bytes)
-  const mhLength = codeLength + lengthLength + length
+  const mhLength = codeLength + lengthLength + digestLength
 
-  return mhLength
+  return { mhLength, digestLength }
 }
