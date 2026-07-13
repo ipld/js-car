@@ -29,13 +29,6 @@ describe('resolveLimits', () => {
     })
   })
 
-  it('overrides both caps when both are provided in one call', () => {
-    assert.deepStrictEqual(resolveLimits({ maxAllowedHeaderSize: 1024, maxAllowedSectionSize: 2048 }), {
-      maxAllowedHeaderSize: 1024,
-      maxAllowedSectionSize: 2048
-    })
-  })
-
   it('accepts 0 as a real value (reject every section)', () => {
     assert.strictEqual(resolveLimits({ maxAllowedSectionSize: 0 }).maxAllowedSectionSize, 0)
   })

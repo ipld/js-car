@@ -66,15 +66,12 @@ export interface CarBufferWriter {
   close(options?: { resize?: boolean }): Uint8Array
 }
 
-export interface CarBufferWriterOptions {
+export interface CarBufferWriterOptions extends CarCodecOptions {
   roots?: CID[] // defaults to []
   byteOffset?: number // defaults to 0
   byteLength?: number // defaults to buffer.byteLength
 
   headerSize?: number // defaults to size needed for provided roots
-
-  maxAllowedHeaderSize?: number // default 32 << 20 (32MiB)
-  maxAllowedSectionSize?: number // default 8 << 20 (8MiB)
 }
 
 export interface CarCodecOptions {

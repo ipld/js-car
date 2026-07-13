@@ -1,16 +1,12 @@
 /**
  * @typedef {import('./api.js').CarCodecOptions} CarCodecOptions
- * @typedef {{ maxAllowedHeaderSize: number, maxAllowedSectionSize: number }} CarLimits
+ * @typedef {Required<CarCodecOptions>} CarLimits
  */
 
 // Matches go-car's DefaultMaxAllowedHeaderSize / DefaultMaxAllowedSectionSize
 // (v2/internal/carv1/car.go).
 export const DEFAULT_MAX_ALLOWED_HEADER_SIZE = 32 << 20 // 32MiB
 export const DEFAULT_MAX_ALLOWED_SECTION_SIZE = 8 << 20 // 8MiB
-
-// Matches go-cid's hardcoded, unexported maxDigestAlloc (go-cid/cid.go). Bounds
-// the multihash digest length, not the whole CID.
-export const MAX_DIGEST_ALLOC = 32 << 20 // 32MiB
 
 /**
  * Validate a single provided cap. `undefined` is not "provided" and is left for
@@ -33,7 +29,8 @@ function resolve (name, value, fallback) {
 }
 
 /**
- * Resolve a raw options bag into the two caps, applying defaults.
+ * Resolve a `CarCodecOptions` into a complete set of caps, applying the default
+ * for each option left unset and validating any value provided.
  *
  * @param {CarCodecOptions} [options]
  * @returns {CarLimits}

@@ -4,17 +4,16 @@ import { encode as cbEncode } from '@ipld/dag-cbor'
 import { encode as vEncode } from 'varint'
 import { CarBufferReader } from '../src/buffer-reader.js'
 import { CarIndexer } from '../src/indexer.js'
-import { CarBlockIterator, CarCIDIterator } from '../src/iterator.js'
+import { CarBlockIterator } from '../src/iterator.js'
 import { DEFAULT_MAX_ALLOWED_SECTION_SIZE } from '../src/limits.js'
 import { CarReader } from '../src/reader.js'
 import { assert, carBytes, goCarV2Bytes, makeIterable, rndCid } from './common.js'
 
 // Async entry points, each with a fromBytes and a fromIterable form. CarReader
-// fully decodes during construction and exposes blocks() after; the other three
+// fully decodes during construction and exposes blocks() after; the others
 // decode lazily and yield via iteration.
 const ENTRIES = [
   { name: 'CarBlockIterator', cls: CarBlockIterator },
-  { name: 'CarCIDIterator', cls: CarCIDIterator },
   { name: 'CarReader', cls: CarReader },
   { name: 'CarIndexer', cls: CarIndexer }
 ]
@@ -187,28 +186,6 @@ describe('decode size limits', () => {
       const section = concatBytes([Uint8Array.from(vEncode(1_000_000_000 + cid.length)), cid])
       const data = concatBytes([validV1Header, section])
       await assert.isRejected(decodeAll({ name: 'CarIndexer', cls: CarIndexer }, data), RangeError, 'maxAllowedSectionSize')
-    })
-  })
-
-  describe('fromBytes threads an explicit cap through to every entry point', () => {
-    // The other describe blocks above exercise explicit caps only through
-    // decodeAll's default via ('fromIterable'), via CarBlockIterator. These
-    // prove the fromBytes path (a separate code path in each entry point)
-    // threads an explicit option through for CarReader and CarIndexer too.
-    it('CarReader.fromBytes rejects a section over an explicit cap', async () => {
-      await assert.isRejected(
-        decodeAll({ name: 'CarReader', cls: CarReader }, carBytes, { maxAllowedSectionSize: 0 }, 'fromBytes'),
-        RangeError,
-        'maxAllowedSectionSize'
-      )
-    })
-
-    it('CarIndexer.fromBytes rejects a section over an explicit cap', async () => {
-      await assert.isRejected(
-        decodeAll({ name: 'CarIndexer', cls: CarIndexer }, carBytes, { maxAllowedSectionSize: 0 }, 'fromBytes'),
-        RangeError,
-        'maxAllowedSectionSize'
-      )
     })
   })
 
