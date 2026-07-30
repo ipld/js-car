@@ -1,4 +1,4 @@
-import type { Block, BlockIndex } from './api.js'
+import type { Block, BlockIndex } from './api.ts'
 import type { CID } from 'multiformats/cid'
 
 export interface CarEncoder {
