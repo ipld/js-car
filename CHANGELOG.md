@@ -1,3 +1,13 @@
+## [5.4.7](https://github.com/ipld/js-car/compare/v5.4.6...v5.4.7) (2026-07-30)
+
+### Trivial Changes
+
+* **deps:** bump @ipld/dag-cbor from 9.2.7 to 10.0.1 in /examples ([#183](https://github.com/ipld/js-car/issues/183)) ([c108324](https://github.com/ipld/js-car/commit/c108324225542921d0f8c5dd52d6b3f25066c6ac))
+
+### Dependencies
+
+* bump cborg from 5.1.11 to 6.1.1 ([#187](https://github.com/ipld/js-car/issues/187)) ([c130802](https://github.com/ipld/js-car/commit/c1308028cacf8cc901d9ae799d0fa19a97ca68ff))
+
 ## [5.4.6](https://github.com/ipld/js-car/compare/v5.4.5...v5.4.6) (2026-05-12)
 
 ### Trivial Changes
