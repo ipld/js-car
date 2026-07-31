@@ -187,14 +187,15 @@ export class CarIndexedReader {
    * @static
    * @memberof CarIndexedReader
    * @param {string} path
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {Promise<CarIndexedReader>}
    */
-  static async fromFile (path) {
+  static async fromFile (path, options) {
     if (typeof path !== 'string') {
       throw new TypeError('fromFile() requires a file path string')
     }
 
-    const iterable = await CarIndexer.fromIterable(Readable.from(fs.createReadStream(path)))
+    const iterable = await CarIndexer.fromIterable(Readable.from(fs.createReadStream(path)), options)
     /** @type {Map<string, RawLocation>} */
     const index = new Map()
     /** @type {string[]} */

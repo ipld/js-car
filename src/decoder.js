@@ -3,6 +3,7 @@ import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
 import { CarV1HeaderOrV2Pragma } from './header-validator.js'
+import { resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').Block} Block
@@ -13,6 +14,8 @@ import { CarV1HeaderOrV2Pragma } from './header-validator.js'
  * @typedef {import('./coding.js').CarV2Header} CarV2Header
  * @typedef {import('./coding.js').CarV2FixedHeader} CarV2FixedHeader
  * @typedef {import('./coding.js').CarDecoder} CarDecoder
+ * @typedef {import('./api.js').CarCodecOptions} CarCodecOptions
+ * @typedef {import('./limits.js').CarLimits} CarLimits
  */
 
 /**
@@ -22,12 +25,16 @@ import { CarV1HeaderOrV2Pragma } from './header-validator.js'
  * @name async decoder.readHeader(reader)
  * @param {BytesReader} reader
  * @param {number} [strictVersion]
+ * @param {CarLimits} [limits]
  * @returns {Promise<CarHeader|CarV2Header>}
  */
-export async function readHeader (reader, strictVersion) {
+export async function readHeader (reader, strictVersion, limits = resolveLimits()) {
   const length = decodeVarint(await reader.upTo(8), reader)
   if (length === 0) {
     throw new Error('Invalid CAR header (zero length)')
+  }
+  if (length > limits.maxAllowedHeaderSize) {
+    throw new RangeError(`CAR header of length ${length} exceeds maxAllowedHeaderSize of ${limits.maxAllowedHeaderSize}`)
   }
   const header = await reader.exactly(length, true)
   const block = decodeDagCbor(header)
@@ -50,21 +57,26 @@ export async function readHeader (reader, strictVersion) {
   }
   const v2Header = decodeV2Header(await reader.exactly(V2_HEADER_LENGTH, true))
   reader.seek(v2Header.dataOffset - reader.pos)
-  const v1Header = await readHeader(reader, 1)
+  const v1Header = await readHeader(reader, 1, limits)
   return Object.assign(v1Header, v2Header)
 }
 
 /**
  * @param {BytesReader} reader
- * @returns {Promise<CID>}
+ * @param {number} sectionLength
+ * @returns {Promise<{ cid: CID, cidLength: number }>}
  */
-async function readCid (reader) {
+async function readCid (reader, sectionLength) {
+  const cidStart = reader.pos
   const first = await reader.exactly(2, false)
   if (first[0] === CIDV0_BYTES.SHA2_256 && first[1] === CIDV0_BYTES.LENGTH) {
-    // cidv0 32-byte sha2-256
-    const bytes = await reader.exactly(34, true)
-    const multihash = Digest.decode(bytes)
-    return CID.create(0, CIDV0_BYTES.DAG_PB, multihash)
+    // cidv0: 0x12 code byte + 0x20 length byte + 32-byte sha2-256 digest
+    const cidLength = 34
+    if (cidLength > sectionLength) {
+      throw new Error(`Invalid CAR section (CID of length ${cidLength} exceeds section length ${sectionLength})`)
+    }
+    const bytes = await reader.exactly(cidLength, true)
+    return { cid: CID.create(0, CIDV0_BYTES.DAG_PB, Digest.decode(bytes)), cidLength }
   }
 
   const version = decodeVarint(await reader.upTo(8), reader)
@@ -72,9 +84,13 @@ async function readCid (reader) {
     throw new Error(`Unexpected CID version (${version})`)
   }
   const codec = decodeVarint(await reader.upTo(8), reader)
-  const bytes = await reader.exactly(getMultihashLength(await reader.upTo(8)), true)
-  const multihash = Digest.decode(bytes)
-  return CID.create(version, codec, multihash)
+  const mhLength = getMultihashLength(await reader.upTo(8))
+  const cidLength = Number(reader.pos - cidStart) + mhLength
+  if (cidLength > sectionLength) {
+    throw new Error(`Invalid CAR section (CID of length ${cidLength} exceeds section length ${sectionLength})`)
+  }
+  const bytes = await reader.exactly(mhLength, true)
+  return { cid: CID.create(version, codec, Digest.decode(bytes)), cidLength }
 }
 
 /**
@@ -85,40 +101,44 @@ async function readCid (reader) {
  *
  * @name async decoder.readBlockHead(reader)
  * @param {BytesReader} reader
+ * @param {CarLimits} limits
  * @returns {Promise<BlockHeader>}
  */
-export async function readBlockHead (reader) {
+export async function readBlockHead (reader, limits) {
   // length includes a CID + Binary, where CID has a variable length
   // we have to deal with
   const start = reader.pos
-  let length = decodeVarint(await reader.upTo(8), reader)
-  if (length === 0) {
+  const sectionLength = decodeVarint(await reader.upTo(8), reader)
+  if (sectionLength === 0) {
     throw new Error('Invalid CAR section (zero length)')
   }
-  length += (reader.pos - start)
-  const cid = await readCid(reader)
-  const blockLength = length - Number(reader.pos - start) // subtract CID length
-
-  return { cid, length, blockLength }
+  if (sectionLength > limits.maxAllowedSectionSize) {
+    throw new RangeError(`CAR section of length ${sectionLength} exceeds maxAllowedSectionSize of ${limits.maxAllowedSectionSize}`)
+  }
+  const length = Number(reader.pos - start) + sectionLength
+  const { cid, cidLength } = await readCid(reader, sectionLength)
+  return { cid, length, blockLength: sectionLength - cidLength }
 }
 
 /**
  * @param {BytesReader} reader
+ * @param {CarLimits} limits
  * @returns {Promise<Block>}
  */
-async function readBlock (reader) {
-  const { cid, blockLength } = await readBlockHead(reader)
+async function readBlock (reader, limits) {
+  const { cid, blockLength } = await readBlockHead(reader, limits)
   const bytes = await reader.exactly(blockLength, true)
   return { bytes, cid }
 }
 
 /**
  * @param {BytesReader} reader
+ * @param {CarLimits} limits
  * @returns {Promise<BlockIndex>}
  */
-async function readBlockIndex (reader) {
+async function readBlockIndex (reader, limits) {
   const offset = reader.pos
-  const { cid, length, blockLength } = await readBlockHead(reader)
+  const { cid, length, blockLength } = await readBlockHead(reader, limits)
   const index = { cid, length, blockLength, offset, blockOffset: reader.pos }
   reader.seek(index.blockLength)
   return index
@@ -131,11 +151,13 @@ async function readBlockIndex (reader) {
  *
  * @name decoder.createDecoder(reader)
  * @param {BytesReader} reader
+ * @param {CarCodecOptions} [options]
  * @returns {CarDecoder}
  */
-export function createDecoder (reader) {
+export function createDecoder (reader, options) {
+  const limits = resolveLimits(options)
   const headerPromise = (async () => {
-    const header = await readHeader(reader)
+    const header = await readHeader(reader, undefined, limits)
     if (header.version === 2) {
       const v1length = reader.pos - header.dataOffset
       reader = limitReader(reader, header.dataSize - v1length)
@@ -149,14 +171,14 @@ export function createDecoder (reader) {
     async * blocks () {
       await headerPromise
       while ((await reader.upTo(8)).length > 0) {
-        yield await readBlock(reader)
+        yield await readBlock(reader, limits)
       }
     },
 
     async * blocksIndex () {
       await headerPromise
       while ((await reader.upTo(8)).length > 0) {
-        yield await readBlockIndex(reader)
+        yield await readBlockIndex(reader, limits)
       }
     }
   }

@@ -129,14 +129,15 @@ export class CarBufferReader {
    * @static
    * @memberof CarBufferReader
    * @param {Uint8Array} bytes
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {CarBufferReader}
    */
-  static fromBytes (bytes) {
+  static fromBytes (bytes, options) {
     if (!(bytes instanceof Uint8Array)) {
       throw new TypeError('fromBytes() requires a Uint8Array')
     }
 
-    const { header, blocks } = BufferDecoder.fromBytes(bytes)
+    const { header, blocks } = BufferDecoder.fromBytes(bytes, options)
     return new CarBufferReader(header, blocks)
   }
 }

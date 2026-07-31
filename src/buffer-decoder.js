@@ -3,6 +3,7 @@ import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
 import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
 import { CarV1HeaderOrV2Pragma } from './header-validator.js'
+import { resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').Block} Block
@@ -12,6 +13,8 @@ import { CarV1HeaderOrV2Pragma } from './header-validator.js'
  * @typedef {import('./coding.js').CarHeader} CarHeader
  * @typedef {import('./coding.js').CarV2Header} CarV2Header
  * @typedef {import('./coding.js').CarV2FixedHeader} CarV2FixedHeader
+ * @typedef {import('./api.js').CarCodecOptions} CarCodecOptions
+ * @typedef {import('./limits.js').CarLimits} CarLimits
  */
 
 /**
@@ -21,12 +24,16 @@ import { CarV1HeaderOrV2Pragma } from './header-validator.js'
  * @name decoder.readHeader(reader)
  * @param {BytesBufferReader} reader
  * @param {number} [strictVersion]
+ * @param {CarLimits} [limits]
  * @returns {CarHeader | CarV2Header}
  */
-export function readHeader (reader, strictVersion) {
+export function readHeader (reader, strictVersion, limits = resolveLimits()) {
   const length = decodeVarint(reader.upTo(8), reader)
   if (length === 0) {
     throw new Error('Invalid CAR header (zero length)')
+  }
+  if (length > limits.maxAllowedHeaderSize) {
+    throw new RangeError(`CAR header of length ${length} exceeds maxAllowedHeaderSize of ${limits.maxAllowedHeaderSize}`)
   }
   const header = reader.exactly(length, true)
   const block = decodeDagCbor(header)
@@ -49,7 +56,7 @@ export function readHeader (reader, strictVersion) {
   }
   const v2Header = decodeV2Header(reader.exactly(V2_HEADER_LENGTH, true))
   reader.seek(v2Header.dataOffset - reader.pos)
-  const v1Header = readHeader(reader, 1)
+  const v1Header = readHeader(reader, 1, limits)
   return Object.assign(v1Header, v2Header)
 }
 
@@ -57,15 +64,20 @@ export function readHeader (reader, strictVersion) {
  * Reads CID sync
  *
  * @param {BytesBufferReader} reader
- * @returns {CID}
+ * @param {number} sectionLength
+ * @returns {{ cid: CID, cidLength: number }}
  */
-function readCid (reader) {
+function readCid (reader, sectionLength) {
+  const cidStart = reader.pos
   const first = reader.exactly(2, false)
   if (first[0] === CIDV0_BYTES.SHA2_256 && first[1] === CIDV0_BYTES.LENGTH) {
-    // cidv0 32-byte sha2-256
-    const bytes = reader.exactly(34, true)
-    const multihash = Digest.decode(bytes)
-    return CID.create(0, CIDV0_BYTES.DAG_PB, multihash)
+    // cidv0: 0x12 code byte + 0x20 length byte + 32-byte sha2-256 digest
+    const cidLength = 34
+    if (cidLength > sectionLength) {
+      throw new Error(`Invalid CAR section (CID of length ${cidLength} exceeds section length ${sectionLength})`)
+    }
+    const bytes = reader.exactly(cidLength, true)
+    return { cid: CID.create(0, CIDV0_BYTES.DAG_PB, Digest.decode(bytes)), cidLength }
   }
 
   const version = decodeVarint(reader.upTo(8), reader)
@@ -73,9 +85,13 @@ function readCid (reader) {
     throw new Error(`Unexpected CID version (${version})`)
   }
   const codec = decodeVarint(reader.upTo(8), reader)
-  const bytes = reader.exactly(getMultihashLength(reader.upTo(8)), true)
-  const multihash = Digest.decode(bytes)
-  return CID.create(version, codec, multihash)
+  const mhLength = getMultihashLength(reader.upTo(8))
+  const cidLength = Number(reader.pos - cidStart) + mhLength
+  if (cidLength > sectionLength) {
+    throw new Error(`Invalid CAR section (CID of length ${cidLength} exceeds section length ${sectionLength})`)
+  }
+  const bytes = reader.exactly(mhLength, true)
+  return { cid: CID.create(version, codec, Digest.decode(bytes)), cidLength }
 }
 
 /**
@@ -84,34 +100,38 @@ function readCid (reader) {
  * `{ cid, length, blockLength }` which can be used to either index the block
  * or read the block binary data.
  *
- * @name async decoder.readBlockHead(reader)
+ * @name decoder.readBlockHead(reader)
  * @param {BytesBufferReader} reader
+ * @param {CarLimits} limits
  * @returns {BlockHeader}
  */
-export function readBlockHead (reader) {
+export function readBlockHead (reader, limits) {
   // length includes a CID + Binary, where CID has a variable length
   // we have to deal with
   const start = reader.pos
-  let length = decodeVarint(reader.upTo(8), reader)
-  if (length === 0) {
+  const sectionLength = decodeVarint(reader.upTo(8), reader)
+  if (sectionLength === 0) {
     throw new Error('Invalid CAR section (zero length)')
   }
-  length += (reader.pos - start)
-  const cid = readCid(reader)
-  const blockLength = length - Number(reader.pos - start) // subtract CID length
-
-  return { cid, length, blockLength }
+  if (sectionLength > limits.maxAllowedSectionSize) {
+    throw new RangeError(`CAR section of length ${sectionLength} exceeds maxAllowedSectionSize of ${limits.maxAllowedSectionSize}`)
+  }
+  const length = Number(reader.pos - start) + sectionLength
+  const { cid, cidLength } = readCid(reader, sectionLength)
+  return { cid, length, blockLength: sectionLength - cidLength }
 }
 
 /**
  * Returns Car header and blocks from a Uint8Array
  *
  * @param {Uint8Array} bytes
+ * @param {CarCodecOptions} [options]
  * @returns {{ header : CarHeader | CarV2Header , blocks: Block[]}}
  */
-export function fromBytes (bytes) {
+export function fromBytes (bytes, options) {
+  const limits = resolveLimits(options)
   let reader = bytesReader(bytes)
-  const header = readHeader(reader)
+  const header = readHeader(reader, undefined, limits)
   if (header.version === 2) {
     const v1length = reader.pos - header.dataOffset
     reader = limitReader(reader, header.dataSize - v1length)
@@ -119,7 +139,7 @@ export function fromBytes (bytes) {
 
   const blocks = []
   while (reader.upTo(8).length > 0) {
-    const { cid, blockLength } = readBlockHead(reader)
+    const { cid, blockLength } = readBlockHead(reader, limits)
 
     blocks.push({ cid, bytes: reader.exactly(blockLength, true) })
   }
