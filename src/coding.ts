@@ -8,12 +8,15 @@ export interface CarEncoder {
 
   close(): Promise<void>
 
+  error(err: Error): void
+
   version(): number
 }
 
 export interface IteratorChannel_Writer<T> {
   write(chunk: T): Promise<void>
   end(): Promise<void>
+  error(err: Error): void
 }
 
 export interface IteratorChannel<T> {

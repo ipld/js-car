@@ -55,8 +55,22 @@ export class CarWriter {
   constructor (roots, encoder) {
     this._encoder = encoder
     /** @type {Promise<void>} */
-    this._mutex = encoder.setRoots(roots)
+    this._mutex = this._guard(encoder.setRoots(roots))
     this._ended = false
+  }
+
+  /**
+   * On any write-path rejection, tell the `out` iterable so a consumer draining
+   * it gets the error instead of hanging. Attaching the handler here also keeps
+   * the internal mutex from becoming an unhandled rejection, e.g. an early
+   * `setRoots()` failure before the first `put()`/`close()`.
+   *
+   * @param {Promise<void>} mutex
+   * @returns {Promise<void>}
+   */
+  _guard (mutex) {
+    mutex.catch((err) => this._encoder.error(err))
+    return mutex
   }
 
   /**
@@ -81,7 +95,7 @@ export class CarWriter {
     if (!cid) {
       throw new TypeError('Can only write {cid, bytes} objects')
     }
-    this._mutex = this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes }))
+    this._mutex = this._guard(this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes })))
     return this._mutex
   }
 

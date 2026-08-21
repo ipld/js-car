@@ -16,6 +16,8 @@ export function create () {
   let drainer = null
   let drainerResolver = noop
   let ended = false
+  /** @type {Error | null} */
+  let errored = null
   /** @type {Promise<IteratorResult<T>> | null} */
   let outWait = null
   let outWaitResolver = noop
@@ -53,6 +55,20 @@ export function create () {
       const drainer = makeDrainer()
       outWaitResolver()
       await drainer
+    },
+
+    /**
+     * Fail the channel: a consumer of the iterator receives `err` after any
+     * already-queued chunks, instead of the stream hanging open.
+     *
+     * @param {Error} err
+     */
+    error (err) {
+      if (errored == null) {
+        errored = err
+      }
+      drainerResolver()
+      outWaitResolver()
     }
   }
 
@@ -66,6 +82,10 @@ export function create () {
           drainerResolver()
         }
         return { done: false, value: chunk }
+      }
+
+      if (errored) {
+        throw errored
       }
 
       if (ended) {
