@@ -319,6 +319,19 @@ describe('CarWriter', () => {
     await collection
   })
 
+  it('errored write ends the out stream instead of hanging', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    // force the write path to reject the way an over-cap block would; the encoder
+    // is the writer's only route to the out channel
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(new Error('write failed'))
+    const collection = collector(out)
+    // the assert.isRejected form of this causes an uncatchable error in Chrome
+    await expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejectedWith(/write failed/)
+    // out must terminate (reject) rather than hang forever
+    await expect(collection).to.eventually.be.rejectedWith(/write failed/)
+  })
+
   it('bad attempt to multiple iterate', async () => {
     const { out } = CarWriter.create()
     collector(out)
