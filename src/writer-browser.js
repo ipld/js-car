@@ -69,7 +69,7 @@ export class CarWriter {
    * @returns {Promise<void>}
    */
   _guard (mutex) {
-    mutex.catch((err) => this._encoder.error(err))
+    mutex.catch((err) => this._encoder.error(err instanceof Error ? err : new Error(String(err))))
     return mutex
   }
 
@@ -84,19 +84,27 @@ export class CarWriter {
    * @returns {Promise<void>} The returned promise will only resolve once the
    * bytes this block generates are written to the `out` iterable.
    */
-  async put (block) {
-    if (!(block.bytes instanceof Uint8Array) || !block.cid) {
-      throw new TypeError('Can only write {cid, bytes} objects')
+  put (block) {
+    // not an `async` method: `return this._mutex` must hand back the exact
+    // promise `_guard` attached its handler to, so a fire-and-forget put() whose
+    // write rejects can't become an unhandled rejection. An async wrapper would
+    // return a fresh, unguarded promise instead.
+    try {
+      if (!(block.bytes instanceof Uint8Array) || !block.cid) {
+        throw new TypeError('Can only write {cid, bytes} objects')
+      }
+      if (this._ended) {
+        throw new Error('Already closed')
+      }
+      const cid = CID.asCID(block.cid)
+      if (!cid) {
+        throw new TypeError('Can only write {cid, bytes} objects')
+      }
+      this._mutex = this._guard(this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes })))
+      return this._mutex
+    } catch (err) {
+      return Promise.reject(err)
     }
-    if (this._ended) {
-      throw new Error('Already closed')
-    }
-    const cid = CID.asCID(block.cid)
-    if (!cid) {
-      throw new TypeError('Can only write {cid, bytes} objects')
-    }
-    this._mutex = this._guard(this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes })))
-    return this._mutex
   }
 
   /**
@@ -109,13 +117,17 @@ export class CarWriter {
    * @async
    * @returns {Promise<void>}
    */
-  async close () {
+  close () {
+    // see put(): not `async`, so the returned (guarded) promise is the one a
+    // caller's error propagates from, and _encoder.close() is routed through
+    // _guard too so a close-time failure also reaches the out iterable
     if (this._ended) {
-      throw new Error('Already closed')
+      return Promise.reject(new Error('Already closed'))
     }
-    await this._mutex
-    this._ended = true
-    return this._encoder.close()
+    return this._guard(this._mutex.then(() => {
+      this._ended = true
+      return this._encoder.close()
+    }))
   }
 
   /**

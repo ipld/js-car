@@ -2,7 +2,10 @@
 
 import { expect } from 'aegir/chai'
 import { bytes, CID } from 'multiformats'
+import { createEncoder } from '../src/encoder.js'
+import { create as iteratorChannel } from '../src/iterator-channel.js'
 import { CarReader } from '../src/reader.js'
+import { CarWriterOut } from '../src/writer-browser.js'
 import { CarWriter } from '../src/writer.js'
 import { carBytes, makeData, assert, rndCid } from './common.js'
 import {
@@ -321,8 +324,8 @@ describe('CarWriter', () => {
 
   it('errored write ends the out stream instead of hanging', async () => {
     const { writer, out } = CarWriter.create(roots)
-    // force the write path to reject the way an over-cap block would; the encoder
-    // is the writer's only route to the out channel
+    // force the write path to reject; the encoder is the writer's only route to
+    // the out channel
     // @ts-expect-error _encoder is internal to CarWriter
     writer._encoder.writeBlock = () => Promise.reject(new Error('write failed'))
     const collection = collector(out)
@@ -330,6 +333,52 @@ describe('CarWriter', () => {
     await expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejectedWith(/write failed/)
     // out must terminate (reject) rather than hang forever
     await expect(collection).to.eventually.be.rejectedWith(/write failed/)
+    // a close() after the error rejects with the same error, not "closed"
+    await expect(writer.close()).to.eventually.be.rejectedWith(/write failed/)
+  })
+
+  it('a setRoots failure reaches the out stream', async () => {
+    // setRoots runs in the constructor, so build the writer by hand to inject a
+    // failing header write (the same seam createAppender uses)
+    /** @type {import('../src/coding.js').IteratorChannel<Uint8Array>} */
+    const iw = iteratorChannel()
+    const encoder = createEncoder(iw.writer)
+    encoder.setRoots = () => Promise.reject(new Error('setRoots failed'))
+    const writer = new CarWriter([], encoder)
+    const out = new CarWriterOut(iw.iterator)
+    await expect(collector(out)).to.eventually.be.rejectedWith(/setRoots failed/)
+    await expect(writer.close()).to.eventually.be.rejectedWith(/setRoots failed/)
+  })
+
+  it('a fire-and-forget put() that errors does not leave an unhandled rejection', async function () {
+    // unhandledRejection is a Node process concept (and crashes the process by
+    // default); the guarantee only makes sense there
+    if (typeof process === 'undefined' || typeof process.on !== 'function') {
+      return this.skip()
+    }
+    const { writer, out } = CarWriter.create(roots)
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(new Error('write failed'))
+    /** @type {Error[]} */
+    const unhandled = []
+    /** @param {unknown} err */
+    const onUnhandled = (err) => {
+      if (err instanceof Error && /write failed/.test(err.message)) {
+        unhandled.push(err)
+      }
+    }
+    process.on('unhandledRejection', onUnhandled)
+    try {
+      const drained = expect(collector(out)).to.eventually.be.rejectedWith(/write failed/)
+      // fire-and-forget, which the class docs bless; must not crash the process
+      writer.put(allBlocksFlattened[0])
+      await drained
+      // let any pending unhandledRejection callback run
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      assert.deepEqual(unhandled, [])
+    } finally {
+      process.off('unhandledRejection', onUnhandled)
+    }
   })
 
   it('bad attempt to multiple iterate', async () => {
