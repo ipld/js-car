@@ -65,6 +65,14 @@ function createEncoder (writer) {
     },
 
     /**
+     * @param {Error} err
+     * @returns {void}
+     */
+    error (err) {
+      writer.error(err)
+    },
+
+    /**
      * @returns {number}
      */
     version () {

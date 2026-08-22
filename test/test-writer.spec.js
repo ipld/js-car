@@ -2,7 +2,10 @@
 
 import { expect } from 'aegir/chai'
 import { bytes, CID } from 'multiformats'
+import { createEncoder } from '../src/encoder.js'
+import { create as iteratorChannel } from '../src/iterator-channel.js'
 import { CarReader } from '../src/reader.js'
+import { CarWriterOut } from '../src/writer-browser.js'
 import { CarWriter } from '../src/writer.js'
 import { carBytes, makeData, assert, rndCid } from './common.js'
 import {
@@ -317,6 +320,123 @@ describe('CarWriter', () => {
     await writer.close()
     await assert.isRejected(writer.put(allBlocksFlattened[1]), /closed/)
     await collection
+  })
+
+  it('errored write ends the out stream instead of hanging', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    // force the write path to reject; the encoder is the writer's only route to
+    // the out channel
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(new Error('write failed'))
+    const collection = collector(out)
+    // the assert.isRejected form of this causes an uncatchable error in Chrome
+    await expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejectedWith(/write failed/)
+    // out must terminate (reject) rather than hang forever
+    await expect(collection).to.eventually.be.rejectedWith(/write failed/)
+    // a close() after the error rejects with the same error, not "closed"
+    await expect(writer.close()).to.eventually.be.rejectedWith(/write failed/)
+  })
+
+  it('a write failure rejects the failed write and every write queued behind it', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const collection = collector(out)
+    // @ts-expect-error _encoder is internal to CarWriter
+    const encoder = writer._encoder
+    const realWriteBlock = encoder.writeBlock.bind(encoder)
+    let calls = 0
+    // fail only the 2nd of three already-queued writes (the real production shape:
+    // a check throwing partway through a streaming write)
+    encoder.writeBlock = (/** @type {Block} */ block) => {
+      calls += 1
+      return calls === 2 ? Promise.reject(new Error('write failed')) : realWriteBlock(block)
+    }
+    const first = writer.put(allBlocksFlattened[0])
+    const failing = writer.put(allBlocksFlattened[1])
+    const queued = writer.put(allBlocksFlattened[2])
+    await expect(first).to.eventually.be.fulfilled()
+    await expect(failing).to.eventually.be.rejectedWith(/write failed/)
+    await expect(queued).to.eventually.be.rejectedWith(/write failed/)
+    await expect(collection).to.eventually.be.rejectedWith(/write failed/)
+  })
+
+  it('delivers already-written bytes before surfacing a later error', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const iterator = out[Symbol.asyncIterator]()
+    // the constructor queues the header write; it must be delivered first
+    const header = await iterator.next()
+    assert.ok(!header.done && header.value.length > 0)
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(new Error('write failed'))
+    const putting = expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejectedWith(/write failed/)
+    // the error surfaces on the next pull, it does not truncate silently
+    await expect(iterator.next()).to.eventually.be.rejectedWith(/write failed/)
+    await putting
+  })
+
+  it('a falsy write rejection still ends the out stream rather than hanging', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const collection = collector(out)
+    // a rejection reason the channel must not gate behind a truthiness check
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(undefined) // eslint-disable-line prefer-promise-reject-errors
+    await expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejected()
+    await expect(collection).to.eventually.be.rejected()
+  })
+
+  it('put()/close() after a fire-and-forget close() are rejected, not re-entered', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const collection = collector(out)
+    const closing = writer.close() // fire-and-forget: not awaited before the next calls
+    await expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejectedWith(/closed/i)
+    await expect(writer.close()).to.eventually.be.rejectedWith(/closed/i)
+    await closing
+    await collection
+  })
+
+  it('a setRoots failure reaches the out stream', async () => {
+    // setRoots runs in the constructor, so build the writer by hand to inject a
+    // failing header write (the same seam createAppender uses)
+    /** @type {import('../src/coding.js').IteratorChannel<Uint8Array>} */
+    const iw = iteratorChannel()
+    const encoder = createEncoder(iw.writer)
+    encoder.setRoots = () => Promise.reject(new Error('setRoots failed'))
+    const writer = new CarWriter([], encoder)
+    const out = new CarWriterOut(iw.iterator)
+    await expect(collector(out)).to.eventually.be.rejectedWith(/setRoots failed/)
+    await expect(writer.close()).to.eventually.be.rejectedWith(/setRoots failed/)
+  })
+
+  it('a fire-and-forget put() that errors does not leave an unhandled rejection', async function () {
+    // process.on('unhandledRejection') is a Node-only API (browsers surface it via
+    // the unhandledrejection window event instead). Guard on process.versions.node,
+    // not process.on: bundlers polyfill process.on as a no-op, which would let this
+    // test pass vacuously in browser/webworker.
+    if (typeof process === 'undefined' || process.versions?.node == null) {
+      return this.skip()
+    }
+    const { writer, out } = CarWriter.create(roots)
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(new Error('write failed'))
+    /** @type {Error[]} */
+    const unhandled = []
+    /** @param {unknown} err */
+    const onUnhandled = (err) => {
+      if (err instanceof Error && /write failed/.test(err.message)) {
+        unhandled.push(err)
+      }
+    }
+    process.on('unhandledRejection', onUnhandled)
+    try {
+      const drained = expect(collector(out)).to.eventually.be.rejectedWith(/write failed/)
+      // fire-and-forget, which the class docs bless; must not crash the process
+      writer.put(allBlocksFlattened[0])
+      await drained
+      // let any pending unhandledRejection callback run
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      assert.deepEqual(unhandled, [])
+    } finally {
+      process.off('unhandledRejection', onUnhandled)
+    }
   })
 
   it('bad attempt to multiple iterate', async () => {
