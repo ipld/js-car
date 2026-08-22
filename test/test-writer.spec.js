@@ -337,6 +337,16 @@ describe('CarWriter', () => {
     await expect(writer.close()).to.eventually.be.rejectedWith(/write failed/)
   })
 
+  it('put()/close() after a fire-and-forget close() are rejected, not re-entered', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const collection = collector(out)
+    const closing = writer.close() // fire-and-forget: not awaited before the next calls
+    await expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejectedWith(/closed/i)
+    await expect(writer.close()).to.eventually.be.rejectedWith(/closed/i)
+    await closing
+    await collection
+  })
+
   it('a setRoots failure reaches the out stream', async () => {
     // setRoots runs in the constructor, so build the writer by hand to inject a
     // failing header write (the same seam createAppender uses)

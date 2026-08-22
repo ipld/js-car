@@ -118,16 +118,16 @@ export class CarWriter {
    * @returns {Promise<void>}
    */
   close () {
-    // see put(): not `async`, so the returned (guarded) promise is the one a
-    // caller's error propagates from, and _encoder.close() is routed through
-    // _guard too so a close-time failure also reaches the out iterable
     if (this._ended) {
       return Promise.reject(new Error('Already closed'))
     }
-    return this._guard(this._mutex.then(() => {
-      this._ended = true
-      return this._encoder.close()
-    }))
+    // mark ended synchronously so a put()/close() issued after a not-yet-awaited
+    // close() is rejected rather than racing in behind it
+    this._ended = true
+    // like put(): not `async`, so the returned (guarded) promise is the one a
+    // caller's error propagates from; _encoder.close() is routed through _guard
+    // too so a close-time failure also reaches the out iterable
+    return this._guard(this._mutex.then(() => this._encoder.close()))
   }
 
   /**
