@@ -18,6 +18,7 @@ export function create () {
   let ended = false
   /** @type {Error | null} */
   let errored = null
+  let hasErrored = false
   /** @type {Promise<IteratorResult<T>> | null} */
   let outWait = null
   let outWaitResolver = noop
@@ -64,7 +65,8 @@ export function create () {
      * @param {Error} err
      */
     error (err) {
-      if (errored == null) {
+      if (!hasErrored) {
+        hasErrored = true
         errored = err
       }
       drainerResolver()
@@ -84,7 +86,7 @@ export function create () {
         return { done: false, value: chunk }
       }
 
-      if (errored) {
+      if (hasErrored) {
         throw errored
       }
 

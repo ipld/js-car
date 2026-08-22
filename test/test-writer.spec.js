@@ -337,6 +337,16 @@ describe('CarWriter', () => {
     await expect(writer.close()).to.eventually.be.rejectedWith(/write failed/)
   })
 
+  it('a falsy write rejection still ends the out stream rather than hanging', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const collection = collector(out)
+    // a rejection reason the channel must not gate behind a truthiness check
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(undefined) // eslint-disable-line prefer-promise-reject-errors
+    await expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejected()
+    await expect(collection).to.eventually.be.rejected()
+  })
+
   it('put()/close() after a fire-and-forget close() are rejected, not re-entered', async () => {
     const { writer, out } = CarWriter.create(roots)
     const collection = collector(out)
