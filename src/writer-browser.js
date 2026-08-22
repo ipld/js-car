@@ -35,6 +35,8 @@ import { create as iteratorChannel } from './iterator-channel.js'
  * It is also possible to ignore the `Promise` from `write()` calls and allow
  * the generated data to queue in memory. This should be avoided for large CAR
  * archives of course due to the memory costs and potential for memory overflow.
+ * If such an ignored write later fails, its error is not lost or fatal: it
+ * surfaces on the `out` iterable rather than as an unhandled rejection.
  *
  * Load this class with either
  * `import { CarWriter } from '@ipld/car/writer'`

@@ -337,6 +337,42 @@ describe('CarWriter', () => {
     await expect(writer.close()).to.eventually.be.rejectedWith(/write failed/)
   })
 
+  it('a write failure rejects the failed write and every write queued behind it', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const collection = collector(out)
+    // @ts-expect-error _encoder is internal to CarWriter
+    const encoder = writer._encoder
+    const realWriteBlock = encoder.writeBlock.bind(encoder)
+    let calls = 0
+    // fail only the 2nd of three already-queued writes (the real production shape:
+    // a check throwing partway through a streaming write)
+    encoder.writeBlock = (/** @type {Block} */ block) => {
+      calls += 1
+      return calls === 2 ? Promise.reject(new Error('write failed')) : realWriteBlock(block)
+    }
+    const first = writer.put(allBlocksFlattened[0])
+    const failing = writer.put(allBlocksFlattened[1])
+    const queued = writer.put(allBlocksFlattened[2])
+    await expect(first).to.eventually.be.fulfilled()
+    await expect(failing).to.eventually.be.rejectedWith(/write failed/)
+    await expect(queued).to.eventually.be.rejectedWith(/write failed/)
+    await expect(collection).to.eventually.be.rejectedWith(/write failed/)
+  })
+
+  it('delivers already-written bytes before surfacing a later error', async () => {
+    const { writer, out } = CarWriter.create(roots)
+    const iterator = out[Symbol.asyncIterator]()
+    // the constructor queues the header write; it must be delivered first
+    const header = await iterator.next()
+    assert.ok(!header.done && header.value.length > 0)
+    // @ts-expect-error _encoder is internal to CarWriter
+    writer._encoder.writeBlock = () => Promise.reject(new Error('write failed'))
+    const putting = expect(writer.put(allBlocksFlattened[0])).to.eventually.be.rejectedWith(/write failed/)
+    // the error surfaces on the next pull, it does not truncate silently
+    await expect(iterator.next()).to.eventually.be.rejectedWith(/write failed/)
+    await putting
+  })
+
   it('a falsy write rejection still ends the out stream rather than hanging', async () => {
     const { writer, out } = CarWriter.create(roots)
     const collection = collector(out)
@@ -371,9 +407,11 @@ describe('CarWriter', () => {
   })
 
   it('a fire-and-forget put() that errors does not leave an unhandled rejection', async function () {
-    // unhandledRejection is a Node process concept (and crashes the process by
-    // default); the guarantee only makes sense there
-    if (typeof process === 'undefined' || typeof process.on !== 'function') {
+    // process.on('unhandledRejection') is a Node-only API (browsers surface it via
+    // the unhandledrejection window event instead). Guard on process.versions.node,
+    // not process.on: bundlers polyfill process.on as a no-op, which would let this
+    // test pass vacuously in browser/webworker.
+    if (typeof process === 'undefined' || process.versions?.node == null) {
       return this.skip()
     }
     const { writer, out } = CarWriter.create(roots)
