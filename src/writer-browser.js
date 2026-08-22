@@ -69,7 +69,7 @@ export class CarWriter {
    * @returns {Promise<void>}
    */
   _guard (mutex) {
-    mutex.catch((err) => this._encoder.error(err instanceof Error ? err : new Error(String(err))))
+    mutex.catch((err) => this._encoder.error(err))
     return mutex
   }
 
