@@ -208,7 +208,7 @@
   },
   "dependencies": {
     "@ipld/dag-cbor": "^10.0.1",
-    "cborg": "^6.1.1",
+    "cborg": "^7.0.0",
     "multiformats": "^14.0.0",
     "varint": "^6.0.0"
   },
