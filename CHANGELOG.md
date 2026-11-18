@@ -1,3 +1,9 @@
+## [5.4.8](https://github.com/ipld/js-car/compare/v5.4.7...v5.4.8) (2026-11-18)
+
+### Tests
+
+* close reader in test to deal with Node.js FdHandle error ([#190](https://github.com/ipld/js-car/issues/190)) ([4a50df8](https://github.com/ipld/js-car/commit/4a50df86a6e3cff374d5f9e56c8617d04e41b5cb))
+
 ## [5.4.7](https://github.com/ipld/js-car/compare/v5.4.6...v5.4.7) (2026-07-30)
 
 ### Trivial Changes
