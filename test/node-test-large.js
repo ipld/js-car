@@ -96,13 +96,17 @@ describe('Large CAR', () => {
 
   it('CarIndexedReader.fromFile', async () => {
     const reader = await CarIndexedReader.fromFile('./test.car')
-    assert.deepStrictEqual(await reader.getRoots(), [])
-    let i = 0
-    for await (const { cid, bytes } of reader.blocks()) {
-      assert.strictEqual(cid.toString(), cids[i], `cid #${i} ${cid} <> ${cids[i]}`)
-      const obj = dagCbor.decode(bytes)
-      assert.deepStrictEqual(obj, objects[i], `object #${i}`)
-      i++
+    try {
+      assert.deepStrictEqual(await reader.getRoots(), [])
+      let i = 0
+      for await (const { cid, bytes } of reader.blocks()) {
+        assert.strictEqual(cid.toString(), cids[i], `cid #${i} ${cid} <> ${cids[i]}`)
+        const obj = dagCbor.decode(bytes)
+        assert.deepStrictEqual(obj, objects[i], `object #${i}`)
+        i++
+      }
+    } finally {
+      await reader.close()
     }
   })
 
