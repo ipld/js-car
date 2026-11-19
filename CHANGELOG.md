@@ -1,3 +1,9 @@
+## [5.4.9](https://github.com/ipld/js-car/compare/v5.4.8...v5.4.9) (2026-11-19)
+
+### Dependencies
+
+* bump cborg from 6.2.1 to 7.0.0 ([#189](https://github.com/ipld/js-car/issues/189)) ([6325147](https://github.com/ipld/js-car/commit/6325147a1e2a63ea914fd4fff6f68aa5d8dfd13f))
+
 ## [5.4.8](https://github.com/ipld/js-car/compare/v5.4.7...v5.4.8) (2026-11-18)
 
 ### Tests
