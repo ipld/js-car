@@ -1,3 +1,9 @@
+## [5.4.10](https://github.com/ipld/js-car/compare/v5.4.9...v5.4.10) (2026-11-20)
+
+### Bug Fixes
+
+* end the CarWriter out stream when the write path errors ([#188](https://github.com/ipld/js-car/issues/188)) ([6beeeef](https://github.com/ipld/js-car/commit/6beeeef140b729a043201a186d7c111755029ef0))
+
 ## [5.4.9](https://github.com/ipld/js-car/compare/v5.4.8...v5.4.9) (2026-11-19)
 
 ### Dependencies
