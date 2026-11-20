@@ -35,8 +35,7 @@ import { create as iteratorChannel } from './iterator-channel.js'
  * It is also possible to ignore the `Promise` from `write()` calls and allow
  * the generated data to queue in memory. This should be avoided for large CAR
  * archives of course due to the memory costs and potential for memory overflow.
- * If such an ignored write later fails, its error is not lost or fatal: it
- * surfaces on the `out` iterable rather than as an unhandled rejection.
+ * If such an ignored write fails, the error surfaces on the `out` iterable.
  *
  * Load this class with either
  * `import { CarWriter } from '@ipld/car/writer'`
@@ -62,16 +61,15 @@ export class CarWriter {
   }
 
   /**
-   * On any write-path rejection, tell the `out` iterable so a consumer draining
-   * it gets the error instead of hanging. Attaching the handler here also keeps
-   * the internal mutex from becoming an unhandled rejection, e.g. an early
-   * `setRoots()` failure before the first `put()`/`close()`.
+   * Route a write-path rejection to the `out` iterable. The attached handler
+   * also marks the rejection as handled, so an unawaited write can't crash the
+   * process.
    *
    * @param {Promise<void>} mutex
    * @returns {Promise<void>}
    */
   _guard (mutex) {
-    mutex.catch((err) => this._encoder.error(err))
+    mutex.catch((err) => this._encoder.error(err instanceof Error ? err : new Error(String(err))))
     return mutex
   }
 
@@ -87,26 +85,16 @@ export class CarWriter {
    * bytes this block generates are written to the `out` iterable.
    */
   put (block) {
-    // not an `async` method: `return this._mutex` must hand back the exact
-    // promise `_guard` attached its handler to, so a fire-and-forget put() whose
-    // write rejects can't become an unhandled rejection. An async wrapper would
-    // return a fresh, unguarded promise instead.
-    try {
-      if (!(block.bytes instanceof Uint8Array) || !block.cid) {
-        throw new TypeError('Can only write {cid, bytes} objects')
-      }
-      if (this._ended) {
-        throw new Error('Already closed')
-      }
-      const cid = CID.asCID(block.cid)
-      if (!cid) {
-        throw new TypeError('Can only write {cid, bytes} objects')
-      }
-      this._mutex = this._guard(this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes })))
-      return this._mutex
-    } catch (err) {
-      return Promise.reject(err)
+    // not `async`: callers must receive the guarded promise itself
+    const cid = block?.bytes instanceof Uint8Array && block.cid ? CID.asCID(block.cid) : null
+    if (!cid) {
+      return Promise.reject(new TypeError('Can only write {cid, bytes} objects'))
     }
+    if (this._ended) {
+      return Promise.reject(new Error('Already closed'))
+    }
+    this._mutex = this._guard(this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes })))
+    return this._mutex
   }
 
   /**
@@ -123,12 +111,8 @@ export class CarWriter {
     if (this._ended) {
       return Promise.reject(new Error('Already closed'))
     }
-    // mark ended synchronously so a put()/close() issued after a not-yet-awaited
-    // close() is rejected rather than racing in behind it
+    // set synchronously so calls behind an unawaited close() are rejected
     this._ended = true
-    // like put(): not `async`, so the returned (guarded) promise is the one a
-    // caller's error propagates from; _encoder.close() is routed through _guard
-    // too so a close-time failure also reaches the out iterable
     return this._guard(this._mutex.then(() => this._encoder.close()))
   }
 
