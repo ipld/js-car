@@ -1,3 +1,9 @@
+## [5.5.0](https://github.com/ipld/js-car/compare/v5.4.10...v5.5.0) (2026-11-20)
+
+### Features
+
+* export car multicodec code ([#160](https://github.com/ipld/js-car/issues/160)) ([352c59d](https://github.com/ipld/js-car/commit/352c59db9e1fda6ec0e1f18d854f9027459d3339))
+
 ## [5.4.10](https://github.com/ipld/js-car/compare/v5.4.9...v5.4.10) (2026-11-20)
 
 ### Bug Fixes
