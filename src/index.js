@@ -6,8 +6,7 @@ import { CarBlockIterator, CarCIDIterator } from './iterator.js'
 import { CarReader } from './reader.js'
 import { CarWriter } from './writer.js'
 
-// @see https://www.iana.org/assignments/media-types/application/vnd.ipld.car
-export const contentType = 'application/vnd.ipld.car'
+export { contentType, code } from './index-browser.js'
 
 export {
   CarReader,
