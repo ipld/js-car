@@ -35,6 +35,7 @@ import { create as iteratorChannel } from './iterator-channel.js'
  * It is also possible to ignore the `Promise` from `write()` calls and allow
  * the generated data to queue in memory. This should be avoided for large CAR
  * archives of course due to the memory costs and potential for memory overflow.
+ * If such an ignored write fails, the error surfaces on the `out` iterable.
  *
  * Load this class with either
  * `import { CarWriter } from '@ipld/car/writer'`
@@ -55,8 +56,21 @@ export class CarWriter {
   constructor (roots, encoder) {
     this._encoder = encoder
     /** @type {Promise<void>} */
-    this._mutex = encoder.setRoots(roots)
+    this._mutex = this._guard(encoder.setRoots(roots))
     this._ended = false
+  }
+
+  /**
+   * Route a write-path rejection to the `out` iterable. The attached handler
+   * also marks the rejection as handled, so an unawaited write can't crash the
+   * process.
+   *
+   * @param {Promise<void>} mutex
+   * @returns {Promise<void>}
+   */
+  _guard (mutex) {
+    mutex.catch((err) => this._encoder.error(err instanceof Error ? err : new Error(String(err))))
+    return mutex
   }
 
   /**
@@ -70,18 +84,16 @@ export class CarWriter {
    * @returns {Promise<void>} The returned promise will only resolve once the
    * bytes this block generates are written to the `out` iterable.
    */
-  async put (block) {
-    if (!(block.bytes instanceof Uint8Array) || !block.cid) {
-      throw new TypeError('Can only write {cid, bytes} objects')
+  put (block) {
+    // not `async`: callers must receive the guarded promise itself
+    const cid = block?.bytes instanceof Uint8Array && block.cid ? CID.asCID(block.cid) : null
+    if (!cid) {
+      return Promise.reject(new TypeError('Can only write {cid, bytes} objects'))
     }
     if (this._ended) {
-      throw new Error('Already closed')
+      return Promise.reject(new Error('Already closed'))
     }
-    const cid = CID.asCID(block.cid)
-    if (!cid) {
-      throw new TypeError('Can only write {cid, bytes} objects')
-    }
-    this._mutex = this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes }))
+    this._mutex = this._guard(this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes })))
     return this._mutex
   }
 
@@ -95,13 +107,13 @@ export class CarWriter {
    * @async
    * @returns {Promise<void>}
    */
-  async close () {
+  close () {
     if (this._ended) {
-      throw new Error('Already closed')
+      return Promise.reject(new Error('Already closed'))
     }
-    await this._mutex
+    // set synchronously so calls behind an unawaited close() are rejected
     this._ended = true
-    return this._encoder.close()
+    return this._guard(this._mutex.then(() => this._encoder.close()))
   }
 
   /**
