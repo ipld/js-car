@@ -129,7 +129,7 @@ export class CarBufferReader {
    * @static
    * @memberof CarBufferReader
    * @param {Uint8Array} bytes
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {CarBufferReader}
    */
   static fromBytes (bytes, options) {

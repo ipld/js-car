@@ -107,7 +107,7 @@ export class CarBlockIterator extends CarIteratorBase {
    * @static
    * @memberof CarBlockIterator
    * @param {Uint8Array} bytes
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {Promise<CarBlockIterator>}
    */
   static async fromBytes (bytes, options) {
@@ -125,7 +125,7 @@ export class CarBlockIterator extends CarIteratorBase {
    * @async
    * @static
    * @param {AsyncIterable<Uint8Array>} asyncIterable
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {Promise<CarBlockIterator>}
    */
   static async fromIterable (asyncIterable, options) {
@@ -209,7 +209,7 @@ export class CarCIDIterator extends CarIteratorBase {
    * @static
    * @memberof CarCIDIterator
    * @param {Uint8Array} bytes
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {Promise<CarCIDIterator>}
    */
   static async fromBytes (bytes, options) {
@@ -228,7 +228,7 @@ export class CarCIDIterator extends CarIteratorBase {
    * @static
    * @memberof CarCIDIterator
    * @param {AsyncIterable<Uint8Array>} asyncIterable
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {Promise<CarCIDIterator>}
    */
   static async fromIterable (asyncIterable, options) {
@@ -239,7 +239,7 @@ export class CarCIDIterator extends CarIteratorBase {
 
 /**
  * @param {Uint8Array} bytes
- * @param {import('./api.js').CarCodecOptions} [options]
+ * @param {import('./api.js').CarDecodeOptions} [options]
  * @returns {Promise<{ version:number, roots:CID[], iterator:AsyncIterable<Block>}>}
  */
 async function fromBytes (bytes, options) {
@@ -251,7 +251,7 @@ async function fromBytes (bytes, options) {
 
 /**
  * @param {AsyncIterable<Uint8Array>} asyncIterable
- * @param {import('./api.js').CarCodecOptions} [options]
+ * @param {import('./api.js').CarDecodeOptions} [options]
  * @returns {Promise<{ version:number, roots:CID[], iterator:AsyncIterable<Block>}>}
  */
 async function fromIterable (asyncIterable, options) {
@@ -264,7 +264,7 @@ async function fromIterable (asyncIterable, options) {
 /**
  * @private
  * @param {BytesReader} reader
- * @param {import('./api.js').CarCodecOptions} [options]
+ * @param {import('./api.js').CarDecodeOptions} [options]
  * @returns {Promise<{ version:number, roots:CID[], iterator:AsyncIterable<Block>}>}
  */
 async function decodeIterator (reader, options) {

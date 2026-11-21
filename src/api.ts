@@ -1,4 +1,5 @@
 import type { CID } from 'multiformats/cid'
+import type { MultihashHasher } from 'multiformats/hashes/interface'
 
 /**
  * Literally any `Iterable` (async or regular).
@@ -76,6 +77,13 @@ export interface CarCodecOptions {
   maxAllowedHeaderSize?: number // defaults to 32 << 20 (32MiB), Infinity disables
   maxAllowedSectionSize?: number // defaults to 8 << 20 (8MiB), Infinity disables
 }
+
+export interface CarVerifyOptions {
+  verify?: boolean // defaults to false
+  hashers?: MultihashHasher[] // in addition to sha2-256 and identity
+}
+
+export interface CarDecodeOptions extends CarCodecOptions, CarVerifyOptions {}
 
 export interface WriterChannel {
   writer: BlockWriter

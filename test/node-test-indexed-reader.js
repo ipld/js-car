@@ -5,8 +5,10 @@ import os from 'os'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { encode as cbEncode } from '@ipld/dag-cbor'
+import { bytes } from 'multiformats'
 import { encode as vEncode } from 'varint'
 import { CarIndexedReader } from '../src/indexed-reader.js'
+import { InvalidMultihashError } from '../src/verify.js'
 import { assert, carBytes, goCarIndex, rndCid } from './common.js'
 import {
   verifyRoots,
@@ -93,3 +95,45 @@ describe('CarIndexedReader fromFile() size limits', () => {
     }
   })
 })
+
+describe('CarIndexedReader fromFile() verification', () => {
+  const tampered = bytes.fromHex(bytes.toHex(carBytes).replace('61616161', '61616162'))
+  const p = path.join(os.tmpdir(), `js-car-verify-tampered-${process.pid}-${Date.now()}.car`)
+
+  before(() => fs.writeFile(p, tampered))
+  after(() => fs.unlink(p))
+
+  it('is off by default', async () => {
+    const reader = await CarIndexedReader.fromFile(p)
+    try {
+      for await (const _ of reader.blocks()) {} // eslint-disable-line no-unused-vars, no-empty
+    } finally {
+      await reader.close()
+    }
+  })
+
+  it('verifies blocks as they are read', async () => {
+    const reader = await CarIndexedReader.fromFile(p, { verify: true })
+    try {
+      const [aaaa, bbbb] = await collectCids(reader)
+      await assert.isRejected(reader.get(aaaa), InvalidMultihashError)
+      assert.ok(await reader.get(bbbb))
+      await assert.isRejected((async () => {
+        for await (const _ of reader.blocks()) {} // eslint-disable-line no-unused-vars, no-empty
+      })(), InvalidMultihashError)
+    } finally {
+      await reader.close()
+    }
+  })
+})
+
+/**
+ * @param {CarIndexedReader} reader
+ */
+async function collectCids (reader) {
+  const cids = []
+  for await (const cid of reader.cids()) {
+    cids.push(cid)
+  }
+  return cids
+}
