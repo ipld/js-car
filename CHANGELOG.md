@@ -1,3 +1,16 @@
+## [6.0.0](https://github.com/ipld/js-car/compare/v5.5.0...v6.0.0) (2026-11-21)
+
+### ⚠ BREAKING CHANGES
+
+* decoding and encoding now reject a section over 8 MiB or
+a header over 32 MiB by default, including fromBytes() and
+CarBufferReader. Raise the cap, or set it to Infinity, to accept larger
+CARs.
+
+### Features
+
+* default-on size limits for CAR decode and encode ([#186](https://github.com/ipld/js-car/issues/186)) ([bdae822](https://github.com/ipld/js-car/commit/bdae822ead0b6339fa8dcd594fc29cb7baf25d54)), closes [#185](https://github.com/ipld/js-car/issues/185)
+
 ## [5.5.0](https://github.com/ipld/js-car/compare/v5.4.10...v5.5.0) (2026-11-20)
 
 ### Features
