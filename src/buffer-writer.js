@@ -2,7 +2,7 @@ import * as CBOR from '@ipld/dag-cbor'
 import { Token, Type } from 'cborg'
 import { tokensToLength } from 'cborg/length'
 import varint from 'varint'
-import { resolveLimits } from './limits.js'
+import { assertDigestSize, assertHeaderSize, assertSectionSize, resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').CID} CID
@@ -38,9 +38,7 @@ class CarBufferWriter {
     this.headerSize = headerSize
 
     /** @readonly */
-    this.maxAllowedHeaderSize = limits.maxAllowedHeaderSize
-    /** @readonly */
-    this.maxAllowedSectionSize = limits.maxAllowedSectionSize
+    this.limits = limits
   }
 
   /**
@@ -130,9 +128,8 @@ export const blockLength = ({ cid, bytes }) => {
  */
 export const addBlock = (writer, { cid, bytes }) => {
   const byteLength = cid.bytes.byteLength + bytes.byteLength
-  if (byteLength > writer.maxAllowedSectionSize) {
-    throw new RangeError(`CAR section of length ${byteLength} exceeds maxAllowedSectionSize of ${writer.maxAllowedSectionSize}`)
-  }
+  assertSectionSize(byteLength, writer.limits.maxAllowedSectionSize)
+  assertDigestSize(cid.multihash.size)
   const size = varint.encode(byteLength)
   if (writer.byteOffset + size.length + byteLength > writer.bytes.byteLength) {
     throw new RangeError('Buffer has no capacity for this block')
@@ -153,9 +150,7 @@ export const close = (writer, options = {}) => {
   const { roots, bytes, byteOffset, headerSize } = writer
 
   const headerBytes = CBOR.encode({ version: 1, roots })
-  if (headerBytes.length > writer.maxAllowedHeaderSize) {
-    throw new RangeError(`CAR header of length ${headerBytes.length} exceeds maxAllowedHeaderSize of ${writer.maxAllowedHeaderSize}`)
-  }
+  assertHeaderSize(headerBytes.length, writer.limits.maxAllowedHeaderSize)
   const varintBytes = varint.encode(headerBytes.length)
 
   const size = varintBytes.length + headerBytes.byteLength

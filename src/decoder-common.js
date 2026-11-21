@@ -1,4 +1,5 @@
 import varint from 'varint'
+import { assertDigestSize } from './limits.js'
 
 export const CIDV0_BYTES = {
   SHA2_256: 0x12,
@@ -57,10 +58,6 @@ export function decodeV2Header (bytes) {
   return header
 }
 
-// Matches go-cid's hardcoded, unexported maxDigestAlloc (go-cid/cid.go). Bounds
-// the multihash digest length, not the whole CID.
-const MAX_DIGEST_ALLOC = 32 << 20 // 32MiB
-
 /**
  * Returns the total byte length of the multihash to be read afterwards, throwing
  * if its declared digest length exceeds the allocation bound.
@@ -82,8 +79,6 @@ export function getMultihashLength (bytes) {
   const codeLength = /** @type {number} */(varint.decode.bytes)
   const digestLength = varint.decode(bytes.subarray(codeLength))
   const lengthLength = /** @type {number} */(varint.decode.bytes)
-  if (digestLength > MAX_DIGEST_ALLOC) {
-    throw new RangeError(`CID digest of length ${digestLength} exceeds maximum of ${MAX_DIGEST_ALLOC}`)
-  }
+  assertDigestSize(digestLength)
   return codeLength + lengthLength + digestLength
 }

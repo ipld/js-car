@@ -216,43 +216,32 @@ be directly fed to a
 
 ## Size Limits
 
-Every decode and encode entry point accepts an optional `CarCodecOptions` with two
-caps, both **on by default** and matching [go-car](https://github.com/ipld/go-car):
+Decoding and encoding are bounded by two caps, on by default and matching
+[go-car](https://github.com/ipld/go-car):
 
 | Option | Bounds | Default |
 | --- | --- | --- |
-| `maxAllowedHeaderSize` | the CAR header (the dag-cbor header block) | `32 << 20` (32 MiB) |
-| `maxAllowedSectionSize` | each section: the CID plus its block body, combined | `8 << 20` (8 MiB) |
+| `maxAllowedHeaderSize` | the CAR header | `32 << 20` (32 MiB) |
+| `maxAllowedSectionSize` | each section: a CID plus its block, combined | `8 << 20` (8 MiB) |
 
-Both count the varint-declared length, excluding the varint prefix itself, which is
-the quantity go-car's parser compares. A length strictly greater than a cap throws a
-`RangeError`, on decode from the length prefix before the body is read, skipped, or
-pulled from the source, and on encode before any bytes for that item are written.
+Pass them in an options object to any `fromBytes()`, `fromIterable()`,
+`CarIndexedReader.fromFile()`, `CarWriter.create()`, `CarWriter.createAppender()`
+or `CarBufferWriter.createWriter()`. Use the same options on both ends and a CAR
+that encodes will also decode.
 
-Because `maxAllowedSectionSize` bounds the CID and body together, the effective
-maximum block body is the cap minus its CID (about 8388572 bytes for a normal
-sha2-256 CIDv1, not 8 MiB exactly).
+Each cap is compared against the varint-declared length, so a decoder rejects an
+oversized header or section from its length prefix, before reading the body. An
+encoder rejects before writing any of it. Both throw a `RangeError`.
 
-Passing `undefined` for a cap uses its default. Set a cap to `0` to reject every
-section, or to `Number.MAX_SAFE_INTEGER` to disable it (the `varint` package refuses
-to decode a length above 2^53-1, so a cap there can never fire). A provided value
-that is not a non-negative safe integer throws a `TypeError`.
+Since the section cap covers the CID too, the largest block under the default is
+a little under 8 MiB (8388572 bytes with a typical sha2-256 CIDv1). Identity CIDs
+count in full.
 
-The caps apply to every entry point that parses or emits the CAR format:
+Set a cap to `Infinity` to disable it. Independently of the section cap, a CID's
+multihash digest is limited to 32 MiB, as in go-cid.
 
-- decode, streaming: `CarReader.fromIterable`, `CarBlockIterator.fromIterable`,
-  `CarCIDIterator.fromIterable`, `CarIndexer.fromIterable`, `CarIndexedReader.fromFile`
-- decode, in-memory: `CarReader.fromBytes`, `CarBlockIterator.fromBytes`,
-  `CarCIDIterator.fromBytes`, `CarIndexer.fromBytes`, `CarBufferReader.fromBytes`
-- encode: `CarWriter.create`, `CarWriter.createAppender`, `CarBufferWriter.createWriter`
-
-Setting the same `CarCodecOptions` on both ends gives one size profile that holds on
-read and write, so the library never emits a CAR it would refuse to read back.
-`CarWriter.updateRootsInBytes` and `CarWriter.updateRootsInFile` take no options; they
-overwrite a header in place under the default header cap.
-
-Separately, the decoder caps a single multihash **digest** at a hardcoded 32 MiB
-(matching go-cid's unexported `maxDigestAlloc`).
+`CarWriter.updateRootsInBytes()` and `CarWriter.updateRootsInFile()` read the
+existing header under the default header cap.
 
 ## API
 
@@ -1005,6 +994,7 @@ which will have a negative impact on performance.
 
 - `reader` `(BytesReader)`
 - `strictVersion` `(number, optional)`
+- `maxAllowedHeaderSize` `(number, optional)`: Defaults to 32 MiB; see [Size Limits](#size-limits).
 
 - Returns: `Promise<(CarHeader|CarV2Header)>`
 
@@ -1016,6 +1006,7 @@ of a `CarHeader` or `CarV2Header` depending on the CAR being read.
 ### `async decoder.readBlockHead(reader)`
 
 - `reader` `(BytesReader)`
+- `maxAllowedSectionSize` `(number, optional)`: Defaults to 8 MiB; see [Size Limits](#size-limits).
 
 - Returns: `Promise<BlockHeader>`
 
@@ -1029,6 +1020,7 @@ or read the block binary data.
 ### `decoder.createDecoder(reader)`
 
 - `reader` `(BytesReader)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `CarDecoder`
 

@@ -33,31 +33,23 @@ describe('resolveLimits', () => {
     assert.strictEqual(resolveLimits({ maxAllowedSectionSize: 0 }).maxAllowedSectionSize, 0)
   })
 
-  it('accepts Number.MAX_SAFE_INTEGER as the opt-out', () => {
-    assert.strictEqual(
-      resolveLimits({ maxAllowedHeaderSize: Number.MAX_SAFE_INTEGER }).maxAllowedHeaderSize,
-      Number.MAX_SAFE_INTEGER
-    )
+  it('accepts Infinity as the opt-out', () => {
+    assert.strictEqual(resolveLimits({ maxAllowedHeaderSize: Infinity }).maxAllowedHeaderSize, Infinity)
   })
 
-  for (const bad of [-1, 1.5, NaN, Infinity, '8']) {
+  for (const bad of [1.5, NaN, -Infinity, 2 ** 53, '8']) {
     it(`throws TypeError for ${String(bad)}`, () => {
       assert.throws(
         // @ts-expect-error deliberately bad input
         () => resolveLimits({ maxAllowedSectionSize: bad }),
         TypeError,
-        'maxAllowedSectionSize must be a non-negative safe integer'
+        'maxAllowedSectionSize must be a non-negative integer or Infinity'
       )
     })
   }
 
-  // The loop above only exercises the section-cap side of the validation; this
-  // proves the same predicate is applied to the header cap too.
-  it('throws TypeError for a negative maxAllowedHeaderSize', () => {
-    assert.throws(
-      () => resolveLimits({ maxAllowedHeaderSize: -1 }),
-      TypeError,
-      'maxAllowedHeaderSize must be a non-negative safe integer'
-    )
+  it('throws RangeError for a negative cap', () => {
+    assert.throws(() => resolveLimits({ maxAllowedHeaderSize: -1 }), RangeError, 'maxAllowedHeaderSize')
+    assert.throws(() => resolveLimits({ maxAllowedSectionSize: -1 }), RangeError, 'maxAllowedSectionSize')
   })
 })

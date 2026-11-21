@@ -1,13 +1,13 @@
 import { encode as dagCborEncode } from '@ipld/dag-cbor'
 import varint from 'varint'
-import { resolveLimits } from './limits.js'
+import { DEFAULT_MAX_ALLOWED_HEADER_SIZE, assertDigestSize, assertHeaderSize, assertSectionSize, resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('multiformats').CID} CID
  * @typedef {import('./api.js').Block} Block
  * @typedef {import('./coding.js').CarEncoder} CarEncoder
  * @typedef {import('./coding.js').IteratorChannel_Writer<Uint8Array>} IteratorChannel_Writer
- * @typedef {import('./limits.js').CarLimits} CarLimits
+ * @typedef {import('./api.js').CarCodecOptions} CarCodecOptions
  */
 
 const CAR_V1_VERSION = 1
@@ -16,14 +16,12 @@ const CAR_V1_VERSION = 1
  * Create a header from an array of roots.
  *
  * @param {CID[]} roots
- * @param {CarLimits} [limits]
+ * @param {number} [maxAllowedHeaderSize]
  * @returns {Uint8Array}
  */
-export function createHeader (roots, limits = resolveLimits()) {
+export function createHeader (roots, maxAllowedHeaderSize = DEFAULT_MAX_ALLOWED_HEADER_SIZE) {
   const headerBytes = dagCborEncode({ version: CAR_V1_VERSION, roots })
-  if (headerBytes.length > limits.maxAllowedHeaderSize) {
-    throw new RangeError(`CAR header of length ${headerBytes.length} exceeds maxAllowedHeaderSize of ${limits.maxAllowedHeaderSize}`)
-  }
+  assertHeaderSize(headerBytes.length, maxAllowedHeaderSize)
   const varintBytes = varint.encode(headerBytes.length)
   const header = new Uint8Array(varintBytes.length + headerBytes.length)
   header.set(varintBytes, 0)
@@ -33,10 +31,12 @@ export function createHeader (roots, limits = resolveLimits()) {
 
 /**
  * @param {IteratorChannel_Writer} writer
- * @param {CarLimits} limits
+ * @param {CarCodecOptions} [options]
  * @returns {CarEncoder}
  */
-function createEncoder (writer, limits) {
+function createEncoder (writer, options) {
+  const { maxAllowedHeaderSize, maxAllowedSectionSize } = resolveLimits(options)
+
   // none of this is wrapped in a mutex, that needs to happen above this to
   // avoid overwrites
 
@@ -46,7 +46,7 @@ function createEncoder (writer, limits) {
      * @returns {Promise<void>}
      */
     async setRoots (roots) {
-      const bytes = createHeader(roots, limits)
+      const bytes = createHeader(roots, maxAllowedHeaderSize)
       await writer.write(bytes)
     },
 
@@ -57,9 +57,8 @@ function createEncoder (writer, limits) {
     async writeBlock (block) {
       const { cid, bytes } = block
       const sectionLength = cid.bytes.length + bytes.length
-      if (sectionLength > limits.maxAllowedSectionSize) {
-        throw new RangeError(`CAR section of length ${sectionLength} exceeds maxAllowedSectionSize of ${limits.maxAllowedSectionSize}`)
-      }
+      assertSectionSize(sectionLength, maxAllowedSectionSize)
+      assertDigestSize(cid.multihash.size)
       await writer.write(new Uint8Array(varint.encode(sectionLength)))
       await writer.write(cid.bytes)
       if (bytes.length) {

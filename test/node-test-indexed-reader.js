@@ -73,8 +73,6 @@ describe('CarIndexedReader fromFile() size limits', () => {
     return p
   }
 
-  // Regression guard: fromFile() forwards no options here, so this only
-  // passes because CarIndexer applies the default cap on its own.
   it('rejects an oversized section from the length prefix (default cap)', async () => {
     const cid = rndCid.bytes
     const section = concatBytes([Uint8Array.from(vEncode(1_000_000_000 + cid.length)), cid])

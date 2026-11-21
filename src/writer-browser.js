@@ -2,7 +2,6 @@ import { CID } from 'multiformats/cid'
 import { bytesReader, readHeader } from './decoder.js'
 import { createEncoder, createHeader } from './encoder.js'
 import { create as iteratorChannel } from './iterator-channel.js'
-import { resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').Block} Block
@@ -140,7 +139,7 @@ export class CarWriter {
    */
   static create (roots, options) {
     roots = toRoots(roots)
-    const { encoder, iterator } = encodeWriter(resolveLimits(options))
+    const { encoder, iterator } = encodeWriter(options)
     const writer = new CarWriter(roots, encoder)
     const out = new CarWriterOut(iterator)
     return { writer, out }
@@ -162,7 +161,7 @@ export class CarWriter {
    * `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
    */
   static createAppender (options) {
-    const { encoder, iterator } = encodeWriter(resolveLimits(options))
+    const { encoder, iterator } = encodeWriter(options)
     encoder.setRoots = () => Promise.resolve()
     const writer = new CarWriter([], encoder)
     const out = new CarWriterOut(iterator)
@@ -226,13 +225,13 @@ export class CarWriterOut {
 }
 
 /**
- * @param {import('./limits.js').CarLimits} limits
+ * @param {import('./api.js').CarCodecOptions} [options]
  */
-function encodeWriter (limits) {
+function encodeWriter (options) {
   /** @type {IteratorChannel} */
   const iw = iteratorChannel()
   const { writer, iterator } = iw
-  const encoder = createEncoder(writer, limits)
+  const encoder = createEncoder(writer, options)
   return { encoder, iterator }
 }
 

@@ -1,8 +1,12 @@
 /* eslint-env mocha */
 
 import { encode as cbEncode } from '@ipld/dag-cbor'
+import { CID } from 'multiformats/cid'
+import * as Digest from 'multiformats/hashes/digest'
+import { identity } from 'multiformats/hashes/identity'
 import { encode as vEncode } from 'varint'
 import { CarBufferReader } from '../src/buffer-reader.js'
+import { bytesReader, readBlockHead } from '../src/decoder.js'
 import { CarIndexer } from '../src/indexer.js'
 import { CarBlockIterator } from '../src/iterator.js'
 import { DEFAULT_MAX_ALLOWED_SECTION_SIZE } from '../src/limits.js'
@@ -27,13 +31,13 @@ const isReader = (entry) => entry.name === 'CarReader'
  * count. Rejects if decoding rejects at any point.
  *
  * @param {{ name: string, cls: any }} entry
- * @param {Uint8Array} data
+ * @param {Uint8Array | AsyncIterable<Uint8Array>} data
  * @param {import('../src/api.js').CarCodecOptions} [options]
  * @param {'fromBytes'|'fromIterable'} [via]
  * @param {number} [chunkSize]
  */
 async function decodeAll (entry, data, options, via = 'fromIterable', chunkSize = 64) {
-  const input = via === 'fromBytes' ? data : makeIterable(data, chunkSize)
+  const input = via === 'fromBytes' || !(data instanceof Uint8Array) ? data : makeIterable(data, chunkSize)
   const result = await entry.cls[via](input, options)
   const iterable = isReader(entry) ? result.blocks() : result
   let count = 0
@@ -94,12 +98,12 @@ describe('decode size limits', () => {
       await assert.isRejected(decodeAll(blockIter, data), RangeError, 'maxAllowedSectionSize')
     })
 
-    it('lifting the cap to MAX_SAFE_INTEGER changes the failure to end-of-data', async () => {
+    it('lifting the cap to Infinity changes the failure to end-of-data', async () => {
       const cid = rndCid.bytes
       const section = concatBytes([Uint8Array.from(vEncode(huge + cid.length)), cid])
       const data = concatBytes([validV1Header, section])
       await assert.isRejected(
-        decodeAll(blockIter, data, { maxAllowedSectionSize: Number.MAX_SAFE_INTEGER }),
+        decodeAll(blockIter, data, { maxAllowedSectionSize: Infinity }),
         Error,
         'Unexpected end of data'
       )
@@ -165,41 +169,82 @@ describe('decode size limits', () => {
   })
 
   describe('digest cap (MAX_DIGEST_ALLOC)', () => {
-    it('rejects a CIDv1 declaring a digest over 32 MiB, with the section cap lifted', async () => {
+    it('rejects a CIDv1 declaring a digest over 32 MiB in a section large enough to hold it', async () => {
       const hugeDigest = (32 << 20) + 1
       const cidPrefix = concatBytes([Uint8Array.from([0x01, 0x55, 0x12]), Uint8Array.from(vEncode(hugeDigest))])
-      const section = concatBytes([Uint8Array.from(vEncode(cidPrefix.length + 1)), cidPrefix])
+      const section = concatBytes([Uint8Array.from(vEncode(cidPrefix.length + hugeDigest)), cidPrefix])
       const data = concatBytes([validV1Header, section])
-      // Section cap lifted so the section bound passes; the digest cap must fire
-      // first (before any digest is read).
       await assert.isRejected(
-        decodeAll(blockIter, data, { maxAllowedSectionSize: Number.MAX_SAFE_INTEGER }),
+        decodeAll(blockIter, data, { maxAllowedSectionSize: Infinity }),
         RangeError,
         'CID digest'
       )
     })
   })
 
-  describe('CarIndexer rejects from the prefix instead of stream-and-discarding', () => {
-    it('rejects an oversized section without pulling its body', async () => {
-      const cid = rndCid.bytes
-      const section = concatBytes([Uint8Array.from(vEncode(1_000_000_000 + cid.length)), cid])
+  describe('rejects from the prefix without pulling the body', () => {
+    for (const entry of ENTRIES) {
+      it(`${entry.name}.fromIterable`, async () => {
+        const cid = rndCid.bytes
+        const prefix = concatBytes([validV1Header, Uint8Array.from(vEncode(DEFAULT_MAX_ALLOWED_SECTION_SIZE + 1)), cid])
+        let pulledBody = false
+        const source = (async function * () {
+          yield prefix
+          pulledBody = true
+          yield new Uint8Array(DEFAULT_MAX_ALLOWED_SECTION_SIZE + 1 - cid.length)
+        })()
+        await assert.isRejected(decodeAll(entry, source), RangeError, 'maxAllowedSectionSize')
+        assert.isFalse(pulledBody)
+      })
+    }
+  })
+
+  describe('identity CIDs', () => {
+    it('a multi-MiB identity CID round-trips under the defaults', async () => {
+      const digest = new Uint8Array(4 << 20).fill(7)
+      const cid = CID.createV1(0x55, identity.digest(digest))
+      const section = concatBytes([Uint8Array.from(vEncode(cid.bytes.length)), cid.bytes])
       const data = concatBytes([validV1Header, section])
-      await assert.isRejected(decodeAll({ name: 'CarIndexer', cls: CarIndexer }, data), RangeError, 'maxAllowedSectionSize')
+      for (const via of /** @type {const} */(['fromBytes', 'fromIterable'])) {
+        assert.strictEqual(await decodeAll(blockIter, data, undefined, via, 1 << 16), 1)
+      }
+      const [block] = CarBufferReader.fromBytes(data).blocks()
+      assert.ok(block.cid.equals(cid))
+      assert.deepEqual(Digest.decode(block.cid.multihash.bytes).digest, digest)
+    })
+  })
+
+  describe('readBlockHead()', () => {
+    it('applies the default section cap when called without one', async () => {
+      const cid = rndCid.bytes
+      const section = concatBytes([Uint8Array.from(vEncode(DEFAULT_MAX_ALLOWED_SECTION_SIZE + 1)), cid])
+      await assert.isRejected(readBlockHead(bytesReader(section)), RangeError, 'maxAllowedSectionSize')
+    })
+
+    it('accepts an explicit section cap', async () => {
+      const cid = rndCid.bytes
+      const section = concatBytes([Uint8Array.from(vEncode(cid.length + 4)), cid, new Uint8Array(4)])
+      const head = await readBlockHead(bytesReader(section), cid.length + 4)
+      assert.strictEqual(head.blockLength, 4)
+      await assert.isRejected(readBlockHead(bytesReader(section), cid.length + 3), RangeError, 'maxAllowedSectionSize')
     })
   })
 
   describe('option validation', () => {
-    for (const bad of [-1, 1.5, NaN, Infinity, '8']) {
+    for (const bad of [1.5, NaN, '8']) {
       it(`rejects maxAllowedSectionSize=${String(bad)} with TypeError`, async () => {
         await assert.isRejected(
           // @ts-expect-error deliberately bad input
           decodeAll(blockIter, carBytes, { maxAllowedSectionSize: bad }),
           TypeError,
-          'must be a non-negative safe integer'
+          'must be a non-negative integer or Infinity'
         )
       })
     }
+
+    it('rejects a negative cap with RangeError', async () => {
+      await assert.isRejected(decodeAll(blockIter, carBytes, { maxAllowedSectionSize: -1 }), RangeError, 'maxAllowedSectionSize')
+    })
   })
 
   it('uses the documented default section size constant', () => {
@@ -238,8 +283,20 @@ describe('decode size limits', () => {
       assert.throws(() => count(data, { maxAllowedSectionSize: cap - 1 }), RangeError, 'maxAllowedSectionSize')
     })
 
-    it('rejects a bad option value with TypeError', () => {
-      assert.throws(() => count(carBytes, { maxAllowedSectionSize: -1 }), TypeError, 'must be a non-negative safe integer')
+    it('rejects a CID declaring more bytes than its section', () => {
+      const cidPrefix = concatBytes([Uint8Array.from([0x01, 0x55, 0x12]), Uint8Array.from(vEncode(1000))])
+      const data = concatBytes([validV1Header, Uint8Array.from(vEncode(cidPrefix.length + 1)), cidPrefix])
+      assert.throws(() => count(data), Error, 'exceeds section length')
+    })
+
+    it('rejects a sub-34-byte section opening with the CIDv0 prefix', () => {
+      const data = concatBytes([validV1Header, Uint8Array.from(vEncode(20)), Uint8Array.from([0x12, 0x20]), new Uint8Array(18)])
+      assert.throws(() => count(data), Error, 'exceeds section length')
+    })
+
+    it('rejects a bad option value', () => {
+      assert.throws(() => count(carBytes, { maxAllowedSectionSize: 1.5 }), TypeError, 'must be a non-negative integer or Infinity')
+      assert.throws(() => count(carBytes, { maxAllowedSectionSize: -1 }), RangeError, 'maxAllowedSectionSize')
     })
   })
 })

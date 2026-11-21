@@ -2,8 +2,12 @@
 
 import { encode as cbEncode } from '@ipld/dag-cbor'
 import { expect } from 'aegir/chai'
+import { CID } from 'multiformats/cid'
+import { identity } from 'multiformats/hashes/identity'
 import { CarBufferReader } from '../src/buffer-reader.js'
 import * as CarBufferWriter from '../src/buffer-writer.js'
+import { createEncoder } from '../src/encoder.js'
+import { create as iteratorChannel } from '../src/iterator-channel.js'
 import { DEFAULT_MAX_ALLOWED_SECTION_SIZE } from '../src/limits.js'
 import { CarReader } from '../src/reader.js'
 import { CarWriter } from '../src/writer.js'
@@ -98,9 +102,19 @@ describe('encode size limits', () => {
   })
 
   describe('header cap surfaces via the mutex', () => {
-    it('rejects an over-cap header from the first put', async () => {
-      const { writer } = CarWriter.create(roots, { maxAllowedHeaderSize: 10 })
+    it('rejects an over-cap header on put() and on out', async () => {
+      const { writer, out } = CarWriter.create(roots, { maxAllowedHeaderSize: 10 })
+      const collection = collector(out)
       await expect(writer.put(rawBlocks[0])).to.eventually.be.rejectedWith(RangeError, /maxAllowedHeaderSize/)
+      await expect(collection).to.eventually.be.rejectedWith(RangeError, /maxAllowedHeaderSize/)
+    })
+
+    it('rejects an over-cap section on out', async () => {
+      const { writer, out } = CarWriter.create(roots)
+      const collection = collector(out)
+      const big = blockOfSection(rawBlocks[0].cid, DEFAULT_MAX_ALLOWED_SECTION_SIZE + 1)
+      await expect(writer.put(big)).to.eventually.be.rejectedWith(RangeError, /maxAllowedSectionSize/)
+      await expect(collection).to.eventually.be.rejectedWith(RangeError, /maxAllowedSectionSize/)
     })
 
     it('allows a header exactly equal to the cap', async () => {
@@ -129,7 +143,7 @@ describe('encode size limits', () => {
   describe('round-trip guarantee', () => {
     it('a CAR written with a raised cap decodes under the same profile', async () => {
       const data = await makeData()
-      const profile = { maxAllowedSectionSize: Number.MAX_SAFE_INTEGER, maxAllowedHeaderSize: Number.MAX_SAFE_INTEGER }
+      const profile = { maxAllowedSectionSize: Infinity, maxAllowedHeaderSize: Infinity }
       const bytes = await writeAll(roots, data.allBlocksFlattened, profile)
       const reader = await CarReader.fromIterable(makeIterable(bytes, 64), profile)
       const decoded = []
@@ -148,18 +162,36 @@ describe('encode size limits', () => {
       })
       assert.deepEqual(capped, baseline)
     })
+
+    it('rejects a digest the decoder would refuse, even with the section cap lifted', async () => {
+      const cid = CID.createV1(0x55, identity.digest(new Uint8Array((32 << 20) + 1)))
+      const { writer, out } = CarWriter.create([], { maxAllowedSectionSize: Infinity })
+      const collection = collector(out)
+      await expect(writer.put({ cid, bytes: new Uint8Array(0) })).to.eventually.be.rejectedWith(RangeError, /CID digest/)
+      await expect(collection).to.eventually.be.rejectedWith(RangeError, /CID digest/)
+    })
+  })
+
+  describe('createEncoder()', () => {
+    it('applies the default caps when called without options', async () => {
+      const { writer } = iteratorChannel()
+      const encoder = createEncoder(writer)
+      const big = blockOfSection(rawBlocks[0].cid, DEFAULT_MAX_ALLOWED_SECTION_SIZE + 1)
+      await expect(encoder.writeBlock(big)).to.eventually.be.rejectedWith(RangeError, /maxAllowedSectionSize/)
+    })
   })
 
   describe('option validation', () => {
-    for (const bad of [-1, 1.5, NaN, Infinity, '8']) {
+    for (const bad of [1.5, NaN, '8']) {
       it(`rejects maxAllowedSectionSize=${String(bad)} with TypeError`, async () => {
-        // toRoots(roots) runs first inside create() but only validates shape,
-        // so any valid roots value passes through unchanged before
-        // resolveLimits(options) throws synchronously here.
         // @ts-expect-error deliberately bad input
-        assert.throws(() => CarWriter.create([], { maxAllowedSectionSize: bad }), TypeError, 'must be a non-negative safe integer')
+        assert.throws(() => CarWriter.create([], { maxAllowedSectionSize: bad }), TypeError, 'must be a non-negative integer or Infinity')
       })
     }
+
+    it('rejects a negative cap with RangeError', () => {
+      assert.throws(() => CarWriter.create([], { maxAllowedSectionSize: -1 }), RangeError, 'maxAllowedSectionSize')
+    })
   })
 
   describe('CarBufferWriter', () => {
@@ -217,11 +249,11 @@ describe('encode size limits', () => {
       assert.throws(() => writer.close(), RangeError, 'maxAllowedHeaderSize')
     })
 
-    it('rejects a bad option value with TypeError', () => {
+    it('rejects a bad option value', () => {
       assert.throws(
-        () => CarBufferWriter.createWriter(new ArrayBuffer(1 << 16), { roots: [], maxAllowedSectionSize: -1 }),
+        () => CarBufferWriter.createWriter(new ArrayBuffer(1 << 16), { roots: [], maxAllowedSectionSize: 1.5 }),
         TypeError,
-        'must be a non-negative safe integer'
+        'must be a non-negative integer or Infinity'
       )
     })
   })
