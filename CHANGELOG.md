@@ -1,3 +1,9 @@
+## [6.1.0](https://github.com/ipld/js-car/compare/v6.0.0...v6.1.0) (2026-11-21)
+
+### Features
+
+* add CarWriter.encode() ([#191](https://github.com/ipld/js-car/issues/191)) ([7565d29](https://github.com/ipld/js-car/commit/7565d29ae875f0569cc62d44357e6320282103c8)), closes [#50](https://github.com/ipld/js-car/issues/50)
+
 ## [6.0.0](https://github.com/ipld/js-car/compare/v5.5.0...v6.0.0) (2026-11-21)
 
 ### ⚠ BREAKING CHANGES
