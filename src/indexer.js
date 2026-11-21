@@ -26,7 +26,7 @@ import {
  * An iteration can only be performce _once_ per instantiation.
  *
  * `CarIndexer` also implements the `RootsReader` interface and provides
- * the {@link CarIndexer.getRoots `getRoots()`} method.
+ * the {@link CarIndexer#getRoots `getRoots()`} method.
  *
  * Load this class with either
  * `import { CarIndexer } from '@ipld/car/indexer'`

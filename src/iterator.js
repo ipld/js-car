@@ -48,13 +48,13 @@ export class CarIteratorBase {
  *
  * As an implementer of `AsyncIterable`, this class can be used directly in a
  * `for await (const block of iterator) {}` loop. Where the `iterator` is
- * constructed using {@link CarBlockiterator.fromBytes} or
- * {@link CarBlockiterator.fromIterable}.
+ * constructed using {@link CarBlockIterator.fromBytes} or
+ * {@link CarBlockIterator.fromIterable}.
  *
  * An iteration can only be performce _once_ per instantiation.
  *
  * `CarBlockIterator` also implements the `RootsReader` interface and provides
- * the {@link CarBlockiterator.getRoots `getRoots()`} method.
+ * the {@link CarBlockIterator#getRoots `getRoots()`} method.
  *
  * Load this class with either
  * `import { CarBlockIterator } from '@ipld/car/iterator'`
@@ -141,13 +141,13 @@ export class CarBlockIterator extends CarIteratorBase {
  *
  * As an implementer of `AsyncIterable`, this class can be used directly in a
  * `for await (const cid of iterator) {}` loop. Where the `iterator` is
- * constructed using {@link CarCIDiterator.fromBytes} or
- * {@link CarCIDiterator.fromIterable}.
+ * constructed using {@link CarCIDIterator.fromBytes} or
+ * {@link CarCIDIterator.fromIterable}.
  *
  * An iteration can only be performce _once_ per instantiation.
  *
  * `CarCIDIterator` also implements the `RootsReader` interface and provides
- * the {@link CarCIDiterator.getRoots `getRoots()`} method.
+ * the {@link CarCIDIterator#getRoots `getRoots()`} method.
  *
  * Load this class with either
  * `import { CarCIDIterator } from '@ipld/car/iterator'`

@@ -13,10 +13,10 @@ import { asyncIterableReader, bytesReader, createDecoder } from './decoder.js'
  * Provides blockstore-like access to a CAR.
  *
  * Implements the `RootsReader` interface:
- * {@link CarReader.getRoots `getRoots()`}. And the `BlockReader` interface:
- * {@link CarReader.get `get()`}, {@link CarReader.has `has()`},
- * {@link CarReader.blocks `blocks()`} (defined as a `BlockIterator`) and
- * {@link CarReader.cids `cids()`} (defined as a `CIDIterator`).
+ * {@link CarReader#getRoots `getRoots()`}. And the `BlockReader` interface:
+ * {@link CarReader#get `get()`}, {@link CarReader#has `has()`},
+ * {@link CarReader#blocks `blocks()`} (defined as a `BlockIterator`) and
+ * {@link CarReader#cids `cids()`} (defined as a `CIDIterator`).
  *
  * Load this class with either `import { CarReader } from '@ipld/car/reader'`
  * (`const { CarReader } = require('@ipld/car/reader')`). Or
@@ -43,7 +43,7 @@ export class CarReader {
   }
 
   /**
-   * @property
+   * @type {number}
    * @memberof CarReader
    * @instance
    */
