@@ -1,3 +1,9 @@
+## [6.2.0](https://github.com/ipld/js-car/compare/v6.1.0...v6.2.0) (2026-11-21)
+
+### Features
+
+* optional block verification for CAR readers ([#192](https://github.com/ipld/js-car/issues/192)) ([13724be](https://github.com/ipld/js-car/commit/13724bef57cfbd09be3c03a99c3a68bc9b86e5fb)), closes [#123](https://github.com/ipld/js-car/issues/123)
+
 ## [6.1.0](https://github.com/ipld/js-car/compare/v6.0.0...v6.1.0) (2026-11-21)
 
 ### Features
