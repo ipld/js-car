@@ -30,6 +30,27 @@ export function createHeader (roots, maxAllowedHeaderSize = DEFAULT_MAX_ALLOWED_
 }
 
 /**
+ * Encode a block as the chunks of a CAR section: the varint section length,
+ * the CID bytes and, unless empty, the block bytes.
+ *
+ * @param {Block} block
+ * @param {number} maxAllowedSectionSize
+ * @returns {Uint8Array[]}
+ */
+export function encodeSection ({ cid, bytes }, maxAllowedSectionSize) {
+  const sectionLength = cid.bytes.length + bytes.length
+  assertSectionSize(sectionLength, maxAllowedSectionSize)
+  assertDigestSize(cid.multihash.size)
+  /** @type {Uint8Array[]} */
+  const chunks = [new Uint8Array(varint.encode(sectionLength)), cid.bytes]
+  if (bytes.length) {
+    // skip the empty chunk for zero-length blocks
+    chunks.push(bytes)
+  }
+  return chunks
+}
+
+/**
  * @param {IteratorChannel_Writer} writer
  * @param {CarCodecOptions} [options]
  * @returns {CarEncoder}
@@ -55,15 +76,8 @@ function createEncoder (writer, options) {
      * @returns {Promise<void>}
      */
     async writeBlock (block) {
-      const { cid, bytes } = block
-      const sectionLength = cid.bytes.length + bytes.length
-      assertSectionSize(sectionLength, maxAllowedSectionSize)
-      assertDigestSize(cid.multihash.size)
-      await writer.write(new Uint8Array(varint.encode(sectionLength)))
-      await writer.write(cid.bytes)
-      if (bytes.length) {
-        // zero-length blocks are valid, but it'd be safer if we didn't write them
-        await writer.write(bytes)
+      for (const chunk of encodeSection(block, maxAllowedSectionSize)) {
+        await writer.write(chunk)
       }
     },
 

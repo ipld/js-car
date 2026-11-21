@@ -2,12 +2,15 @@
 
 import { expect } from 'aegir/chai'
 import { bytes, CID } from 'multiformats'
+import * as raw from 'multiformats/codecs/raw'
 import { createEncoder } from '../src/encoder.js'
 import { create as iteratorChannel } from '../src/iterator-channel.js'
+import { CarBlockIterator } from '../src/iterator.js'
+import { DEFAULT_MAX_ALLOWED_SECTION_SIZE } from '../src/limits.js'
 import { CarReader } from '../src/reader.js'
 import { CarWriterOut } from '../src/writer-browser.js'
 import { CarWriter } from '../src/writer.js'
-import { carBytes, makeData, assert, rndCid } from './common.js'
+import { carBytes, makeData, assert, rndCid, toBlock } from './common.js'
 import {
   verifyRoots,
   verifyHas,
@@ -465,5 +468,142 @@ describe('CarWriter', () => {
     await assert.isRejected(CarWriter.updateRootsInBytes(bytes, [...newRoots, newRoots[0]]), /can only overwrite a header of the same length/)
     await assert.isRejected(CarWriter.updateRootsInBytes(bytes, [newRoots[0]]), /can only overwrite a header of the same length/)
     await assert.isRejected(CarWriter.updateRootsInBytes(bytes, []), /can only overwrite a header of the same length/)
+  })
+
+  describe('encode()', () => {
+    it('encodes the same bytes as create() from an array', async () => {
+      assertCarData(await collector(CarWriter.encode(roots, allBlocksFlattened)))
+    })
+
+    it('encodes from an async iterable', async () => {
+      async function * source () {
+        yield * allBlocksFlattened
+      }
+      assertCarData(await collector(CarWriter.encode(roots, source())))
+    })
+
+    it('re-encodes a CarBlockIterator', async () => {
+      const iterator = await CarBlockIterator.fromBytes(carBytes)
+      assertCarData(await collector(CarWriter.encode(await iterator.getRoots(), iterator)))
+    })
+
+    it('accepts a single root or no roots', async () => {
+      const single = await CarReader.fromBytes(await collector(CarWriter.encode(roots[0], allBlocksFlattened)))
+      assert.deepEqual(await single.getRoots(), [roots[0]])
+      const none = await CarReader.fromBytes(await collector(CarWriter.encode(undefined, [])))
+      assert.deepEqual(await none.getRoots(), [])
+    })
+
+    it('pulls blocks only as the output is read', async () => {
+      let pulled = 0
+      async function * source () {
+        for (const block of allBlocksFlattened) {
+          pulled++
+          yield block
+        }
+      }
+      const iterator = CarWriter.encode(roots, source())[Symbol.asyncIterator]()
+      assert.strictEqual(pulled, 0)
+      await iterator.next() // header
+      assert.strictEqual(pulled, 0)
+      await iterator.next() // first section length
+      assert.strictEqual(pulled, 1)
+    })
+
+    it('closes the source when the consumer stops early', async () => {
+      let asyncClosed = false
+      async function * source () {
+        try {
+          yield * allBlocksFlattened
+        } finally {
+          asyncClosed = true
+        }
+      }
+      for await (const _ of CarWriter.encode(roots, source())) { // eslint-disable-line no-unused-vars
+        // header
+      }
+      assert.strictEqual(asyncClosed, true, 'drained async source closes')
+
+      asyncClosed = false
+      let chunks = 0
+      for await (const _ of CarWriter.encode(roots, source())) { // eslint-disable-line no-unused-vars
+        if (++chunks === 3) { // inside the first section
+          break
+        }
+      }
+      assert.strictEqual(asyncClosed, true, 'async source closes on break')
+
+      let syncClosed = false
+      const iterable = {
+        [Symbol.iterator] () {
+          const it = allBlocksFlattened[Symbol.iterator]()
+          return {
+            next: () => it.next(),
+            return: () => {
+              syncClosed = true
+              return /** @type {IteratorReturnResult<undefined>} */ ({ done: true, value: undefined })
+            }
+          }
+        }
+      }
+      chunks = 0
+      for await (const _ of CarWriter.encode(roots, iterable)) { // eslint-disable-line no-unused-vars
+        if (++chunks === 3) {
+          break
+        }
+      }
+      assert.strictEqual(syncClosed, true, 'sync source closes on break')
+    })
+
+    it('encodes a zero-length block', async () => {
+      const empty = await toBlock(new Uint8Array(0), raw)
+      const reader = await CarReader.fromBytes(await collector(CarWriter.encode([empty.cid], [empty])))
+      assert.strictEqual((await reader.get(empty.cid))?.bytes.length, 0)
+    })
+
+    it('can only be iterated once', async () => {
+      const out = CarWriter.encode(roots, allBlocksFlattened)
+      assertCarData(await collector(out))
+      assert.throws(() => out[Symbol.asyncIterator](), /Multiple iterator not supported/)
+    })
+
+    it('throws an error from the source to the consumer', async () => {
+      async function * source () {
+        yield allBlocksFlattened[0]
+        throw new Error('source failed')
+      }
+      await expect(collector(CarWriter.encode(roots, source()))).to.eventually.be.rejectedWith(/source failed/)
+    })
+
+    it('rejects an invalid block on iteration', async () => {
+      // @ts-expect-error deliberately bad input
+      const out = CarWriter.encode(roots, [{ cid: 'nope', bytes: new Uint8Array(1) }])
+      await expect(collector(out)).to.eventually.be.rejectedWith(TypeError, /Can only write/)
+      // @ts-expect-error deliberately bad input
+      await expect(collector(CarWriter.encode(roots, [null]))).to.eventually.be.rejectedWith(TypeError, /Can only write/)
+      // iterable, but not of blocks
+      await expect(collector(CarWriter.encode(roots, /** @type {any} */ (carBytes)))).to.eventually.be.rejectedWith(TypeError, /Can only write/)
+    })
+
+    it('rejects a section over the size limit on iteration', async () => {
+      const big = { cid: allBlocksFlattened[0].cid, bytes: new Uint8Array(DEFAULT_MAX_ALLOWED_SECTION_SIZE) }
+      await expect(collector(CarWriter.encode(roots, [big]))).to.eventually.be.rejectedWith(RangeError, /maxAllowedSectionSize/)
+      const bytes = await collector(CarWriter.encode(roots, [big], { maxAllowedSectionSize: Infinity }))
+      const reader = await CarReader.fromBytes(bytes, { maxAllowedSectionSize: Infinity })
+      assert.strictEqual((await reader.get(big.cid))?.bytes.length, big.bytes.length)
+    })
+
+    it('throws immediately for bad arguments and an over-cap header', () => {
+      // @ts-expect-error deliberately bad input
+      assert.throws(() => CarWriter.encode(roots, 100), TypeError, /Iterable or AsyncIterable/)
+      // @ts-expect-error deliberately bad input
+      assert.throws(() => CarWriter.encode(roots), TypeError, /Iterable or AsyncIterable/)
+      // @ts-expect-error deliberately bad input
+      assert.throws(() => CarWriter.encode('nope', []), TypeError, /roots/)
+      assert.throws(() => CarWriter.encode(roots, [], { maxAllowedSectionSize: -1 }), RangeError)
+      // @ts-expect-error deliberately bad input
+      assert.throws(() => CarWriter.encode(roots, [], { maxAllowedSectionSize: '1' }), TypeError)
+      assert.throws(() => CarWriter.encode(roots, [], { maxAllowedHeaderSize: 10 }), RangeError, /maxAllowedHeaderSize/)
+    })
   })
 })

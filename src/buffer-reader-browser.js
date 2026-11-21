@@ -12,10 +12,10 @@ import * as BufferDecoder from './buffer-decoder.js'
  * Provides blockstore-like access to a CAR.
  *
  * Implements the `RootsBufferReader` interface:
- * {@link ICarBufferReader.getRoots `getRoots()`}. And the `BlockBufferReader` interface:
- * {@link ICarBufferReader.get `get()`}, {@link ICarBufferReader.has `has()`},
- * {@link ICarBufferReader.blocks `blocks()`} and
- * {@link ICarBufferReader.cids `cids()`}.
+ * {@link CarBufferReader#getRoots `getRoots()`}. And the `BlockBufferReader` interface:
+ * {@link CarBufferReader#get `get()`}, {@link CarBufferReader#has `has()`},
+ * {@link CarBufferReader#blocks `blocks()`} and
+ * {@link CarBufferReader#cids `cids()`}.
  *
  * Load this class with either `import { CarBufferReader } from '@ipld/car/buffer-reader'`
  * (`const { CarBufferReader } = require('@ipld/car/buffer-reader')`). Or

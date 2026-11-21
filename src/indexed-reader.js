@@ -27,7 +27,7 @@ import { CarReader as NodeCarReader } from './reader.js'
  * `NODE_OPTIONS="--max-old-space-size=16384"`).
  *
  * As an `CarIndexedReader` instance maintains an open file descriptor for its
- * CAR file, an additional {@link CarReader#close} method is attached. This
+ * CAR file, an additional {@link CarIndexedReader#close} method is attached. This
  * _must_ be called to have full clean-up of resources after use.
  *
  * Load this class with either

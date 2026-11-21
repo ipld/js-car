@@ -222,6 +222,7 @@ export function bytesReader (bytes) {
  * additional chunk (of some undetermined size) and a way to close the
  * reader when finished
  *
+ * @private
  * @param {() => Promise<Uint8Array|null>} readChunk
  * @returns {BytesReader}
  */

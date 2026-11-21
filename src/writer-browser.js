@@ -1,7 +1,8 @@
 import { CID } from 'multiformats/cid'
 import { bytesReader, readHeader } from './decoder.js'
-import { createEncoder, createHeader } from './encoder.js'
+import { createEncoder, createHeader, encodeSection } from './encoder.js'
 import { create as iteratorChannel } from './iterator-channel.js'
+import { resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').Block} Block
@@ -19,7 +20,7 @@ import { create as iteratorChannel } from './iterator-channel.js'
  * `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }` pair. These two
  * components form what can be thought of as a stream-like interface. The
  * `writer` component (an instantiated `CarWriter`), has methods to
- * {@link CarWriter.put `put()`} new blocks and {@link CarWriter.put `close()`}
+ * {@link CarWriter#put `put()`} new blocks and {@link CarWriter#close `close()`}
  * the writing operation (finalising the CAR archive). The `out` component is
  * an `AsyncIterable` that yields the bytes of the archive. This can be
  * redirected to a file or other sink. In Node.js, you can use the
@@ -56,21 +57,8 @@ export class CarWriter {
   constructor (roots, encoder) {
     this._encoder = encoder
     /** @type {Promise<void>} */
-    this._mutex = this._guard(encoder.setRoots(roots))
+    this._mutex = guard(encoder, encoder.setRoots(roots))
     this._ended = false
-  }
-
-  /**
-   * Route a write-path rejection to the `out` iterable. The attached handler
-   * also marks the rejection as handled, so an unawaited write can't crash the
-   * process.
-   *
-   * @param {Promise<void>} mutex
-   * @returns {Promise<void>}
-   */
-  _guard (mutex) {
-    mutex.catch((err) => this._encoder.error(err instanceof Error ? err : new Error(String(err))))
-    return mutex
   }
 
   /**
@@ -86,14 +74,14 @@ export class CarWriter {
    */
   put (block) {
     // not `async`: callers must receive the guarded promise itself
-    const cid = block?.bytes instanceof Uint8Array && block.cid ? CID.asCID(block.cid) : null
-    if (!cid) {
+    const normalized = toBlock(block)
+    if (!normalized) {
       return Promise.reject(new TypeError('Can only write {cid, bytes} objects'))
     }
     if (this._ended) {
       return Promise.reject(new Error('Already closed'))
     }
-    this._mutex = this._guard(this._mutex.then(() => this._encoder.writeBlock({ cid, bytes: block.bytes })))
+    this._mutex = guard(this._encoder, this._mutex.then(() => this._encoder.writeBlock(normalized)))
     return this._mutex
   }
 
@@ -113,7 +101,7 @@ export class CarWriter {
     }
     // set synchronously so calls behind an unawaited close() are rejected
     this._ended = true
-    return this._guard(this._mutex.then(() => this._encoder.close()))
+    return guard(this._encoder, this._mutex.then(() => this._encoder.close()))
   }
 
   /**
@@ -166,6 +154,47 @@ export class CarWriter {
     const writer = new CarWriter([], encoder)
     const out = new CarWriterOut(iterator)
     return { writer, out }
+  }
+
+  /**
+   * Encode a complete CAR from a list of roots and an iterable of blocks,
+   * returning the archive bytes as an `AsyncIterable<Uint8Array>`.
+   *
+   * Encoding is driven by the consumer: each block is pulled from `blocks`
+   * only as the output is read. An error from `blocks`, an invalid block, or a
+   * block that exceeds the size limits is thrown to the consumer. Like `out`
+   * from {@link CarWriter.create `create()`}, the output can be iterated only
+   * once, and can be passed to the same sinks, or to `ReadableStream.from()`.
+   *
+   * Invalid arguments, and roots that exceed the header size limit, throw
+   * immediately.
+   *
+   * @static
+   * @memberof CarWriter
+   * @param {CID[] | CID | void} roots
+   * @param {Iterable<Block> | AsyncIterable<Block>} blocks - `{ cid:CID, bytes:Uint8Array }`
+   * pairs, such as a `CarBlockIterator` or an array.
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @returns {AsyncIterable<Uint8Array>}
+   */
+  static encode (roots, blocks, options) {
+    if (!isIterable(blocks)) {
+      throw new TypeError('encode() requires an Iterable or AsyncIterable of blocks')
+    }
+    const { maxAllowedHeaderSize, maxAllowedSectionSize } = resolveLimits(options)
+    const header = createHeader(toRoots(roots), maxAllowedHeaderSize)
+    return new CarWriterOut((async function * () {
+      yield header
+      for await (const block of blocks) {
+        const normalized = toBlock(block)
+        if (!normalized) {
+          throw new TypeError('Can only write {cid, bytes} objects')
+        }
+        for (const chunk of encodeSection(normalized, maxAllowedSectionSize)) {
+          yield chunk
+        }
+      }
+    })())
   }
 
   /**
@@ -233,6 +262,43 @@ function encodeWriter (options) {
   const { writer, iterator } = iw
   const encoder = createEncoder(writer, options)
   return { encoder, iterator }
+}
+
+/**
+ * @private
+ * @param {Partial<Block> | undefined} block
+ * @returns {Block | null}
+ */
+function toBlock (block) {
+  if (!(block?.bytes instanceof Uint8Array) || !block.cid) {
+    return null
+  }
+  const cid = CID.asCID(block.cid)
+  return cid && { cid, bytes: block.bytes }
+}
+
+/**
+ * @private
+ * @param {any} source
+ * @returns {source is Iterable<Block> | AsyncIterable<Block>}
+ */
+function isIterable (source) {
+  return typeof source?.[Symbol.iterator] === 'function' || typeof source?.[Symbol.asyncIterator] === 'function'
+}
+
+/**
+ * Route a write-path rejection to the encoder's output. The attached handler
+ * also marks the rejection as handled, so an unawaited write can't crash the
+ * process.
+ *
+ * @private
+ * @param {CarEncoder} encoder
+ * @param {Promise<void>} promise
+ * @returns {Promise<void>}
+ */
+function guard (encoder, promise) {
+  promise.catch((err) => encoder.error(err instanceof Error ? err : new Error(String(err))))
+  return promise
 }
 
 /**

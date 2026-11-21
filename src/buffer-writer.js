@@ -43,7 +43,7 @@ class CarBufferWriter {
 
   /**
    * Add a root to this writer, to be used to create a header when the CAR is
-   * finalized with {@link CarBufferWriter.close `close()`}
+   * finalized with {@link CarBufferWriter#close `close()`}
    *
    * @param {CID} root
    * @param {{resize?:boolean}} [options]
