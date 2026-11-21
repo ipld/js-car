@@ -1,4 +1,5 @@
 import varint from 'varint'
+import { assertDigestSize } from './limits.js'
 
 export const CIDV0_BYTES = {
   SHA2_256: 0x12,
@@ -58,7 +59,8 @@ export function decodeV2Header (bytes) {
 }
 
 /**
- * Checks the length of the multihash to be read afterwards
+ * Returns the total byte length of the multihash to be read afterwards, throwing
+ * if its declared digest length exceeds the allocation bound.
  *
  * ```js
  * // needs bytes to be read first
@@ -66,6 +68,7 @@ export function decodeV2Header (bytes) {
  * ```
  *
  * @param {Uint8Array} bytes
+ * @returns {number}
  */
 export function getMultihashLength (bytes) {
   // | code | length | .... |
@@ -74,9 +77,8 @@ export function getMultihashLength (bytes) {
 
   varint.decode(bytes) // code
   const codeLength = /** @type {number} */(varint.decode.bytes)
-  const length = varint.decode(bytes.subarray(varint.decode.bytes))
+  const digestLength = varint.decode(bytes.subarray(codeLength))
   const lengthLength = /** @type {number} */(varint.decode.bytes)
-  const mhLength = codeLength + lengthLength + length
-
-  return mhLength
+  assertDigestSize(digestLength)
+  return codeLength + lengthLength + digestLength
 }

@@ -133,12 +133,13 @@ export class CarWriter {
    * @static
    * @memberof CarWriter
    * @param {CID[] | CID | void} roots
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {WriterChannel} The channel takes the form of
    * `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
    */
-  static create (roots) {
+  static create (roots, options) {
     roots = toRoots(roots)
-    const { encoder, iterator } = encodeWriter()
+    const { encoder, iterator } = encodeWriter(options)
     const writer = new CarWriter(roots, encoder)
     const out = new CarWriterOut(iterator)
     return { writer, out }
@@ -155,11 +156,12 @@ export class CarWriter {
    * @async
    * @static
    * @memberof CarWriter
+   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
    * @returns {WriterChannel} The channel takes the form of
    * `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
    */
-  static createAppender () {
-    const { encoder, iterator } = encodeWriter()
+  static createAppender (options) {
+    const { encoder, iterator } = encodeWriter(options)
     encoder.setRoots = () => Promise.resolve()
     const writer = new CarWriter([], encoder)
     const out = new CarWriterOut(iterator)
@@ -222,11 +224,14 @@ export class CarWriterOut {
   }
 }
 
-function encodeWriter () {
+/**
+ * @param {import('./api.js').CarCodecOptions} [options]
+ */
+function encodeWriter (options) {
   /** @type {IteratorChannel} */
   const iw = iteratorChannel()
   const { writer, iterator } = iw
-  const encoder = createEncoder(writer)
+  const encoder = createEncoder(writer, options)
   return { encoder, iterator }
 }
 

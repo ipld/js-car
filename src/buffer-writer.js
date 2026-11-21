@@ -2,6 +2,7 @@ import * as CBOR from '@ipld/dag-cbor'
 import { Token, Type } from 'cborg'
 import { tokensToLength } from 'cborg/length'
 import varint from 'varint'
+import { assertDigestSize, assertHeaderSize, assertSectionSize, resolveLimits } from './limits.js'
 
 /**
  * @typedef {import('./api.js').CID} CID
@@ -22,8 +23,9 @@ class CarBufferWriter {
   /**
    * @param {Uint8Array} bytes
    * @param {number} headerSize
+   * @param {import('./limits.js').CarLimits} limits
    */
-  constructor (bytes, headerSize) {
+  constructor (bytes, headerSize, limits) {
     /** @readonly */
     this.bytes = bytes
     this.byteOffset = headerSize
@@ -34,6 +36,9 @@ class CarBufferWriter {
      */
     this.roots = []
     this.headerSize = headerSize
+
+    /** @readonly */
+    this.limits = limits
   }
 
   /**
@@ -123,6 +128,8 @@ export const blockLength = ({ cid, bytes }) => {
  */
 export const addBlock = (writer, { cid, bytes }) => {
   const byteLength = cid.bytes.byteLength + bytes.byteLength
+  assertSectionSize(byteLength, writer.limits.maxAllowedSectionSize)
+  assertDigestSize(cid.multihash.size)
   const size = varint.encode(byteLength)
   if (writer.byteOffset + size.length + byteLength > writer.bytes.byteLength) {
     throw new RangeError('Buffer has no capacity for this block')
@@ -143,6 +150,7 @@ export const close = (writer, options = {}) => {
   const { roots, bytes, byteOffset, headerSize } = writer
 
   const headerBytes = CBOR.encode({ version: 1, roots })
+  assertHeaderSize(headerBytes.length, writer.limits.maxAllowedHeaderSize)
   const varintBytes = varint.encode(headerBytes.length)
 
   const size = varintBytes.length + headerBytes.byteLength
@@ -266,6 +274,8 @@ export const estimateHeaderLength = (rootCount, rootByteLength = 36) =>
  * @param {number} [options.byteOffset]
  * @param {number} [options.byteLength]
  * @param {number} [options.headerSize]
+ * @param {number} [options.maxAllowedHeaderSize]
+ * @param {number} [options.maxAllowedSectionSize]
  * @returns {CarBufferWriter}
  */
 export const createWriter = (buffer, options = {}) => {
@@ -277,7 +287,7 @@ export const createWriter = (buffer, options = {}) => {
   } = options
   const bytes = new Uint8Array(buffer, byteOffset, byteLength)
 
-  const writer = new CarBufferWriter(bytes, headerSize)
+  const writer = new CarBufferWriter(bytes, headerSize, resolveLimits(options))
   for (const root of roots) {
     writer.addRoot(root)
   }

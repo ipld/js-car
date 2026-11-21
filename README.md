@@ -21,6 +21,7 @@ See also:
 
 - [Example](#example)
 - [Usage](#usage)
+- [Size Limits](#size-limits)
 - [API](#api)
 - [License](#license)
 
@@ -213,6 +214,35 @@ API to convert the `out` `AsyncIterable` to a standard Node.js stream, or it can
 be directly fed to a
 [`stream.pipeline()`](https://nodejs.org/api/stream.html#stream_stream_pipeline_source_transforms_destination_callback).
 
+## Size Limits
+
+Decoding and encoding are bounded by two caps, on by default and matching
+[go-car](https://github.com/ipld/go-car):
+
+| Option | Bounds | Default |
+| --- | --- | --- |
+| `maxAllowedHeaderSize` | the CAR header | `32 << 20` (32 MiB) |
+| `maxAllowedSectionSize` | each section: a CID plus its block, combined | `8 << 20` (8 MiB) |
+
+Pass them in an options object to any `fromBytes()`, `fromIterable()`,
+`CarIndexedReader.fromFile()`, `CarWriter.create()`, `CarWriter.createAppender()`
+or `CarBufferWriter.createWriter()`. Use the same options on both ends and a CAR
+that encodes will also decode.
+
+Each cap is compared against the varint-declared length, so a decoder rejects an
+oversized header or section from its length prefix, before reading the body. An
+encoder rejects before writing any of it. Both throw a `RangeError`.
+
+Since the section cap covers the CID too, the largest block under the default is
+a little under 8 MiB (8388572 bytes with a typical sha2-256 CIDv1). Identity CIDs
+count in full.
+
+Set a cap to `Infinity` to disable it. Independently of the section cap, a CID's
+multihash digest is limited to 32 MiB, as in go-cid.
+
+`CarWriter.updateRootsInBytes()` and `CarWriter.updateRootsInFile()` read the
+existing header under the default header cap.
+
 ## API
 
 ### Contents
@@ -223,8 +253,8 @@ be directly fed to a
 - [`async CarReader#get(key)`](#async-carreadergetkey)
 - [`async * CarReader#blocks()`](#async--carreaderblocks)
 - [`async * CarReader#cids()`](#async--carreadercids)
-- [`async CarReader.fromBytes(bytes)`](#async-carreaderfrombytesbytes)
-- [`async CarReader.fromIterable(asyncIterable)`](#async-carreaderfromiterableasynciterable)
+- [`async CarReader.fromBytes(bytes, options)`](#async-carreaderfrombytesbytes-options)
+- [`async CarReader.fromIterable(asyncIterable, options)`](#async-carreaderfromiterableasynciterable-options)
 - [`async CarReader.readRaw(fd, blockIndex)`](#async-carreaderreadrawfd-blockindex)
 - [`class CarIndexedReader`](#class-carindexedreader)
 - [`async CarIndexedReader#getRoots()`](#async-carindexedreadergetroots)
@@ -233,24 +263,24 @@ be directly fed to a
 - [`async * CarIndexedReader#blocks()`](#async--carindexedreaderblocks)
 - [`async * CarIndexedReader#cids()`](#async--carindexedreadercids)
 - [`async CarIndexedReader#close()`](#async-carindexedreaderclose)
-- [`async CarIndexedReader.fromFile(path)`](#async-carindexedreaderfromfilepath)
+- [`async CarIndexedReader.fromFile(path, options)`](#async-carindexedreaderfromfilepath-options)
 - [`class CarBlockIterator`](#class-carblockiterator)
 - [`async CarBlockIterator#getRoots()`](#async-carblockiteratorgetroots)
-- [`async CarBlockIterator.fromBytes(bytes)`](#async-carblockiteratorfrombytesbytes)
-- [`async CarBlockIterator.fromIterable(asyncIterable)`](#async-carblockiteratorfromiterableasynciterable)
+- [`async CarBlockIterator.fromBytes(bytes, options)`](#async-carblockiteratorfrombytesbytes-options)
+- [`async CarBlockIterator.fromIterable(asyncIterable, options)`](#async-carblockiteratorfromiterableasynciterable-options)
 - [`class CarCIDIterator`](#class-carciditerator)
 - [`async CarCIDIterator#getRoots()`](#async-carciditeratorgetroots)
-- [`async CarCIDIterator.fromBytes(bytes)`](#async-carciditeratorfrombytesbytes)
-- [`async CarCIDIterator.fromIterable(asyncIterable)`](#async-carciditeratorfromiterableasynciterable)
+- [`async CarCIDIterator.fromBytes(bytes, options)`](#async-carciditeratorfrombytesbytes-options)
+- [`async CarCIDIterator.fromIterable(asyncIterable, options)`](#async-carciditeratorfromiterableasynciterable-options)
 - [`class CarIndexer`](#class-carindexer)
 - [`async CarIndexer#getRoots()`](#async-carindexergetroots)
-- [`async CarIndexer.fromBytes(bytes)`](#async-carindexerfrombytesbytes)
-- [`async CarIndexer.fromIterable(asyncIterable)`](#async-carindexerfromiterableasynciterable)
+- [`async CarIndexer.fromBytes(bytes, options)`](#async-carindexerfrombytesbytes-options)
+- [`async CarIndexer.fromIterable(asyncIterable, options)`](#async-carindexerfromiterableasynciterable-options)
 - [`class CarWriter`](#class-carwriter)
 - [`async CarWriter#put(block)`](#async-carwriterputblock)
 - [`async CarWriter#close()`](#async-carwriterclose)
-- [`async CarWriter.create(roots)`](#async-carwritercreateroots)
-- [`async CarWriter.createAppender()`](#async-carwritercreateappender)
+- [`async CarWriter.create(roots, options)`](#async-carwritercreateroots-options)
+- [`async CarWriter.createAppender(options)`](#async-carwritercreateappenderoptions)
 - [`async CarWriter.updateRootsInBytes(bytes, roots)`](#async-carwriterupdaterootsinbytesbytes-roots)
 - [`async CarWriter.updateRootsInFile(fd, roots)`](#async-carwriterupdaterootsinfilefd-roots)
 - [`class CarBufferWriter`](#class-carbufferwriter)
@@ -274,7 +304,7 @@ be directly fed to a
 - [`CarBufferReader#get(key)`](#carbufferreadergetkey)
 - [`CarBufferReader#blocks()`](#carbufferreaderblocks)
 - [`CarBufferReader#cids()`](#carbufferreadercids)
-- [`CarBufferReader.fromBytes(bytes)`](#carbufferreaderfrombytesbytes)
+- [`CarBufferReader.fromBytes(bytes, options)`](#carbufferreaderfrombytesbytes-options)
 - [`CarBufferReader.readRaw(fd, blockIndex)`](#carbufferreaderreadrawfd-blockindex)
 
 <a name="CarReader"></a>
@@ -354,9 +384,10 @@ the `CID`s contained within the CAR referenced by this reader.
 
 <a name="CarReader__fromBytes"></a>
 
-### `async CarReader.fromBytes(bytes)`
+### `async CarReader.fromBytes(bytes, options)`
 
 - `bytes` `(Uint8Array)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarReader>`
 
@@ -366,9 +397,10 @@ access to the data via the `CarReader` API.
 
 <a name="CarReader__fromIterable"></a>
 
-### `async CarReader.fromIterable(asyncIterable)`
+### `async CarReader.fromIterable(asyncIterable, options)`
 
 - `asyncIterable` `(AsyncIterable<Uint8Array>)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarReader>`
 
@@ -489,9 +521,10 @@ This must be called for proper resource clean-up to occur.
 
 <a name="CarIndexedReader__fromFile"></a>
 
-### `async CarIndexedReader.fromFile(path)`
+### `async CarIndexedReader.fromFile(path, options)`
 
 - `path` `(string)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarIndexedReader>`
 
@@ -544,9 +577,10 @@ zero or more `CID`s.
 
 <a name="CarBlockIterator__fromBytes"></a>
 
-### `async CarBlockIterator.fromBytes(bytes)`
+### `async CarBlockIterator.fromBytes(bytes, options)`
 
 - `bytes` `(Uint8Array)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarBlockIterator>`
 
@@ -557,9 +591,10 @@ of the CAR is parsed as the `Block`s as yielded.
 
 <a name="CarBlockIterator__fromIterable"></a>
 
-### `async CarBlockIterator.fromIterable(asyncIterable)`
+### `async CarBlockIterator.fromIterable(asyncIterable, options)`
 
 - `asyncIterable` `(AsyncIterable<Uint8Array>)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarBlockIterator>`
 
@@ -609,9 +644,10 @@ zero or more `CID`s.
 
 <a name="CarCIDIterator__fromBytes"></a>
 
-### `async CarCIDIterator.fromBytes(bytes)`
+### `async CarCIDIterator.fromBytes(bytes, options)`
 
 - `bytes` `(Uint8Array)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarCIDIterator>`
 
@@ -622,9 +658,10 @@ of the CAR is parsed as the `CID`s as yielded.
 
 <a name="CarCIDIterator__fromIterable"></a>
 
-### `async CarCIDIterator.fromIterable(asyncIterable)`
+### `async CarCIDIterator.fromIterable(asyncIterable, options)`
 
 - `asyncIterable` `(AsyncIterable<Uint8Array>)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarCIDIterator>`
 
@@ -676,9 +713,10 @@ zero or more `CID`s.
 
 <a name="CarIndexer__fromBytes"></a>
 
-### `async CarIndexer.fromBytes(bytes)`
+### `async CarIndexer.fromBytes(bytes, options)`
 
 - `bytes` `(Uint8Array)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarIndexer>`
 
@@ -688,9 +726,10 @@ iterator as it is consumed.
 
 <a name="CarIndexer__fromIterable"></a>
 
-### `async CarIndexer.fromIterable(asyncIterable)`
+### `async CarIndexer.fromIterable(asyncIterable, options)`
 
 - `asyncIterable` `(AsyncIterable<Uint8Array>)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `Promise<CarIndexer>`
 
@@ -756,9 +795,10 @@ any remaining bytes are written.
 
 <a name="CarWriter__create"></a>
 
-### `async CarWriter.create(roots)`
+### `async CarWriter.create(roots, options)`
 
 - `roots` `(CID[]|CID|void)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `WriterChannel`: The channel takes the form of
   `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
@@ -768,7 +808,9 @@ Create a new CAR writer "channel" which consists of a
 
 <a name="CarWriter__createAppender"></a>
 
-### `async CarWriter.createAppender()`
+### `async CarWriter.createAppender(options)`
+
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `WriterChannel`: The channel takes the form of
   `{ writer:CarWriter, out:AsyncIterable<Uint8Array> }`.
@@ -930,6 +972,8 @@ single-byte multihash code, such as SHA2-256 (i.e. the most common CIDv1).
   - `options.byteOffset` `(number, optional)`
   - `options.byteLength` `(number, optional)`
   - `options.headerSize` `(number, optional)`
+  - `options.maxAllowedHeaderSize` `(number, optional)`: Optional size limit; see [Size Limits](#size-limits).
+  - `options.maxAllowedSectionSize` `(number, optional)`: Optional size limit; see [Size Limits](#size-limits).
 
 - Returns: `CarBufferWriter`
 
@@ -950,6 +994,7 @@ which will have a negative impact on performance.
 
 - `reader` `(BytesReader)`
 - `strictVersion` `(number, optional)`
+- `maxAllowedHeaderSize` `(number, optional)`: Defaults to 32 MiB; see [Size Limits](#size-limits).
 
 - Returns: `Promise<(CarHeader|CarV2Header)>`
 
@@ -961,6 +1006,7 @@ of a `CarHeader` or `CarV2Header` depending on the CAR being read.
 ### `async decoder.readBlockHead(reader)`
 
 - `reader` `(BytesReader)`
+- `maxAllowedSectionSize` `(number, optional)`: Defaults to 8 MiB; see [Size Limits](#size-limits).
 
 - Returns: `Promise<BlockHeader>`
 
@@ -974,6 +1020,7 @@ or read the block binary data.
 ### `decoder.createDecoder(reader)`
 
 - `reader` `(BytesReader)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `CarDecoder`
 
@@ -1090,9 +1137,10 @@ Returns a `CID[]` of the `CID`s contained within the CAR referenced by this read
 
 <a name="CarBufferReader__fromBytes"></a>
 
-### `CarBufferReader.fromBytes(bytes)`
+### `CarBufferReader.fromBytes(bytes, options)`
 
 - `bytes` `(Uint8Array)`
+- `options` `(object, optional)`: Optional size limits; see [Size Limits](#size-limits).
 
 - Returns: `CarBufferReader`
 

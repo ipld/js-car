@@ -64,12 +64,17 @@ export interface CarBufferWriter {
   close(options?: { resize?: boolean }): Uint8Array
 }
 
-export interface CarBufferWriterOptions {
+export interface CarBufferWriterOptions extends CarCodecOptions {
   roots?: CID[] // defaults to []
   byteOffset?: number // defaults to 0
   byteLength?: number // defaults to buffer.byteLength
 
   headerSize?: number // defaults to size needed for provided roots
+}
+
+export interface CarCodecOptions {
+  maxAllowedHeaderSize?: number // defaults to 32 << 20 (32MiB), Infinity disables
+  maxAllowedSectionSize?: number // defaults to 8 << 20 (8MiB), Infinity disables
 }
 
 export interface WriterChannel {
