@@ -83,6 +83,10 @@
       "browser": "./src/buffer-reader-browser.js",
       "import": "./src/buffer-reader.js"
     },
+    "./verify": {
+      "types": "./dist/src/verify.d.ts",
+      "import": "./src/verify.js"
+    },
     "./writer": {
       "types": "./dist/src/writer.d.ts",
       "browser": "./src/writer-browser.js",
@@ -204,7 +208,7 @@
     "test:examples": "npm run test --prefix examples/",
     "dep-check": "aegir dep-check",
     "coverage": "c8 --reporter=html --reporter=text mocha test/test-*.js && npx st -d coverage -p 8888",
-    "docs": "jsdoc4readme --readme --description-only src/reader*.js src/indexed-reader.js src/iterator.js src/indexer.js src/writer*.js src/buffer-writer.js src/decoder.js src/buffer-reader*.js"
+    "docs": "jsdoc4readme --readme --description-only src/reader*.js src/indexed-reader.js src/iterator.js src/indexer.js src/writer*.js src/buffer-writer.js src/decoder.js src/buffer-reader*.js src/verify.js"
   },
   "dependencies": {
     "@ipld/dag-cbor": "^10.0.1",

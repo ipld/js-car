@@ -22,6 +22,7 @@ See also:
 - [Example](#example)
 - [Usage](#usage)
 - [Size Limits](#size-limits)
+- [Block Verification](#block-verification)
 - [API](#api)
 - [License](#license)
 
@@ -89,12 +90,8 @@ See the [examples](./examples) directory for more.
 class represents a discrete set of functionality. You should select the classes
 that make the most sense for your use-case.
 
-Please be aware that `@ipld/car` **does not validate** that block data matches
-the paired CIDs when reading a CAR. See the
-[verify-car.js](./examples/verify-car.js) example for one possible approach to
-validating blocks as they are read. Any CID verification requires that the hash
-function that was used to generate the CID be available, the CAR format does
-not restrict the allowable multihashes.
+Reading a CAR trusts that each block matches its CID unless you turn on
+[Block Verification](#block-verification).
 
 ### [`CarReader`](#CarReader)
 
@@ -253,6 +250,72 @@ multihash digest is limited to 32 MiB, as in go-cid.
 `CarWriter.updateRootsInBytes()` and `CarWriter.updateRootsInFile()` read the
 existing header under the default header cap.
 
+## Block Verification
+
+"Trustless" is a feature of content addressing: you can check that what you
+received is what you asked for, without trusting whoever gave it to you. A CAR
+pairs each CID with some bytes, and whoever built or relayed it can pair them
+wrongly. Verifying blocks as they're read moves your trust boundary to the CIDs
+themselves; a gateway, storage provider, peer or cache can serve the bytes, and
+a block that doesn't match its CID stops at the reader. Verify CARs from sources
+you don't control, especially before storing or serving their blocks.
+
+Each block is checked against its own CID. Linking those blocks back to a root
+CID you trust, the chain of trust, is the job of whatever walks the DAG, such as
+a trustless gateway client.
+
+Verification is off by default; turn it on with `verify: true` in the options
+to any reader's `fromBytes()` or `fromIterable()`, `CarBufferReader.fromBytes()`
+or `CarIndexedReader.fromFile()`. `sha2-256`, used by most IPFS content, and
+`identity` are built in, so that's usually all it takes:
+
+```js
+import { CarReader } from '@ipld/car'
+
+const reader = await CarReader.fromBytes(bytes, { verify: true })
+```
+
+For other multihashes, add their hashers:
+
+```js
+import { blake2b256 } from '@multiformats/blake2/blake2b'
+
+const reader = await CarReader.fromBytes(bytes, { verify: true, hashers: [blake2b256] })
+```
+
+| Option | Effect | Default |
+| --- | --- | --- |
+| `verify` | verify every block as it is read | `false` |
+| `hashers` | `MultihashHasher`s to add to `sha2-256` and `identity`; one with the same code replaces a built-in | `[]` |
+
+A block that doesn't match its CID fails with an `InvalidMultihashError`, and
+one whose CID uses a multihash outside the configured hashers fails with an
+`UnknownHashAlgorithmError`; add its hasher to `hashers`. Both errors are
+exported. Truncated digests are verified where the hasher supports truncation.
+
+Errors surface wherever the block is read: from `fromBytes()` or `fromIterable()`
+for `CarReader`, from `fromBytes()` for `CarBufferReader`, during iteration for
+`CarBlockIterator` and `CarCIDIterator`, and from `get()` or `blocks()` for
+`CarIndexedReader`. `CarIndexer` yields block locations rather than bytes, and
+the `readRaw()` methods of `CarReader` and `CarBufferReader` read bytes from a
+known location; check their results with `verifyBlock()`.
+
+Verification hashes every block. This is cheap with Node.js's native sha2-256,
+but in browsers each block is an asynchronous WebCrypto call, which adds up for
+CARs with many small blocks.
+
+`CarBufferReader` is synchronous, so it needs hashers that return synchronously.
+sha2-256 is synchronous in Node.js and asynchronous in browsers. The reader
+throws a `TypeError` on the first block whose hasher returns a `Promise`. In
+browsers, pass a synchronous sha2-256 in `hashers` to replace the built-in, such
+as one made with `hasher.from()` from `multiformats/hashes/hasher` and
+[`@noble/hashes`](https://github.com/paulmillr/noble-hashes).
+
+`verifyBlock(block[, options])` runs the same check on a single block from any
+source, using the `hashers` option.
+
+**A future major release may turn verification on by default.**
+
 ## API
 
 ### Contents
@@ -318,6 +381,7 @@ existing header under the default header cap.
  * [`CarBufferReader#cids()`](#CarBufferReader_cids)
  * [`CarBufferReader.fromBytes(bytes[, options])`](#CarBufferReader__fromBytes)
  * [`CarBufferReader.readRaw(fd, blockIndex)`](#CarBufferReader__readRaw)
+ * [`verifyBlock(block[, options])`](#verifyBlock__block______options____)
 
 <a name="CarReader"></a>
 ### `class CarReader`
@@ -392,7 +456,7 @@ the `CID`s contained within the CAR referenced by this reader.
 ### `async CarReader.fromBytes(bytes[, options])`
 
 * `bytes` `(Uint8Array)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `Promise<CarReader>`
 
@@ -404,7 +468,7 @@ access to the data via the `CarReader` API.
 ### `async CarReader.fromIterable(asyncIterable[, options])`
 
 * `asyncIterable` `(AsyncIterable<Uint8Array>)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `Promise<CarReader>`
 
@@ -519,7 +583,7 @@ This must be called for proper resource clean-up to occur.
 ### `async CarIndexedReader.fromFile(path[, options])`
 
 * `path` `(string)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `Promise<CarIndexedReader>`
 
@@ -531,6 +595,9 @@ location.
 
 For large archives, the initial indexing may take some time. The returned
 `Promise` will resolve only after this is complete.
+
+With `verify`, blocks are verified as they are read, by `get()` and
+`blocks()`, rather than during indexing.
 
 <a name="CarBlockIterator"></a>
 ### `class CarBlockIterator`
@@ -572,7 +639,7 @@ zero or more `CID`s.
 ### `async CarBlockIterator.fromBytes(bytes[, options])`
 
 * `bytes` `(Uint8Array)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `Promise<CarBlockIterator>`
 
@@ -585,7 +652,7 @@ of the CAR is parsed as the `Block`s as yielded.
 ### `async CarBlockIterator.fromIterable(asyncIterable[, options])`
 
 * `asyncIterable` `(AsyncIterable<Uint8Array>)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `Promise<CarBlockIterator>`
 
@@ -635,7 +702,7 @@ zero or more `CID`s.
 ### `async CarCIDIterator.fromBytes(bytes[, options])`
 
 * `bytes` `(Uint8Array)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `Promise<CarCIDIterator>`
 
@@ -648,7 +715,7 @@ of the CAR is parsed as the `CID`s as yielded.
 ### `async CarCIDIterator.fromIterable(asyncIterable[, options])`
 
 * `asyncIterable` `(AsyncIterable<Uint8Array>)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `Promise<CarCIDIterator>`
 
@@ -1011,7 +1078,9 @@ or read the block binary data.
 ### `decoder.createDecoder(reader)`
 
 * `reader` `(BytesReader)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block
+  verification; see [Size Limits](#size-limits) and
+  [Block Verification](#block-verification). Only `blocks()` verifies.
 
 * Returns: `CarDecoder`
 
@@ -1121,7 +1190,7 @@ Returns a `CID[]` of the `CID`s contained within the CAR referenced by this read
 ### `CarBufferReader.fromBytes(bytes[, options])`
 
 * `bytes` `(Uint8Array)`
-* `options` `(CarCodecOptions, optional)`: Optional size limits; see [Size Limits](#size-limits).
+* `options` `(CarDecodeOptions, optional)`: Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
 
 * Returns: `CarBufferReader`
 
@@ -1147,6 +1216,21 @@ This function can be used in connection with [`CarIndexer`](#CarIndexer) which e
 the `BlockIndex` objects that are required by this function.
 
 The user is responsible for opening and closing the file used in this call.
+
+<a name="verifyBlock__block______options____"></a>
+### `verifyBlock(block[, options])`
+
+* `block` `(Block)`
+* `options` `(Pick<CarVerifyOptions, 'hashers'>, optional)`: See [Block Verification](#block-verification).
+
+* Returns: `void|Promise<void>`
+
+Check that a block's bytes hash to the multihash in its CID. sha2-256 and
+identity are supported by default; pass `hashers` for others. Truncated
+digests are supported where the hasher supports them.
+
+Returns a `Promise` only when the hasher is asynchronous; `await` the result
+to handle both.
 
 ## License
 

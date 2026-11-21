@@ -142,7 +142,7 @@ export class CarReader {
    * @static
    * @memberof CarReader
    * @param {Uint8Array} bytes
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {Promise<CarReader>}
    */
   static async fromBytes (bytes, options) {
@@ -166,7 +166,7 @@ export class CarReader {
    * @static
    * @memberof CarReader
    * @param {AsyncIterable<Uint8Array>} asyncIterable
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {Promise<CarReader>}
    */
   static async fromIterable (asyncIterable, options) {
@@ -180,7 +180,7 @@ export class CarReader {
 /**
  * @private
  * @param {BytesReader} reader
- * @param {import('./api.js').CarCodecOptions} [options]
+ * @param {import('./api.js').CarDecodeOptions} [options]
  * @returns {Promise<CarReader>}
  */
 export async function decodeReaderComplete (reader, options) {

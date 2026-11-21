@@ -1,6 +1,7 @@
 import { decode as decodeDagCbor } from '@ipld/dag-cbor'
 import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
+import { createVerifier } from './block-verifier.js'
 import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
 import { CarV1HeaderOrV2Pragma } from './header-validator.js'
 import { DEFAULT_MAX_ALLOWED_HEADER_SIZE, DEFAULT_MAX_ALLOWED_SECTION_SIZE, assertHeaderSize, assertSectionSize, resolveLimits } from './limits.js'
@@ -14,7 +15,7 @@ import { DEFAULT_MAX_ALLOWED_HEADER_SIZE, DEFAULT_MAX_ALLOWED_SECTION_SIZE, asse
  * @typedef {import('./coding.js').CarV2Header} CarV2Header
  * @typedef {import('./coding.js').CarV2FixedHeader} CarV2FixedHeader
  * @typedef {import('./coding.js').CarDecoder} CarDecoder
- * @typedef {import('./api.js').CarCodecOptions} CarCodecOptions
+ * @typedef {import('./api.js').CarDecodeOptions} CarDecodeOptions
  */
 
 /**
@@ -146,11 +147,14 @@ async function readBlockIndex (reader, maxAllowedSectionSize) {
  *
  * @name decoder.createDecoder(reader)
  * @param {BytesReader} reader
- * @param {CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+ * @param {CarDecodeOptions} [options] - Optional size limits and block
+ * verification; see [Size Limits](#size-limits) and
+ * [Block Verification](#block-verification). Only `blocks()` verifies.
  * @returns {CarDecoder}
  */
 export function createDecoder (reader, options) {
   const { maxAllowedHeaderSize, maxAllowedSectionSize } = resolveLimits(options)
+  const verify = createVerifier(options)
   const headerPromise = (async () => {
     const header = await readHeader(reader, undefined, maxAllowedHeaderSize)
     if (header.version === 2) {
@@ -166,7 +170,11 @@ export function createDecoder (reader, options) {
     async * blocks () {
       await headerPromise
       while ((await reader.upTo(8)).length > 0) {
-        yield await readBlock(reader, maxAllowedSectionSize)
+        const block = await readBlock(reader, maxAllowedSectionSize)
+        if (verify) {
+          await verify(block)
+        }
+        yield block
       }
     },
 

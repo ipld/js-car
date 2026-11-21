@@ -1,6 +1,7 @@
 import { decode as decodeDagCbor } from '@ipld/dag-cbor'
 import { CID } from 'multiformats/cid'
 import * as Digest from 'multiformats/hashes/digest'
+import { createVerifier, verifySync } from './block-verifier.js'
 import { CIDV0_BYTES, decodeV2Header, decodeVarint, getMultihashLength, V2_HEADER_LENGTH } from './decoder-common.js'
 import { CarV1HeaderOrV2Pragma } from './header-validator.js'
 import { DEFAULT_MAX_ALLOWED_HEADER_SIZE, DEFAULT_MAX_ALLOWED_SECTION_SIZE, assertHeaderSize, assertSectionSize, resolveLimits } from './limits.js'
@@ -13,7 +14,7 @@ import { DEFAULT_MAX_ALLOWED_HEADER_SIZE, DEFAULT_MAX_ALLOWED_SECTION_SIZE, asse
  * @typedef {import('./coding.js').CarHeader} CarHeader
  * @typedef {import('./coding.js').CarV2Header} CarV2Header
  * @typedef {import('./coding.js').CarV2FixedHeader} CarV2FixedHeader
- * @typedef {import('./api.js').CarCodecOptions} CarCodecOptions
+ * @typedef {import('./api.js').CarDecodeOptions} CarDecodeOptions
  */
 
 /**
@@ -120,11 +121,12 @@ export function readBlockHead (reader, maxAllowedSectionSize = DEFAULT_MAX_ALLOW
  * Returns Car header and blocks from a Uint8Array
  *
  * @param {Uint8Array} bytes
- * @param {CarCodecOptions} [options]
+ * @param {CarDecodeOptions} [options]
  * @returns {{ header : CarHeader | CarV2Header , blocks: Block[]}}
  */
 export function fromBytes (bytes, options) {
   const { maxAllowedHeaderSize, maxAllowedSectionSize } = resolveLimits(options)
+  const verify = createVerifier(options)
   let reader = bytesReader(bytes)
   const header = readHeader(reader, undefined, maxAllowedHeaderSize)
   if (header.version === 2) {
@@ -135,8 +137,11 @@ export function fromBytes (bytes, options) {
   const blocks = []
   while (reader.upTo(8).length > 0) {
     const { cid, blockLength } = readBlockHead(reader, maxAllowedSectionSize)
-
-    blocks.push({ cid, bytes: reader.exactly(blockLength, true) })
+    const block = { cid, bytes: reader.exactly(blockLength, true) }
+    if (verify) {
+      verifySync(verify, block)
+    }
+    blocks.push(block)
   }
 
   return {

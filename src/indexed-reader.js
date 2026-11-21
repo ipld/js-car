@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { Readable } from 'stream'
 import { CID } from 'multiformats/cid'
+import { createVerifier } from './block-verifier.js'
 import { CarIndexer } from './indexer.js'
 import { CarReader as NodeCarReader } from './reader.js'
 
@@ -11,6 +12,7 @@ import { CarReader as NodeCarReader } from './reader.js'
  * @typedef {import('./api.js').CarReader} CarReaderIface
  * @typedef {import('./reader-browser.js').CarReader} CarReader
  * @typedef {{ blockLength:number, blockOffset:number }} RawLocation
+ * @typedef {import('./block-verifier.js').Verifier} Verifier
  */
 
 /**
@@ -51,13 +53,15 @@ export class CarIndexedReader {
    * @param {CID[]} roots
    * @param {Map<string, RawLocation>} index
    * @param {string[]} order
+   * @param {Verifier} [verify]
    */
-  constructor (version, path, roots, index, order) {
+  constructor (version, path, roots, index, order, verify) {
     this._version = version
     this._path = path
     this._roots = roots
     this._index = index
     this._order = order
+    this._verify = verify
     this._fd = null
   }
 
@@ -117,7 +121,11 @@ export class CarIndexedReader {
       blockLength: blockIndex.blockLength,
       blockOffset: blockIndex.blockOffset
     }
-    return NodeCarReader.readRaw(this._fd, readIndex)
+    const block = await NodeCarReader.readRaw(this._fd, readIndex)
+    if (this._verify) {
+      await this._verify(block)
+    }
+    return block
   }
 
   /**
@@ -183,17 +191,21 @@ export class CarIndexedReader {
    * For large archives, the initial indexing may take some time. The returned
    * `Promise` will resolve only after this is complete.
    *
+   * With `verify`, blocks are verified as they are read, by `get()` and
+   * `blocks()`, rather than during indexing.
+   *
    * @async
    * @static
    * @memberof CarIndexedReader
    * @param {string} path
-   * @param {import('./api.js').CarCodecOptions} [options] - Optional size limits; see [Size Limits](#size-limits).
+   * @param {import('./api.js').CarDecodeOptions} [options] - Optional size limits and block verification; see [Size Limits](#size-limits) and [Block Verification](#block-verification).
    * @returns {Promise<CarIndexedReader>}
    */
   static async fromFile (path, options) {
     if (typeof path !== 'string') {
       throw new TypeError('fromFile() requires a file path string')
     }
+    const verify = createVerifier(options)
 
     const iterable = await CarIndexer.fromIterable(Readable.from(fs.createReadStream(path)), options)
     /** @type {Map<string, RawLocation>} */
@@ -205,7 +217,7 @@ export class CarIndexedReader {
       index.set(cidStr, { blockLength, blockOffset })
       order.push(cidStr)
     }
-    return new CarIndexedReader(iterable.version, path, await iterable.getRoots(), index, order)
+    return new CarIndexedReader(iterable.version, path, await iterable.getRoots(), index, order, verify)
   }
 }
 

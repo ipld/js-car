@@ -4,6 +4,7 @@ import { CarIndexedReader } from './indexed-reader-browser.js'
 import { CarIndexer } from './indexer.js'
 import { CarBlockIterator, CarCIDIterator } from './iterator.js'
 import { CarReader } from './reader-browser.js'
+import { verifyBlock, InvalidMultihashError, UnknownHashAlgorithmError } from './verify.js'
 import { CarWriter } from './writer-browser.js'
 
 // @see https://www.iana.org/assignments/media-types/application/vnd.ipld.car
@@ -20,5 +21,8 @@ export {
   CarWriter,
   CarIndexedReader,
   CarBufferReader,
-  CarBufferWriter
+  CarBufferWriter,
+  verifyBlock,
+  InvalidMultihashError,
+  UnknownHashAlgorithmError
 }

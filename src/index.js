@@ -7,6 +7,7 @@ import { CarReader } from './reader.js'
 import { CarWriter } from './writer.js'
 
 export { contentType, code } from './index-browser.js'
+export { verifyBlock, InvalidMultihashError, UnknownHashAlgorithmError } from './verify.js'
 
 export {
   CarReader,
